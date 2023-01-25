@@ -1,0 +1,12 @@
+.box {
+    border: 3px solid black;
+    margin-left: 25px;
+    margin-top: 25px;
+    margin-right: 25px;
+    margin-bottom: 25px;
+    padding: 2ex;
+    width: 550px;
+}
+h1 {
+    font-size:50px
+}
