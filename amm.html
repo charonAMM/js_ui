@@ -5,78 +5,117 @@
     <meta charset="UTF-8" />
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>AMM</title>
+    <title>charon</title>
     <link rel="stylesheet" href="main.css" />
   </head>
   <body>
     <nav>
-        <a href="./index.html">Home</a>
-        <a href="./amm.html">AMM</a>
-        <a href="./auction.html">Auction</a>
-        <a href="./cit.html">CIT</a>
+        <ul>  
+          <li><a href="./index.html">home</a></li>
+          <li><a href="./amm.html">amm</a></li>
+          <li><a href="./auction.html">auction</a></li>
+          <li><a href="./cit.html">cit</a></li>
+      </ul>
       </nav>
-    <div class="box">
-      <section>
-        <p>Connect your wallet:</p>
-        <button id="connectButton" onclick="App.init()" disabled>Connect</button>
-        <p>Connected address:</p>
-        <p id="connectedAddress"></p>
-        <p id="tokenBalance"></p>
-      </section>
       <header>
-        <h1>AMM</h1>
+        <h3>amm</h3>
       </header>
-      <section>
-        <p>Commit yourself.</p>
-      </section>
-      <section>
-        <p>Contest contract address:</p>
-        <p id="contestAddress"></p>
-      </section>
-      <section>
-        <h2>Register</h2>
-        <p>Contest start time:</p>
-        <p id="contestStartTime"></p>
-        <p>Hours left to register:</p>
-        <p id="timeLeftToRegister"></p>
-        <p>To register, you must provide your twitter handle and pay the wager amount plus the protocol fee.</p>
-        <p>Wager amount:</p>
-        <p id="wager"></p>
-        <p>Protocol fee:</p>
-        <p id="protocolFee"></p>
-        <p>Approve the token:</p>
-        <button id="approve" onclick="App.approve()">Approve</button>
-        <p>Enter your twitter handle:</p>
-        <input type="text" id="twitterHandle" />
-        <button id="register" onclick="App.register()">Register</button>
-      </section>
-      <section>
-        <h2>Contest Live</h2>
-        <p>Contest end time:</p>
-        <p id="contestEndTime"></p>
-        <p>Days left in contest:</p>
-        <p id="timeLeftInContest"></p>
-        <p>Report a contestant who has lost their streak to the Tellor oracle. Then, twelve hours after the report, enter the oracle index to kick the contestant out of the contest.</p>
-        <p>Enter the oracle index:</p>
-        <input type="text" id="oracleIndex" />
-        <button id="claimLoserButton" onclick="App.claimLoser()" disabled>Claim Loser</button>
-      </section>
-      <section>
-        <h2>Contest Over</h2>
-        <p>Claim your funds:</p>
-        <button id="claimFundsButton" onclick="App.claimFunds()" disabled>Claim Funds</button>
-        <p id="claimFundsResult"></p>
-      </section>
-      <footer>
-        <p>
-          <a href="https://github.com/tkernell/twitter-contest">Contract code</a>
-        </p>
-      </footer>
+    <div class="box"> 
+      <div class="row">
+        <div class="column">
+            <p>ethereum</p>
+            <table>
+            <tr>
+                <td>eth</td>
+                <td>0.01</td>
+            </tr>
+            <tr>
+                <td>chd</td>
+                <td>1.1</td>
+            </tr>
+            <tr>
+                <td>lp tokens</td>
+                <td>1.99</td>
+            </tr>
+            </table>
+            <p>gnosis</p>
+            <table>
+            <tr>
+                <td>eth</td>
+                <td>0.01</td>
+            </tr>
+            <tr>
+                <td>chd</td>
+                <td>1.1</td>
+            </tr>
+            <tr>
+                <td>lp tokens</td>
+                <td>1.99</td>
+            </tr>
+            </table>
+
+            <p>polygon</p>
+            <table>
+            <tr>
+                <td>eth</td>
+                <td>0.01</td>
+            </tr>
+            <tr>
+                <td>chd</td>
+                <td>1.1</td>
+            </tr>
+            <tr>
+                <td>lp tokens</td>
+                <td>1.99</td>
+            </tr>
+            </table>
+        </div>
+        <div class="column">
+            <p>swap</p>
+            <table>
+            <tr>
+                <td>0.0</td>
+                <td>eth</td>
+            </tr>
+            <tr>
+                <td>0.0</td>
+                <td>chd</td>
+            </tr>
+            <tr>
+                <td><button id="connectButton" onclick="App.init()" disabled>swap</button></td>
+            </tr>
+            </table>
+            <p>swap</p>
+            <table>
+                <tr>
+                    <td>0.0</td>
+                    <td>xdai</td>
+                </tr>
+                <tr>
+                    <td>0.0</td>
+                    <td>chd</td>
+                </tr>
+                <tr>
+                    <td><button id="connectButton" onclick="App.init()" disabled>swap</button></td>
+                </tr>
+            </table>
+
+            <p>swap</p>
+            <table>
+                <tr>
+                    <td>0.0</td>
+                    <td>matic</td>
+                </tr>
+                <tr>
+                    <td>0.0</td>
+                    <td>chd</td>
+                </tr>
+                <tr>
+                    <td><button id="connectButton" onclick="App.init()" disabled>swap</button></td>
+                </tr>
+            </table>
+        </div>
     </div>
-    <!-- <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script> -->
-    <script src="./extensions/jquery.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/web3/1.7.3/web3.min.js"></script>
-    <script src="./extensions/web3.min.js"></script>
-    <script src="app.js"></script>
+    </div>
   </body>
 </html>

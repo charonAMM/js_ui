@@ -1,12 +1,38 @@
-.box {
-    border: 3px solid black;
+/* .box {
+    border: none;
     margin-left: 25px;
     margin-top: 25px;
     margin-right: 25px;
     margin-bottom: 25px;
     padding: 2ex;
     width: 550px;
-}
+} */
 h1 {
     font-size:50px
 }
+ul{  
+  padding:0;  
+  background:black;  
+  font-family:Arial, sans serif;  
+  font-size:12px;  
+}
+
+li{  
+  display:inline-block;
+}
+
+a{  
+  display:block;  
+  padding:8px;  
+  color:white;  
+  text-decoration:none;
+}
+
+  .row {
+    display: flex;
+  }
+  
+  .column {
+    flex: 50%;
+    border:1px solid black;
+  }
