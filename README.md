@@ -1,24 +1,25 @@
-[![Tests](https://github.com/charonAMM/feeContract/actions/workflows/tests.yml/badge.svg)](https://github.com/charonAMM/feeContract/actions/workflows/tests.ymli)
+## charon local ui
 
-## charon fee contract
-
-<b>Charon</b> is a privacy enabled cross-chain automated market maker (PECCAMM). This is the fee contract designed to distribute fees garnered from the charon system (amm trading as well as CIT auctions).  It takes both CHD and baseToken (different on each chain) fees and distributes them to four parties based on preset percentages.  These parties are the charon LP's, CIT holders, future chd minters (user rewards), and the oracle (for payment).
-
-For more information, check out the [tokenomics whitepaper](https://github.com/charonAMM/writings/blob/main/Charon%20Tokenomics.pdf)
+This UI allows you to interact with charon contracts in a completely local fashion (no web browser).  In order to gain complete privacy, be sure to run your own nodes.
 
 ## setting up and testing
 
-requirements
+requirements / dependencies
+  - node
+  - npm
 
 ```
-node
-npm
+git clone https://www.github.com/charonAMM/js_ui
+cd js_ui
 ```
+
 
 install electron 
 ```
 npm install -g electron-prebuilt
 ```
+
+create .env file in folder with node URL's and private key.  Follow the .env.example
 
 ```sh
 npm i
