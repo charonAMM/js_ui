@@ -7,12 +7,24 @@
     padding: 2ex;
     width: 550px;
 } */
+
+nav{
+  background:black;
+}
+.myIndex{
+  text-align: center;
+  width: 100%;
+  border: 10px, black;
+}
+.myNav{
+  margin: auto;
+  width: 90%
+}
 h1 {
     font-size:50px
 }
 ul{  
   padding:0;  
-  background:black;  
   font-family:Arial, sans serif;  
   font-size:12px;  
 }
@@ -23,7 +35,7 @@ li{
 
 a{  
   display:block;  
-  padding:8px;  
+  padding:5px;  
   color:white;  
   text-decoration:none;
 }
