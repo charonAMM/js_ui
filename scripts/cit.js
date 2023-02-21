@@ -59,25 +59,25 @@ function setPublicBalances(){
  }
 
  function setFeesPaid(_feePeriods, _type){
-     console.log("got to here")
+     console.log("got to here", _type, _feePeriods)
     if(_feePeriods.length > 0){
-        if(_type = 1){
+        if(_type == 1){
             ethCFC.getFeePeriodByTimestamp(_feePeriods[_feePeriods.length - 1]).then((res) => ethBals = res)
         }
-        else if(_type = 2){
+        else if(_type == 2){
             gnoCFC.getFeePeriodByTimestamp(_feePeriods[_feePeriods.length - 1]).then((res) => gnoBals = res)
         }
-        else if(_type = 3){
+        else if(_type == 3){
             polCFC.getFeePeriodByTimestamp(_feePeriods[_feePeriods.length - 1]).then((res) => polBals = res)
         }
     }else{
-        if(_type = 1){
+        if(_type == 1){
             ethBals = {chdRewardsPerToken:0,baseTokenRewardsPerToken:0}
         }
-        else if(_type = 2){
+        else if(_type == 2){
             gnoBals = {chdRewardsPerToken:0,baseTokenRewardsPerToken:0}
         }
-        else if(_type = 3){
+        else if(_type == 3){
             polBals = {chdRewardsPerToken:0,baseTokenRewardsPerToken:0}
         }
     }
@@ -89,7 +89,7 @@ function setPublicBalances(){
  }
 
  function setHTML(){
-            console.log(ethBals)
+            console.log(gnoBals)
             $('#ethCHD').text(Math.round(ethers.utils.formatEther(ethBals.chdRewardsPerToken * citBal)*100)/100)
             $('#ethBal').text(Math.round(ethers.utils.formatEther(ethBals.baseTokenRewardsPerToken * citBal)*100)/100)
             $('#gnoCHD').text(Math.round(ethers.utils.formatEther(gnoBals.chdRewardsPerToken * citBal)*100)/100)
