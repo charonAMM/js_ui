@@ -1,0 +1,100 @@
+
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>charon</title>
+    <link rel="stylesheet" href="../main.css" />
+  </head>
+  <body>
+    <nav>
+        <div class="myNav">
+        <ul>  
+          <li><a href="./index.html">home</a></li>
+          <li><a href="./amm.html">trade</a></li>
+          <li><a href="./auction.html">auction</a></li>
+          <li><a href="./cit.html">cit</a></li>
+      </ul>
+      </div>
+      </nav>
+
+    <div class="ammbox">
+    <p id ="myAddress" style="font-size: small"></p>
+      <div class="row">
+        <div class="column">
+            <p>ethereum</p>
+            <table>
+            <tr>
+                <td>eth</td>
+                <td id="ethBal"> ... </td>
+            </tr>
+            <tr>
+                <td>chd</td>
+                <td id="chdETHBal"> ... </td>
+            </tr>
+            <tr>
+                <td>lp tokens</td>
+                <td id="lpETHBal"> ... </td>
+            </tr>
+            </table>
+            <p>gnosis</p>
+            <table>
+            <tr>
+                <td>xDai</td>
+                <td id = "xDAIBal"> ...</td>
+            </tr>
+            <tr>
+                <td>chd</td>
+                <td id="chdGNOBal"> ... </td>
+            </tr>
+            <tr>
+                <td>lp tokens</td>
+                <td id="lpGNOBal"> ... </td>
+            </tr>
+            </table>
+
+            <p>polygon</p>
+            <table>
+            <tr>
+                <td>matic</td>
+                <td id="maticBal"> ... </td>
+            </tr>
+            <tr>
+                <td>chd</td>
+                <td id = "chdPOLBal"> ... </td>
+            </tr>
+            <tr>
+                <td>lp tokens</td>
+                <td id="lpPOLBal"> ... </td>
+            </tr>
+            </table>
+        </div>
+        <div class="column">
+            <div class = "swapDiv">
+                <div class ="inner">
+                <table>
+                <tr>
+                    <td><select name="currency" id="swapCurrency">
+                        <option value="ETH">ETH</option>
+                        <option value="xDAI">xDAI</option>
+                        <option value="MATIC">MATIC</option>
+                    </select>
+                    </td>
+                    <td> 0.0 </td>
+                </tr>
+                <tr>
+                    <td>chd</td>
+                    <td>0.0</td>
+                </tr>
+                </table>
+                <td><button id="connectButton" disabled>swap</button></td>
+                </div>
+                </div>
+        </div>
+    </div>
+    </div>
+    <script src = "../scripts/amm.js" ></script>
+  </body>
+</html>

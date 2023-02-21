@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>charon</title>
+    <link rel="stylesheet" href="../main.css" />
+  </head>
+  <body>
+    <nav>
+      <div class="myNav">
+      <ul>  
+        <li><a href="./index.html">home</a></li>
+        <li><a href="./amm.html">trade</a></li>
+        <li><a href="./auction.html">auction</a></li>
+        <li><a href="./cit.html">cit</a></li>
+    </ul>
+    </div>
+    </nav>
+    <div class="box">
+      <div class="center">
+      <header>
+        <h3>cit auction portal</h3>
+      </header>
+      <p id ="myAddress" style="font-size: small"></p>
+      <section>
+        <p class="line">top bidder :  <p class="line" id="topBidder"> ... </p></p>
+        <p class="line">top bid :   <p class="line" id="topBid"> ... </p>  eth</p>
+        <p class="line">time left :  <p class="line" id="timeLeft"> ... </p></p>
+      </section>
+      <section>
+        <button id="claimFundsButton" onclick="App.claimFunds()" disabled>bid</button>
+      </section>
+      </div>
+    </div>
+    <script src = "../scripts/auction.js" ></script>
+  </body>
+</html>

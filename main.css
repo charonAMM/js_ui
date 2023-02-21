@@ -11,11 +11,38 @@
 nav{
   background:black;
 }
+<<<<<<< HEAD
+.line{
+  display:inline-block;
+  text-align: center;
+  vertical-align: middle;
+}
+.center{
+  margin-left: auto;
+  text-align: center;
+  margin-right: auto;
+  align-items: center;
+  width: 100%;
+}
+
+.centerTable{
+  margin-left: auto;
+  text-align: center;
+  margin-right: auto;
+  width: 50%
+}
+.ammbox{
+  text-align: center;
+  width: 90%;
+}
+
+=======
 .myIndex{
   text-align: center;
   width: 100%;
   border: 10px, black;
 }
+>>>>>>> 56bf867bd84c7c7111f11ad294c989bf76fd6736
 .myNav{
   margin: auto;
   width: 90%
@@ -47,4 +74,38 @@ a{
   .column {
     flex: 50%;
     border:1px solid black;
+  }
+
+  .internal{
+    float: left;
+    clear: none;
+  }
+  .swapDiv{
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 80%;
+  }
+
+  .inner{
+    align-self: center;
+  }
+
+  .some-class {
+    display: inline-block;
+    justify-content: center;
+    align-items: center;
+    clear: none;
+  }
+  
+  label {
+    float: left;
+    clear: none;
+    display: block;
+  }
+  
+  input[type=radio],
+  input.radio {
+    float: left;
+    clear: none;
   }
