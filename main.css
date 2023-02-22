@@ -11,7 +11,6 @@
 nav{
   background:black;
 }
-<<<<<<< HEAD
 .line{
   display:inline-block;
   text-align: center;
@@ -36,13 +35,6 @@ nav{
   width: 90%;
 }
 
-=======
-.myIndex{
-  text-align: center;
-  width: 100%;
-  border: 10px, black;
-}
->>>>>>> 56bf867bd84c7c7111f11ad294c989bf76fd6736
 .myNav{
   margin: auto;
   width: 90%

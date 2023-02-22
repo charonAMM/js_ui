@@ -4,11 +4,16 @@ const electron = require('electron');
 const BrowserWindow = electron.remote.BrowserWindow;
 const url = require('url') 
 const path = require('path')  
-const ethers = require('ethers');
+console.log("h")
+const { ethers } = require("ethers");
+console.log("h")
 const { abi : chdABI } = require("../artifacts/charonAMM/contracts/CHD.sol/CHD.json")
+const { abi : charonABI } = require("../artifacts/charonAMM/contracts/Charon.sol/Charon.json")
+const { buildPoseidon } = require("circomlibjs");
 require('dotenv').config()
 let filename = 'bootstrap'
 let sno = 0
+let builtPoseidon
 let eVal,gVal,pVal;
 let ethSet = [0,0] //block, balnce initSet
 let gnoSet = [0,0] //block, balnce initSet
@@ -30,24 +35,16 @@ $('#myAddress').text(ethWallet.address)
 ethCHD = new ethers.Contract(process.env.ETHEREUM_CHD, chdABI , ethWallet);
 gnoCHD = new ethers.Contract(process.env.GNOSIS_CHD, chdABI , gnoWallet);
 polCHD = new ethers.Contract(process.env.POLYGON_CHD, chdABI , polWallet);
+ethCharon= new ethers.Contract(process.env.ETHEREUM_CHARON, charonABI , ethWallet);
+gnoCharon = new ethers.Contract(process.env.GNOSIS_CHARON, charonABI , gnoWallet);
+polCharon = new ethers.Contract(process.env.POLYGON_CHARON, charonABI , polWallet);
 
-$('#add-to-list').on('click', () => {
-   let name = $('#Name').val()
-   let email = $('#Email').val()
 
-   fs.appendFile('contacts', name + ',' + email + '\n')
+function poseidon(inputs){
+   let val = builtPoseidon(inputs)
+   return builtPoseidon.F.toString(val)
+ }
 
-   addEntry(name, email)
-})
-
-function addEntry(name, email) {
-   if(name && email) {
-      sno++
-      let updateString = '<tr><td>'+ sno + '</td><td>'+ name +'</td><td>' 
-         + email +'</td></tr>'
-      $('#contact-table').append(updateString)
-   }
-}
 
 function makeSendModal(){
    send= new BrowserWindow({width: 700, height: 500}) 
@@ -92,6 +89,63 @@ function setData(){
       fs.unlinkSync(filename);
    }
 
+      console.log(ethSet[0])
+      console.log(polSet[0])
+      console.log(gnoSet[0])
+   const eventFilter = ["0xf3843eddcfcac65d12d9f26261dab50671fdbf5dc44441816c8bbdace2411afd"];
+   let myUtxo;
+   const myKeypair = new Keypair({privKey:process.env.PRIVATE_KEY,myHashFunc:poseidon}) // contains private and public keys
+    ethProvider.getLogs({
+      fromBlock: ethSet[0],
+      toBlock: 'latest',
+      address: process.env.ETHEREUM_CHARON,
+      topics: eventFilter,
+    }).then(function(evtData){
+      let index;
+      console.log("evtData", evtData)
+      for (index in evtData) {
+         myUtxo = Utxo.decrypt(myKeypair, evtData[0].args._encryptedOutput, evtData[0].args._index)
+         if(myUtxo.amount > 0){
+            ethSet[1] = ethSet[1] + myUtxo.amount;
+         }
+       console.log("ethereum here")
+        console.log(index)
+      }
+   })
+
+   gnosisProvider.getLogs({
+      fromBlock: gnoSet[0],
+      toBlock: 'latest',
+      address: process.env.GNOSIS_CHARON,
+      topics: eventFilter,
+    }).then(function(evtData){
+      let index;
+      console.log(evtData)
+      for (index in evtData) {
+         console.log("gnosis here")
+        console.log(index)
+      }
+   })
+
+   polygonProvider.getLogs({
+      fromBlock: polSet[0],
+      toBlock: 'latest',
+      address: process.env.POLYGON_CHARON,
+      topics: eventFilter,
+    }).then(function(evtData){
+      let index;
+      console.log(evtData)
+      for (index in evtData) {
+         console.log("pol here")
+        console.log(index)
+      }
+   })
+
+
+   ethProvider.getBlockNumber().then((result) => ethSet[0] = result);
+   polygonProvider.getBlockNumber().then((result) => polSet[0] = result);
+   gnosisProvider.getBlockNumber().then((result) => gnoSet[0] = result);
+
    return new Promise(resolve => {
       setTimeout(() => {
         resolve('resolved');
@@ -110,22 +164,22 @@ $('#send').on('click', () => {
 function loadPrivateBalances(){
    //try and load from stored file and set base block / balance (contract start if not)
       //loop through all other events and get new ones
-
-         ethSet[0] = Number(ethSet[0]) + 1;
-         polSet[1] = Number(polSet[1])+ 10;
-         gnoSet[0] = Number(gnoSet[0]) + 300;
       //set dom state
-
-         console.log(ethSet[0])
       console.log(ethSet, "eth")
       console.log(gnoSet, "gno")
       console.log(polSet, "pol")
+      $('#ethPCHD').text(Math.round(ethers.utils.formatEther(ethSet[1])*100)/100)
+      $('#gnoPCHD').text(Math.round(ethers.utils.formatEther(gnoSet[1])*100)/100)
+      $('#polPCHD').text(Math.round(ethers.utils.formatEther(polSet[1])*100)/100)
+      $('#totalBal').text(Math.round((eVal + gVal + pVal + ethSet[1] + gnoSet[1] + polSet[1])*100)/100)
+
       //update baseblock and balance in local file
       fs.writeFile(filename, '', (err) => {
          if(err)
             console.log(err)
       })
       fs.appendFile(filename, ethSet[0] + ',' + ethSet[1] + ',' + polSet[0] + ',' + polSet[1] + ',' + gnoSet[0]+ ',' + gnoSet[1] )
+      fs.unlinkSync(filename);//for testing
 }
 
 function setPublicBalances(){
@@ -146,7 +200,7 @@ function loadPublicBalances(){
    $('#ethCHD').text(eVal)
    $('#gnoCHD').text(gVal)
    $('#polCHD').text(pVal)
-   $('#totalBal').text(Math.round((eVal + gVal + pVal)*100)/100)
+   $('#totalBal').text(Math.round((eVal + gVal + pVal + ethSet[1] + gnoSet[1] + polSet[1])*100)/100)
 }
 
 function loadAndDisplayContacts() {  
@@ -155,4 +209,13 @@ function loadAndDisplayContacts() {
 
 }
 
-loadAndDisplayContacts()
+function pBuild(){
+   builtPoseidon = buildPoseidon()
+   return new Promise(resolve => {
+      setTimeout(() => {
+        resolve('resolved');
+      }, 2000);
+    });
+}
+
+pBuild().then(() => loadAndDisplayContacts())
