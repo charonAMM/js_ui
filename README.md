@@ -13,12 +13,6 @@ git clone https://www.github.com/charonAMM/js_ui
 cd js_ui
 ```
 
-
-install electron 
-```
-npm install -g electron-prebuilt
-```
-
 create .env file in folder with node URL's and private key.  Follow the .env.example
 
 ```sh

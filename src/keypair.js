@@ -1,5 +1,5 @@
 const { encrypt, decrypt, getEncryptionPublicKey } = require('@metamask/eth-sig-util')
-const { ethers } = require('hardhat')
+const ethers  = require("ethers");
 const { BigNumber } = ethers
 const { poseidonHash, toFixedHex } = require('./utils')
 
@@ -113,6 +113,9 @@ class Keypair {
    * @returns {Buffer}
    */
   decrypt(data) {
+    console.log("decrypt")
+    console.log(data)
+    console.log(this.privkey)
     return Buffer.from(decrypt({encryptedData: unpackEncryptedMessage(data), privateKey: this.privkey.slice(2)}), 'base64')
   }
 }

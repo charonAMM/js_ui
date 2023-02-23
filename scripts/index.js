@@ -1,19 +1,19 @@
 let $ = require('jquery')
 let fs = require('fs')
 const electron = require('electron');
-const BrowserWindow = electron.remote.BrowserWindow;
+const BrowserWindow = electron.BrowserWindow;
+const { Keypair } = require('../src/keypair')
 const url = require('url') 
 const path = require('path')  
-console.log("h")
-const { ethers } = require("ethers");
-console.log("h")
+const ethers  = require("ethers");
+const Utxo = require('../src/utxo')
 const { abi : chdABI } = require("../artifacts/charonAMM/contracts/CHD.sol/CHD.json")
 const { abi : charonABI } = require("../artifacts/charonAMM/contracts/Charon.sol/Charon.json")
 const { buildPoseidon } = require("circomlibjs");
 require('dotenv').config()
 let filename = 'bootstrap'
 let sno = 0
-let builtPoseidon
+let builtPoseidon, myKeypair
 let eVal,gVal,pVal;
 let ethSet = [0,0] //block, balnce initSet
 let gnoSet = [0,0] //block, balnce initSet
@@ -41,6 +41,7 @@ polCharon = new ethers.Contract(process.env.POLYGON_CHARON, charonABI , polWalle
 
 
 function poseidon(inputs){
+   console.log(builtPoseidon)
    let val = builtPoseidon(inputs)
    return builtPoseidon.F.toString(val)
  }
@@ -82,7 +83,6 @@ function send(){
 function setData(){
    if(fs.existsSync(filename)) {
       let data = fs.readFileSync(filename, 'utf8').split(',')
-      console.log("data", data)
       ethSet = [data[0],data[1]]
       polSet = [data[2],data[3]]
       gnoSet = [data[4],data[5]]
@@ -94,53 +94,56 @@ function setData(){
       console.log(gnoSet[0])
    const eventFilter = ["0xf3843eddcfcac65d12d9f26261dab50671fdbf5dc44441816c8bbdace2411afd"];
    let myUtxo;
-   const myKeypair = new Keypair({privKey:process.env.PRIVATE_KEY,myHashFunc:poseidon}) // contains private and public keys
-    ethProvider.getLogs({
-      fromBlock: ethSet[0],
-      toBlock: 'latest',
-      address: process.env.ETHEREUM_CHARON,
-      topics: eventFilter,
-    }).then(function(evtData){
-      let index;
-      console.log("evtData", evtData)
-      for (index in evtData) {
-         myUtxo = Utxo.decrypt(myKeypair, evtData[0].args._encryptedOutput, evtData[0].args._index)
-         if(myUtxo.amount > 0){
-            ethSet[1] = ethSet[1] + myUtxo.amount;
+
+const filter =  ethCharon.filters.NewCommitment();
+ethCharon.queryFilter(filter, ethSet[0], "latest").then(function(evtData){
+   let index;
+   console.log("ETH evtData", evtData)
+   for (index in evtData) {
+      if(evtData[0].args._encryptedOutput){
+         console.log("encryptedOutput", evtData[0].args._encryptedOutput)
+         try{
+            myUtxo = Utxo.decrypt(myKeypair, evtData[0].args._encryptedOutput, evtData[0].args._index)
+            if(myUtxo.amount > 0){
+               ethSet[1] = ethSet[1] + myUtxo.amount;
+            }
          }
-       console.log("ethereum here")
-        console.log(index)
+         catch{}
       }
-   })
-
-   gnosisProvider.getLogs({
-      fromBlock: gnoSet[0],
-      toBlock: 'latest',
-      address: process.env.GNOSIS_CHARON,
-      topics: eventFilter,
-    }).then(function(evtData){
-      let index;
-      console.log(evtData)
-      for (index in evtData) {
-         console.log("gnosis here")
-        console.log(index)
+   }
+})
+gnoCharon.queryFilter(filter, gnoSet[0], "latest").then(function(evtData){
+   let index;
+   console.log("GNO evtData", evtData)
+   for (index in evtData) {
+      if(evtData[0].args._encryptedOutput){
+         console.log("encryptedOutput", evtData[0].args._encryptedOutput)
+         try{
+            myUtxo = Utxo.decrypt(myKeypair, evtData[0].args._encryptedOutput, evtData[0].args._index)
+            console.log("good decrypt :",myUtxo)
+            if(myUtxo.amount > 0){
+               console.log("good set", myUtxo.amount)
+               gnoSet[1] = gnoSet[1] + myUtxo.amount;
+            }
+         }catch{}
       }
-   })
-
-   polygonProvider.getLogs({
-      fromBlock: polSet[0],
-      toBlock: 'latest',
-      address: process.env.POLYGON_CHARON,
-      topics: eventFilter,
-    }).then(function(evtData){
-      let index;
-      console.log(evtData)
-      for (index in evtData) {
-         console.log("pol here")
-        console.log(index)
+   }
+})
+polCharon.queryFilter(filter, polSet[0], "latest").then(function(evtData){
+   let index;
+   console.log("POL evtData", evtData)
+   for (index in evtData) {
+      if(evtData[0].args._encryptedOutput){
+         console.log("encryptedOutput", evtData[0].args._encryptedOutput)
+         try{
+            myUtxo = Utxo.decrypt(myKeypair, evtData[0].args._encryptedOutput, evtData[0].args._index)
+            if(myUtxo.amount > 0){
+               polSet[1] = polSet[1] + myUtxo.amount;
+            }
+         }catch{}
       }
-   })
-
+   }
+})
 
    ethProvider.getBlockNumber().then((result) => ethSet[0] = result);
    polygonProvider.getBlockNumber().then((result) => polSet[0] = result);
@@ -178,8 +181,10 @@ function loadPrivateBalances(){
          if(err)
             console.log(err)
       })
-      fs.appendFile(filename, ethSet[0] + ',' + ethSet[1] + ',' + polSet[0] + ',' + polSet[1] + ',' + gnoSet[0]+ ',' + gnoSet[1] )
-      fs.unlinkSync(filename);//for testing
+      let _data = ethSet[0] + ',' + ethSet[1] + ',' + polSet[0] + ',' + polSet[1] + ',' + gnoSet[0]+ ',' + gnoSet[1]
+      fs.appendFile(filename, JSON.stringify(_data), (err) => err && console.error(err));
+      //fs.appendFile(filename,  )
+      //fs.unlinkSync(filename);//for testing
 }
 
 function setPublicBalances(){
@@ -210,7 +215,11 @@ function loadAndDisplayContacts() {
 }
 
 function pBuild(){
-   builtPoseidon = buildPoseidon()
+   
+   buildPoseidon().then(function(res) {
+      builtPoseidon = res;
+      myKeypair = new Keypair({privKey:process.env.PRIVATE_KEY,myHashFunc:poseidon}) // contains private and public keys
+   })
    return new Promise(resolve => {
       setTimeout(() => {
         resolve('resolved');

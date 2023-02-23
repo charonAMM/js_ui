@@ -10,9 +10,15 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "@metamask/eth-sig-util": "^5.0.2",
     "circomlibjs": "^0.1.7",
     "dotenv": "^16.0.3",
-    "ethers": "^4",
+    "ethers": "^5.7.2",
+    "hardhat": "^2.12.7",
     "jquery": "^3.6.3"
+  },
+  "devDependencies": {
+    "babel-plugin-transform-object-rest-spread": "^6.26.0",
+    "electron": "^23.1.1"
   }
 }

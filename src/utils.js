@@ -1,6 +1,6 @@
 /* global network */
 const crypto = require('crypto')
-const { ethers } = require('hardhat')
+const ethers  = require("ethers");
 const BigNumber = ethers.BigNumber
 //const { poseidon } = require('circomlib')
 //const buildPoseidon = require( "../node_modules/circomlibjs/src/poseidon_wasm.js";
