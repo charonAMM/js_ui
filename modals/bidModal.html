@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>charon</title>
+    <link rel="stylesheet" href="../main.css" />
+  </head>
+  <body>
+    <div class="center">
+          <p><u>select chain</u> </p>
+          <div class="some-class">
+            <div class = "internal">
+            <input type="radio" class="radio" name="netType" value="ethereum"/>
+            <label for="y">ethereum</label>
+            <input type="radio" class="radio" name="netType" value="gnosis"/>
+            <label for="z">gnosis</label>
+            <input type="radio" class="radio" name="netType" value="polygon"/>
+            <label for="x">polygon</label>
+          </div>
+          </div>
+        </br>
+
+          <p><u>select chd type </u></p>
+          <div class="some-class">
+            <div class = "internal">
+            <input type="radio" class="radio" name="visType" value="private" />
+            <label for="y">private</label>
+            <input type="radio" class="radio" name="visType" value="visible" />
+            <label for="z">visible</label>
+          </div>
+        </div>
+        </br>
+          <p>to: 
+            <input type="text" id="toAddy" name="fname" value="0x123">
+          </p>
+          <p>amount:
+            <input type="text" id="toAmount" name="fname" value="55">
+          </p>
+        <section>
+          <button id="signAndSend">send</button>
+        </section>
+      </div>
+    <script src = "../scripts/index.js" ></script>
+  </body>
+</html>

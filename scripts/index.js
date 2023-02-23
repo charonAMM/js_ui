@@ -1,7 +1,6 @@
 let $ = require('jquery')
 let fs = require('fs')
-const electron = require('electron');
-const BrowserWindow = electron.BrowserWindow;
+const { BrowserWindow } = require('@electron/remote')
 const { Keypair } = require('../src/keypair')
 const url = require('url') 
 const path = require('path')  

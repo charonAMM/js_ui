@@ -17,6 +17,47 @@ ethCIT = new ethers.Contract(process.env.ETHEREUM_CIT, citABI , ethWallet);
 
 
 
+function makeSendModal(){
+   send= new BrowserWindow({width: 700, height: 500}) 
+   console.log("loading")
+   send.loadURL(url.format ({ 
+       pathname: path.join(__dirname, '../modals/bidModal.html'), 
+       protocol: 'file:', 
+       slashes: true 
+    })) 
+    console.log("done")
+}
+
+function bid(){
+   console.log("here")
+   let _to = $('#toAddy').val()
+   let _amount = $('#toAmount').val()
+   let _network = $('input[name="netType"]:checked').val();
+   let _visType = $('input[name="visType"]:checked').val();
+   console.log(_network,_visType)
+   console.log("to: ",_to, "amount ",_amount)
+   if(_visType == "visible"){
+      if(_network == "ethereum"){
+         ethCHD.transfer(_to,_amount).then((result) => console.log(result));;
+      }
+      else if(_network == "gnosis"){
+         gnoCHD.transfer(_to,_amount).then((result) => console.log(result));
+      }
+      else if (_network == "polygon"){
+         polCHD.transfer(_to,_amount).then((result) => console.log(result));
+      }
+   }
+
+}
+
+$('#signAndBid').on('click', () => {
+   bid()
+})
+
+$('#bid').on('click', () => {
+   makeBidModal()
+})
+
 
 function timeUntil(timeStamp) {
       var now = new Date(),

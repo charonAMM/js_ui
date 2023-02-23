@@ -10,6 +10,7 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "@electron/remote": "^2.0.9",
     "@metamask/eth-sig-util": "^5.0.2",
     "circomlibjs": "^0.1.7",
     "dotenv": "^16.0.3",
