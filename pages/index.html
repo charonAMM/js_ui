@@ -25,39 +25,53 @@
         </div>
     </nav>
     <header class="bg-dark">
-        <div class="center">
-            <section>
-              <br>
-              <p id ="myAddress" style="font-size: small"></p>
-              <div>
-                <img src="../public/Charon_mono.png" class="line" alt="charon" style="width:100px;"> <h3 id="totalBal" class="line" style="font-size: xx-large">...</h3>
-              </div>
-              <table class="centerTable">
-                <tr>
-                  <td>Ethereum</td>
-                  <td><img src ="../public/eye.png"  class="line" style="width:20px; padding:5px;"><p  class="line" id="ethCHD"> ... </p></td>
-                  <td><img src ="../public/private.png"  class="line" style="width:20px; padding:5px;"><p  class="line" id="ethPCHD"> ... </p></td>
-                </tr>
-                <tr>
-                  <td>Gnosis</td>
-                  <td><img src ="../public/eye.png" class="line" style="width:20px; padding:5px;"><p class="line" id="gnoCHD"> ... </p></td>
-                  <td><img src ="../public/private.png" class="line" style="width:20px; padding:5px;"><p class="line" id=t "gnoPCHD"> ... </p></td>
-                </tr>
-                <tr>
-                  <td>Polygon</td>
-                  <td><img src ="../public/eye.png" class="line" style="width:20px; padding:5px;"><p class="line" id="polCHD"> ... </p></td>
-                  <td><img src ="../public/private.png" class="line" style="width:20px; padding:5px;"><p class="line" id="polPCHD"> ... </p></td>
-                </tr>
-              </table>      
-              <p id="balance"></p>
-            </section>
-            <section>
-              <button id="send" class="btn btn-primary shadow" type="button">Send</button>
-            </section>
-            <br></br>
-            <br></br>
-            <br></br>
+      <div class="center">
+        <section>
+          <br>
+          <p id ="myAddress" style="font-size: small"></p>
+
+          <div>
+            <img src="../public/Charon_mono.png" class="line" alt="charon" style="width:80px;"> <h3 id="totalBal" class="line" style="font-size: xx-large">...</h3>
           </div>
+
+          <div class="container text-center pt-4 pt-xl-5">
+                <div class="col-xl-12">
+                  <div class="table-responsive">
+                        <table class="table">
+                                <thead>
+                                  <tr>
+                                      <th></th>
+                                      <th>Show</th>
+                                      <th>Hide</th>
+                                  </tr>
+                                </thead>
+                                <tr>
+                                  <td>Ethereum</td>
+                                  <td><p  class="line" id="ethCHD"> ... </p></td>
+                                  <td><p  class="line" id="ethPCHD"> ... </p></td>
+                                </tr>
+                                <tr>
+                                  <td>Gnosis Chain</td>
+                                  <td><p class="line" id="gnoCHD"> ... </p></td>
+                                  <td><p class="line" id= "gnoPCHD"> ... </p></td>
+                                </tr>
+                                <tr>
+                                  <td>Polygon</td>
+                                  <td><p class="line" id="polCHD"> ... </p></td>
+                                  <td><p class="line" id="polPCHD"> ... </p></td>
+                                </tr>
+                          </table>      
+                    <p id="balance"></p>
+                  </div>
+                </div>
+              <div>
+                  <section>
+                    <a class="btn btn-primary shadow" role="button" id = "send">Send</a>
+                  </section>
+              </div>
+          </div>
+        </section>
+      </div>
     </header>
     <section></section>
     <section></section>
