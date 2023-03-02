@@ -11,7 +11,7 @@
     <link rel="stylesheet" href="../main.css" />
 </head>
 
-<body>
+<body class="text-center">
     <nav class="navbar navbar-dark navbar-expand-md sticky-top py-3" id="mainNav">
         <div class="container"><a class="navbar-brand d-flex align-items-center" href="./index.html"><span>Charon</span></a><button data-bs-toggle="collapse" class="navbar-toggler" data-bs-target="#navcol-1"><span class="visually-hidden">Toggle navigation</span><span class="navbar-toggler-icon"></span></button>
             <div class="collapse navbar-collapse" id="navcol-1">
@@ -24,30 +24,41 @@
             </div>
         </div>
     </nav>
-    <header class="bg-dark">
-      <div class="box">
-        <div class="center">
-        <header>
-          <br></br>
-          <h3>Cit Auction Portal</h3>
-          <br></br>
-        </header>
-        <p id ="myAddress" style="font-size: small"></p>
-        <section>
-          <br></br>
-          <p class="line">Top Bidder :  <p class="line" id="topBidder"> ... </p></p>
-          <br></br>
-          <p class="line">Top Bid :   <p class="line" id="topBid"> ... </p> ETH </p>
-          <br></br>
-          <p class="line">Time Left :  <p class="line" id="timeLeft"> ... </p></p>
-          <br></br>
-        </section>
-        <section>
-          <button id="claimFundsButton" class="btn btn-primary shadow" type="button">Bid</button>
-        </section>
-        </div>
+    <section class="py-5">
+      <div class="container py-5">
+          <div class="row mb-4 mb-lg-5">
+              <div class="col-md-8 col-xl-6 text-center mx-auto">
+                  <h2 class="fw-bold">Cit Auction Portal</h2>
+              </div>
+          </div>
+          <div class="row row-cols-1 row-cols-md-2 d-flex justify-content-center">
+              <div class="col mb-4">
+                  <div class="card bg-primary-light">
+                      <div class="card-body text-center px-4 py-5 px-md-5">
+                          <p class="fw-bold text-primary card-text mb-2">Top Bidder</p>
+                          <h5 class="fw-bold card-title mb-3" id="topBidder">...</h5>
+                      </div>
+                  </div>
+              </div>
+              <div class="col mb-4">
+                  <div class="card bg-secondary-light">
+                      <div class="card-body text-center px-4 py-5 px-md-5">
+                          <p class="fw-bold text-secondary card-text mb-2">Top Bid</p>
+                          <h5 class="fw-bold card-title mb-3" id="topBid">...</h5>
+                      </div>
+                  </div>
+              </div>
+              <div class="col mb-4">
+                  <div class="card bg-info-light">
+                      <div class="card-body text-center px-4 py-5 px-md-5" >
+                          <p class="fw-bold text-info card-text mb-2">Time Left</p>
+                          <h5 class="fw-bold card-title mb-3" id="timeLeft">...</h5>
+                      </div>
+                  </div>
+              </div>
+          </div><button id="claimFundsButton" class="btn btn-warning btn-sm" type="button">Bid</button>
       </div>
-    </header>
+    </section>
     <section></section>
     <section></section>
     <section></section>
