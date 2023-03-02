@@ -4,44 +4,57 @@
     <meta charset="UTF-8" />
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>charon</title>
+    <title>Charon - A privacy preserving cross-chain AMM</title>
+    <link href="../public/Charon_mono.png" rel="icon">
     <link rel="stylesheet" href="../main.css" />
+    <link rel="stylesheet" href="../pages/assets/bootstrap/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Inter:300italic,400italic,600italic,700italic,800italic,400,300,600,700,800&amp;display=swap">
+    <link rel="stylesheet" href="../pages/assets/css/Login-Form-Basic-icons.css">
+    <link rel="stylesheet" href="../pages/css/Studious-selectbox.css">
   </head>
   <body>
-    <div class="center">
-          <p><u>select chain</u> </p>
-          <div class="some-class">
-            <div class = "internal">
-            <input type="radio" class="radio" name="netType" value="ethereum"/>
-            <label for="y">ethereum</label>
-            <input type="radio" class="radio" name="netType" value="gnosis"/>
-            <label for="z">gnosis</label>
-            <input type="radio" class="radio" name="netType" value="polygon"/>
-            <label for="x">polygon</label>
+  <header class="bg-dark">
+    <div class="card">
+      <div class="card-body text-center">
+          <h4 class="card-title">Select chain</h4>
+          <h6 class="text-muted card-subtitle mb-2">Please select a transaction chain</h6>
+          <div class="col">
+              <div class="btn-group" role="group" aria-label="Basic radio toggle button group">
+                  <input type="radio" id="btnradio1" class="btn-check" name="netType" autocomplete="off" checked="" value="ethereum"><label class="form-label btn btn-outline-primary" for="y">Ethereum</label>
+                  <input type="radio" id="btnradio2" class="btn-check" name="netType" autocomplete="off" value="gnosis"><label class="form-label btn btn-outline-primary" for="z">Gnosis</label>
+                  <input type="radio" id="btnradio3" class="btn-check" name="netType" autocomplete="off" value="polygon"><label class="form-label btn btn-outline-primary" for="x">Polygon</label></div>
           </div>
-          </div>
-        </br>
-
-          <p><u>select chd type </u></p>
-          <div class="some-class">
-            <div class = "internal">
-            <input type="radio" class="radio" name="visType" value="private" />
-            <label for="y">private</label>
-            <input type="radio" class="radio" name="visType" value="visible" />
-            <label for="z">visible</label>
-          </div>
-        </div>
-        </br>
-          <p>to: 
-            <input type="text" id="toAddy" name="fname" value="0x123">
-          </p>
-          <p>amount:
-            <input type="text" id="toAmount" name="fname" value="55">
-          </p>
-        <section>
-          <button id="signAndSend">send</button>
-        </section>
       </div>
-    <script src = "../scripts/index.js" ></script>
-  </body>
+      <div class="card-body text-center">
+          <h4 class="card-title">Select chd type</h4>
+          <h6 class="text-muted card-subtitle mb-2">Please select a transaction chd type</h6>
+          <p><input type="checkbox" value="private">&nbsp;Private</p>
+          <p><input type="checkbox" value="visible">&nbsp;Visible</p>
+          <div class="row d-flex justify-content-center">
+              <div class="col-md-6 col-xl-4">
+                  <div class="card mb-5">
+                      <div class="card-body d-flex flex-column align-items-center">
+                          <form class="text-center" method="post">
+                              <div class="mb-3"><input class="form-control" id="toAddy" name="fname" placeholder="Address"></div>
+                              <div class="mb-3"><input class="form-control" id="toAmount" name="fname" placeholder="Amount"></div>
+                              <div class="mb-3"><button class="btn btn-primary d-block w-100" type="submit" id="signAndSend">Send</button></div>
+                              <p class="text-muted"></p>
+                          </form>
+                      </div>
+                  </div>
+              </div>
+          </div>
+      </div>
+  </div>
+  </header>
+  <section></section>
+  <section></section>
+  <section></section>
+  <section></section>
+  <script src="assets/bootstrap/js/bootstrap.min.js"></script>
+  <script src="assets/js/bs-init.js"></script>
+  <script src="assets/js/bold-and-dark.js"></script>
+  <script src="assets/js/Studious-selectbox-selectbox.js"></script>
+  <script src = "../scripts/index.js" ></script>
+</body>
 </html>
