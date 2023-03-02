@@ -25,58 +25,83 @@
         </div>
     </nav>
     <header class="bg-dark">
-      <div class="box">
-        <div class = "center">
-          <p id ="myAddress" style="font-size: small"></p>
-          <section>
-            <br></br>
-            <p class="line">Cit Balance : <p class="line" id="citBal" style ="padding-left: 1.5em;"> ... </p></p>
-          </section>
-          <section>
-            <br></br>
-            <table>
-              <tr>
-                <td><button id="gnosisClaim" class="btn btn-primary shadow" type="button">Claim</button></td>
-                <td>Gnosis Chain</td>
-                <td><p class="line">chd : <p class="line" id="gnoCHD" style ="padding-left: 1.5em;"> ... </p></p></td>
-              </tr>
-              <tr>
-                  <td></td>
-                  <td></td>
-                  <td><p class="line">xdai : <p class="line" id="xdaiBal" style ="padding-left: 1.5em;"> ... </p></p></td>
-              </tr>
-              <tr></tr>
-              <tr>
-                <td><button id="ethClaim" class="btn btn-primary shadow" type="button">Claim</button></td>
-                <td>Ethereum</td>
-                <td><p class="line">chd : <p class="line" id="ethCHD" style ="padding-left: 1.5em;"> ... </p></p></td>
-              </tr>
-              <tr>
-                  <td></td>
-                  <td></td>
-                  <td><p class="line">eth : <p class="line" id="ethBal" style ="padding-left: 1.5em;"> ... </p></p></td>
-              </tr>
-              <tr></tr>
-              <tr>
-                <td><button id="polClaim" class="btn btn-primary shadow" type="button">Claim</button></td>
-                <td>Polygon Chain</td>
-                <td><p class="line">chd : <p class="line" id="polCHD" style ="padding-left: 1.5em;"> ... </p></p></td>
-              </tr>
-              <tr>
-                  <td></td>
-                  <td></td>
-                  <td><p class="line">matic : <p class="line" id="maticBal" style ="padding-left: 1.5em;"> ... </p></p></td>
-              </tr>
-              </table>
-              <br></br>
-          </section>
+      <div class="container">
+        <div class="row">
+            <div class="col-md-8 col-xl-6 text-center mx-auto">
+                <p class="fw-bold text-success mb-2" id ="myAddress">Address</p>
+            </div>
+            <div class="col-md-12">
+                <p class="fw-bold text-success text-center" id="citBal">Cit Balance: ...</p>
+            </div>
         </div>
+        <div class="row">
+            <div class="col-md-4">
+                <div class="table-responsive">
+                    <table class="table">
+                        <thead class="text-center">
+                            <tr>
+                                <th class="fs-5 fw-bold text-center placeholder">Ethereum</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td class="text-start">chd</td>
+                                <td class="text-center" id="ethCHD">...</td>
+                            </tr>
+                            <tr class="text-center">
+                                <td class="text-start">eth</td>
+                                <td class="text-center" id="ethBal">...</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                <div><button id="ethClaim" class="btn btn-success btn-sm font-monospace text-center text-sm-center" type="button">Claim</button></div>
+            </div>
+            <div class="col-md-4">
+                <div class="table-responsive">
+                    <table class="table">
+                        <thead class="text-center">
+                            <tr>
+                                <th class="fs-5 fw-bold text-center placeholder">Gnosis</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td class="text-start">chd</td>
+                                <td class="text-center" id="gnoCHD">...</td>
+                            </tr>
+                            <tr class="text-center">
+                                <td class="text-start">xdai</td>
+                                <td class="text-center" id="xdaiBal">...</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div><button id="gnosisClaim" class="btn btn-success btn-sm font-monospace text-center text-sm-center" type="button">Claim</button>
+            </div>
+            <div class="col-md-4">
+                <div class="table-responsive">
+                    <table class="table">
+                        <thead class="text-center">
+                            <tr>
+                                <th class="fs-5 fw-bold text-center placeholder">Polygon</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td class="text-start">chd</td>
+                                <td class="text-center" id="polCHD">...</td>
+                            </tr>
+                            <tr class="text-center">
+                                <td class="text-start">matic</td>
+                                <td class="text-center" id="maticBal">...</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div><button id="polClaim" class="btn btn-success btn-sm font-monospace text-center text-sm-center" type="button">Claim</button>
+            </div>
         </div>
+    </div>
     </header>
-    <section></section>
-    <section></section>
-    <section></section>
-    <section></section>
     <footer class="bg-dark">
         <div class="container py-4 py-lg-5">
             <hr>
