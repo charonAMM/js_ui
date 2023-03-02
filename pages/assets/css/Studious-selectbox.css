@@ -1,0 +1,129 @@
+a {
+  color: #47b6ff;
+  text-decoration: none;
+  -moz-transition: color 0.25s ease-in-out;
+  -ms-transition: color 0.25s ease-in-out;
+  -o-transition: color 0.25s ease-in-out;
+  transition: color 0.25s ease-in-out;
+}
+
+a:hover {
+  color: #fa6661;
+}
+
+h3 {
+  font-size: 16px;
+  font-family: Montserrat;
+}
+
+h5 {
+  font-size: 14px;
+  font-family: Montserrat;
+}
+
+p {
+  margin: 0;
+}
+
+.accordion .card {
+  border-radius: 12px;
+}
+
+.accordion .card-header {
+  background-color: #fff;
+  border: none;
+  border-radius: 12px !important;
+  padding: 10px 12px;
+}
+
+.accordion .card-header h5 {
+  font-family: "Open Sans";
+}
+
+.accordion .card-header a {
+  display: block;
+  color: #333;
+}
+
+.accordion .card-header a:hover {
+  text-decoration: none;
+}
+
+.accordion .card-body {
+  border-top: 1px solid #e2e0e0;
+  padding: 12px;
+}
+
+.accordion.accordion-select .card {
+  border-radius: 12px !important;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.125);
+}
+
+.accordion.accordion-select .card-header {
+  padding: 6px 12px;
+}
+
+.accordion.accordion-select .card-header a {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.accordion.accordion-select .card-header a .fa {
+  margin: 0 0 0 auto;
+  font-size: 25px;
+}
+
+.accordion.accordion-select .card-body {
+  padding: 10px 0;
+}
+
+.accordion.accordion-select .card-body ul {
+  margin: 0;
+  padding: 0;
+  list-style-type: none;
+}
+
+.accordion.accordion-select .card-body li {
+  margin: 0 0 10px;
+  padding: 0 12px 10px;
+  border-bottom: 1px solid #ebebeb;
+}
+
+.accordion.accordion-select .card-body li:last-child {
+  border: none;
+  padding: 0 12px;
+  margin: 0;
+}
+
+.accordion.accordion-select .card-body a {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #333;
+  text-decoration: none;
+}
+
+.accordion.accordion-select .card-body a span {
+  margin: 0 0 0 auto;
+  font-size: 12px;
+  background-color: #fa6661;
+  padding: 4px 7px;
+  border-radius: 4px;
+  color: #fff;
+}
+
+.selectbox .selectbox-result {
+  height: 0;
+  overflow: hidden;
+}
+
+.selectbox .selectbox-result h3 {
+  font-weight: bold;
+  margin: 0;
+}
+
+*:focus {
+  outline: #47b6ff auto 5px;
+}
+
