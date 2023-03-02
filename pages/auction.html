@@ -1,39 +1,88 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>charon</title>
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, shrink-to-fit=no">
+    <title>Charon - A privacy preserving cross-chain AMM</title>
+    <link href="../public/Charon_mono.png" rel="icon">
+    <link rel="stylesheet" href="assets/bootstrap/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Inter:300italic,400italic,600italic,700italic,800italic,400,300,600,700,800&amp;display=swap">
     <link rel="stylesheet" href="../main.css" />
-  </head>
-  <body>
-    <nav>
-      <div class="myNav">
-      <ul>  
-        <li><a href="./index.html">home</a></li>
-        <li><a href="./amm.html">trade</a></li>
-        <li><a href="./auction.html">auction</a></li>
-        <li><a href="./cit.html">cit</a></li>
-    </ul>
-    </div>
+</head>
+
+<body class="text-center">
+    <nav class="navbar navbar-dark navbar-expand-md sticky-top py-3" id="mainNav">
+        <div class="container"><a class="navbar-brand d-flex align-items-center" href="./index.html"><span>Charon</span></a><button data-bs-toggle="collapse" class="navbar-toggler" data-bs-target="#navcol-1"><span class="visually-hidden">Toggle navigation</span><span class="navbar-toggler-icon"></span></button>
+            <div class="collapse navbar-collapse" id="navcol-1">
+                <ul class="navbar-nav mx-auto">
+                    <li class="nav-item"><a class="nav-link" href="./index.html">Home</a></li>
+                    <li class="nav-item"><a class="nav-link" href="./amm.html">Trade</a></li>
+                    <li class="nav-item"><a class="nav-link active" href="./auction.html">Auction</a></li>
+                    <li class="nav-item"><a class="nav-link" href="./cit.html">Cit</a></li>
+                </ul>
+            </div>
+        </div>
     </nav>
-    <div class="box">
-      <div class="center">
-      <header>
-        <h3>cit auction portal</h3>
-      </header>
-      <p id ="myAddress" style="font-size: small"></p>
-      <section>
-        <p class="line">top bidder :  <p class="line" id="topBidder"> ... </p></p>
-        <p class="line">top bid :   <p class="line" id="topBid"> ... </p>  eth</p>
-        <p class="line">time left :  <p class="line" id="timeLeft"> ... </p></p>
-      </section>
-      <section>
-        <button id="claimFundsButton">bid</button>
-      </section>
+    <header class="bg-dark">
+    <section class="py-5">
+      <div class="container py-5">
+          <div class="row mb-4 mb-lg-5">
+              <div class="col-md-8 col-xl-6 text-center mx-auto">
+                  <h2 class="fw-bold">Cit Auction Portal</h2>
+              </div>
+          </div>
+          <div class="row row-cols-1 row-cols-md-2 d-flex justify-content-center">
+              <div class="col mb-4">
+                  <div class="card bg-primary-light">
+                      <div class="card-body text-center px-4 py-5 px-md-5">
+                          <p class="fw-bold text-primary card-text mb-2">Top Bidder</p>
+                          <h5 class="fw-bold card-title mb-3" id="topBidder">...</h5>
+                      </div>
+                  </div>
+              </div>
+              <div class="col mb-4">
+                  <div class="card bg-secondary-light">
+                      <div class="card-body text-center px-4 py-5 px-md-5">
+                          <p class="fw-bold text-secondary card-text mb-2">Top Bid</p>
+                          <h5 class="fw-bold card-title mb-3" id="topBid">...</h5>
+                      </div>
+                  </div>
+              </div>
+              <div class="col mb-4">
+                  <div class="card bg-info-light">
+                      <div class="card-body text-center px-4 py-5 px-md-5" >
+                          <p class="fw-bold text-info card-text mb-2">Time Left</p>
+                          <h5 class="fw-bold card-title mb-3" id="timeLeft">...</h5>
+                      </div>
+                  </div>
+              </div>
+          </div><button id="claimFundsButton" class="btn btn-warning btn-sm" type="button">Bid</button>
       </div>
-    </div>
+    </section>
+    </header>
+    <section></section>
+    <section></section>
+    <section></section>
+    <section></section>
+    <footer class="bg-dark">
+        <div class="container py-4 py-lg-5">
+            <hr>
+            <div class="text-muted d-flex justify-content-between align-items-center pt-3">
+                <p class="mb-0">Copyright ©Charon - A Privacy Preserving Cross-chain AMM</p>
+                <ul class="list-inline mb-0">
+                    <li class="list-inline-item"><svg xmlns="http://www.w3.org/2000/svg" width="2em" height="2em" fill="currentColor" viewBox="0 0 16 16" class="bi bi-github"> <a href = "https://github.com/charonAMM">
+                            <path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.012 8.012 0 0 0 16 8c0-4.42-3.58-8-8-8z"></path>
+                          </a></svg></li>
+                    <li class="list-inline-item"></li>
+                    <li class="list-inline-item"></li>
+                </ul>
+            </div>
+        </div>
+    </footer>
+    <script src="assets/bootstrap/js/bootstrap.min.js"></script>
+    <script src="assets/js/bs-init.js"></script>
+    <script src="assets/js/bold-and-dark.js"></script>
     <script src = "../scripts/auction.js" ></script>
-  </body>
+</body>
 </html>
