@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html class="font-monospace text-nowrap text-truncate text-break" lang="en">
 
 <head>
     <meta charset="utf-8">
@@ -25,88 +25,100 @@
         </div>
     </nav>
     <header class="bg-dark">
-      <div class="ammbox">
-        <br></br>
-        <br></br>
-        <p id ="myAddress" style="font-size: small"></p>
-          <div class="row">
-            <div class="column">
-                <p>Ethereum</p>
-                <table>
-                <tr>
-                    <td>eth</td>
-                    <td id="ethBal"> ... </td>
-                </tr>
-                <tr>
-                    <td>chd</td>
-                    <td id="chdETHBal"> ... </td>
-                </tr>
-                <tr>
-                    <td>lp tokens</td>
-                    <td id="lpETHBal"> ... </td>
-                </tr>
-                </table>
-                <p>Gnosis Chain</p>
-                <table>
-                <tr>
-                    <td>xDai</td>
-                    <td id = "xDAIBal"> ...</td>
-                </tr>
-                <tr>
-                    <td>chd</td>
-                    <td id="chdGNOBal"> ... </td>
-                </tr>
-                <tr>
-                    <td>lp tokens</td>
-                    <td id="lpGNOBal"> ... </td>
-                </tr>
-                </table>
-    
-                <p>Polygon</p>
-                <table>
-                <tr>
-                    <td>matic</td>
-                    <td id="maticBal"> ... </td>
-                </tr>
-                <tr>
-                    <td>chd</td>
-                    <td id = "chdPOLBal"> ... </td>
-                </tr>
-                <tr>
-                    <td>lp tokens</td>
-                    <td id="lpPOLBal"> ... </td>
-                </tr>
-                </table>
+        <div class="container">
+            <div class="row">
+                <div class="col-md-12">
+                    <p class="fw-bold text-success text-center" id ="myAddress">Address</p>
+                </div>
             </div>
-            <div class="column">
-                <div class = "swapDiv">
-                    <div class ="inner">
-                    <table>
-                    <tr>
-                        <td><select name="currency" id="swapCurrency">
-                            <option value="ETH">ETH</option>
-                            <option value="xDAI">xDAI</option>
-                            <option value="MATIC">MATIC</option>
-                        </select>
-                        </td>
-                        <td> 0.0 </td>
-                    </tr>
-                    <tr>
-                        <td>chd</td>
-                        <td>0.0</td>
-                    </tr>
-                    </table>
-                    <td><button class="btn btn-primary shadow" type="button" id="connectButton">Swap</button></td>
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="table-responsive">
+                        <table class="table">
+                            <thead class="text-center">
+                                <tr>
+                                    <th class="text-center placeholder">Ethereum</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td class="text-start">eth</td>
+                                    <td class="text-center" id = "ethBal">...</td>
+                                </tr>
+                                <tr class="text-center">
+                                    <td class="text-start">chd</td>
+                                    <td class="text-center" id = "chdETHBal">...</td>
+                                </tr>
+                                <tr class="text-center">
+                                    <td class="text-start">lp tokens</td>
+                                    <td class="text-center" id = "lpETHBal">...</td>
+                                </tr>
+                            </tbody>
+                        </table>
                     </div>
+                    <div class="table-responsive">
+                        <table class="table">
+                            <thead class="text-center">
+                                <tr>
+                                    <th class="text-center placeholder">Gnosis&nbsp;</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td class="text-start">xDai</td>
+                                    <td class="text-center" id = "xDAIBal">...</td>
+                                </tr>
+                                <tr class="text-center">
+                                    <td class="text-start">chd</td>
+                                    <td class="text-center" id = "chdGNOBal">...</td>
+                                </tr>
+                                <tr class="text-center">
+                                    <td class="text-start">lp tokens</td>
+                                    <td class="text-center" id="lpGNOBal">...</td>
+                                </tr>
+                            </tbody>
+                        </table>
                     </div>
+                    <div class="table-responsive">
+                        <table class="table">
+                            <thead class="text-center">
+                                <tr>
+                                    <th class="text-center placeholder">Polygon</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td class="text-start">matic</td>
+                                    <td class="text-center" id="maticBal">...</td>
+                                </tr>
+                                <tr class="text-center">
+                                    <td class="text-start">chd</td>
+                                    <td class="text-center" id = "chdPOLBal">...</td>
+                                </tr>
+                                <tr class="text-center">
+                                    <td class="text-start">lp tokens</td>
+                                    <td class="text-center" id="lpPOLBal">...</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="card bg-primary-light">
+                        <div class="card-body text-center px-4 py-5 px-md-5">
+                            <p class="fw-bold text-primary card-text mb-2"><select name="currency" id="swapCurrency">
+                                        <option value="ETH" selected="">ETH</option>
+                                        <option value="xDAI">xDai</option>
+                                        <option value="MATIC">MATIC</option>
+                                </select>&nbsp; 0.0</p>
+                            <p class="fw-bold text-primary card-text mb-2">&nbsp; <span style="font-weight: normal !important; color: rgb(255, 255, 255);">chd</span> 0.0</p>
+                            <button class="btn btn-primary btn-sm" type="button" id="connectButton">Swap</button>
+                        </div>
+                    </div>
+                </div>
             </div>
-        </div>
         </div>
     </header>
-    <section></section>
-    <section></section>
-    <section></section>
-    <section></section>
     <footer class="bg-dark">
         <div class="container py-4 py-lg-5">
             <hr>
@@ -127,4 +139,5 @@
     <script src="assets/js/bold-and-dark.js"></script>
     <script src = "../scripts/amm.js" ></script>
 </body>
+
 </html>

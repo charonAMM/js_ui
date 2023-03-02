@@ -4,44 +4,55 @@
     <meta charset="UTF-8" />
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>charon</title>
+    <title>Charon - A privacy preserving cross-chain AMM</title>
+    <link href="../public/Charon_mono.png" rel="icon">
+    <link rel="stylesheet" href="../pages/assets/bootstrap/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Inter:300italic,400italic,600italic,700italic,800italic,400,300,600,700,800&amp;display=swap">
     <link rel="stylesheet" href="../main.css" />
   </head>
   <body>
+  <header class="bg-dark">
     <div class="center">
-          <p><u>select chain</u> </p>
-          <div class="some-class">
-            <div class = "internal">
-            <input type="radio" class="radio" name="netType" value="ethereum"/>
-            <label for="y">ethereum</label>
-            <input type="radio" class="radio" name="netType" value="gnosis"/>
-            <label for="z">gnosis</label>
-            <input type="radio" class="radio" name="netType" value="polygon"/>
-            <label for="x">polygon</label>
-          </div>
-          </div>
-        </br>
-
-          <p><u>select chd type </u></p>
-          <div class="some-class">
-            <div class = "internal">
-            <input type="radio" class="radio" name="visType" value="private" />
-            <label for="y">private</label>
-            <input type="radio" class="radio" name="visType" value="visible" />
-            <label for="z">visible</label>
-          </div>
+      <p><u>select chain</u> </p>
+      <div class="some-class">
+        <div class = "internal">
+        <input type="radio" class="radio" name="netType" value="ethereum"/>
+        <label for="y">ethereum</label>
+        <input type="radio" class="radio" name="netType" value="gnosis"/>
+        <label for="z">gnosis</label>
+        <input type="radio" class="radio" name="netType" value="polygon"/>
+        <label for="x">polygon</label>
         </div>
-        </br>
-          <p>to: 
-            <input type="text" id="toAddy" name="fname" value="0x123">
-          </p>
-          <p>amount:
-            <input type="text" id="toAmount" name="fname" value="55">
-          </p>
-        <section>
-          <button id="signAndSend">send</button>
-        </section>
       </div>
-    <script src = "../scripts/index.js" ></script>
-  </body>
+    <br></br>
+      <p><u>select chd type </u></p>
+      <div class="some-class">
+        <div class = "internal">
+        <input type="radio" class="radio" name="visType" value="private" />
+        <label for="y">private</label>
+        <input type="radio" class="radio" name="visType" value="visible" />
+        <label for="z">visible</label>
+      </div>
+    </div>
+    <br></br>
+      <p>to: 
+        <input type="text" id="toAddy" name="fname" value="0x123">
+      </p>
+      <p>amount:
+        <input type="text" id="toAmount" name="fname" value="55">
+      </p>
+    <section>
+      <button id="signAndSend">send</button>
+    </section>
+  </div>
+  </header>
+  <section></section>
+  <section></section>
+  <section></section>
+  <section></section>
+  <script src="assets/bootstrap/js/bootstrap.min.js"></script>
+  <script src="assets/js/bs-init.js"></script>
+  <script src="assets/js/bold-and-dark.js"></script>
+  <script src = "../scripts/index.js" ></script>
+</body>
 </html>
