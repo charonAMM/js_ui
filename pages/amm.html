@@ -9,6 +9,7 @@
     <link rel="stylesheet" href="assets/bootstrap/css/bootstrap.min.css">
     <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Inter:300italic,400italic,600italic,700italic,800italic,400,300,600,700,800&amp;display=swap">
     <link rel="stylesheet" href="../main.css" />
+    <link rel="stylesheet" href="assets/css/Swap-form.css">
 </head>
 
 <body>
@@ -105,33 +106,55 @@
                     </div>
                 </div>
                 <div class="col-md-6">
-                    <div class="card bg-primary-light">
-                        <div class="card-body text-center px-4 py-5 px-md-5">
-                            <h1 style="font-size: 20px;">swap eth/matic/xdai for chd</h1>
-                            <p class="fw-bold text-primary card-text mb-2"><select name="currency" id="swapCurrency" style="padding: 1px;border-radius: 1px;border-top-left-radius: 10px;border-top-right-radius: 10px;border-bottom-right-radius: 10px;border-bottom-left-radius: 10px;">
-                                        <option value="ETH" selected="">eth</option>
-                                        <option value="xDAI">xdai</option>
-                                        <option value="MATIC">matic</option>
-                                </select>&nbsp; 0.0</p>
-                            <p class="fw-bold text-primary card-text mb-2">&nbsp; <span style="font-weight: normal !important; color: rgb(255, 255, 255);">chd</span> 0.0</p>
-                            <button class="btn btn-primary btn-sm" type="button" id="connectButton">swap</button>
+                    <div class="tab-content " id="pills-tabContent">
+                        <div class="swap-container tab-pane fade show active" id="pills-swap" role="tabpanel"
+                            aria-labelledby="pills-swap-tab">
+        
+                            <div class="swap-contents">
+                                <div class="card swap-contents-card">
+                                    <div class="swap-head card-header">
+                                        swap
+                                    </div>
+                                    <div class="card-body">
+                                        <div class="card-input input-group">
+                                            <div class="input-card-top">
+                                                <input type="text" value="" placeholder="0.0" class="form-control"
+                                                   id="from-amount">
+                                                <div>
+                                                        <select class="btn dropdown-toggle" name="currency" id="swapCurrency" style="padding: 1px;border-radius: 1px;border-top-left-radius: 10px;border-top-right-radius: 10px;border-bottom-right-radius: 10px;border-bottom-left-radius: 10px;">
+                                                            <option value="ETH" selected=""  style = "background-color:#212429">eth</option>
+                                                            <option value="xDAI"  style = "background-color:#212429">xdai</option>
+                                                            <option value="MATIC" style = "background-color:#212429">matic</option>
+                                                            <option value="chd"   style = "background-color:#212429">chd</option>
+                                                        </select>
+                                                </div>
+                                            </div>
+                                            <div class="card-arrow"><img src="../pages/assets/img/arrow.png" alt=""></div>
+                                            <div class="input-card-top">
+                                                <input type="text" value="" class="form-control" id="to-amount" disabled>
+                                                <div class="dropdown">
+                                                    <select class="btn dropdown-toggle" name="currency" id="swapCurrency" style="padding: 1px;border-radius: 1px;border-top-left-radius: 10px;border-top-right-radius: 10px;border-bottom-right-radius: 10px;border-bottom-left-radius: 10px;">
+                                                        <option value="ETH" selected=""  style = "background-color:#212429;">eth</option>
+                                                        <option value="xDAI"  style = "background-color:#212429">xdai</option>
+                                                        <option value="MATIC" style = "background-color:#212429">matic</option>
+                                                        <option value="chd"   style = "background-color:#212429">chd</option>
+                                                    </select>
+                                                </div>
+                                            </div>
+                                            <div>estimated gas: <span id="gas-estimate"></span></div>
+                                        </div>
+                                        <button type="button" class="connect-wallet-down" id="connectButton">
+                                            connect wallet
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
-                        <br>
-                    </div>
-                    <br>
-                    <div class="card bg-primary-light">
-                        <div class="card-body text-center px-4 py-5 px-md-5">
-                            <h1 style="font-size: 20px;">swap chd for eth/matic/xdai</h1>
-                            <p class="fw-bold text-primary card-text mb-2">&nbsp; <span style="font-weight: normal !important; color: rgb(255, 255, 255);">chd</span> 0.0</p>
-                            <p class="fw-bold text-primary card-text mb-2"><select name="currency" id="swapCurrency" style="padding: 1px;border-radius: 1px;border-top-left-radius: 10px;border-top-right-radius: 10px;border-bottom-right-radius: 10px;border-bottom-left-radius: 10px;">
-                                        <option value="ETH" selected="">eth</option>
-                                        <option value="xDAI">xdai</option>
-                                        <option value="MATIC">matic</option>
-                                </select>&nbsp; 0.0</p>
-                            <button class="btn btn-primary btn-sm" type="button" id="connectButton">swap</button>
                         </div>
-                        <br>
+        
+                        </div>
                     </div>
+                </div>
                 </div>
             </div>
         </div>
