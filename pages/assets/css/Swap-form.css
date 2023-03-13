@@ -1,0 +1,159 @@
+.input-card-top2 {
+  display: flex;
+  margin-top: 10px;
+}
+
+.input-card-top {
+  background: gray !important;
+}
+
+.input-img {
+  width: 30px;
+  height: 30px;
+}
+
+.center ul li {
+  gap: 10px;
+  background: inherit !important;
+}
+
+.center ul li a {
+  background: none !important;
+  color: white !important;
+  gap: 50px;
+}
+
+.top-connect button {
+  background: rgb(23, 41, 65) !important;
+  color: white;
+  font-weight: 600;
+  opacity: 0.6;
+}
+
+.top-connect button:hover {
+  opacity: 0.9;
+}
+
+.right .ethereum-coin span {
+  margin-right: 5px;
+}
+
+.main-boby {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  margin-top: 100px;
+  left: 200px;
+}
+
+.main-boby .swap-contents .swap-contents-card {
+  border-radius: 20px;
+  height: 300px !important;
+  width: 500px;
+  background: rgb(25, 27, 31) !important;
+}
+
+.card-input input {
+  background: rgb(33, 36, 41) !important;
+  font-weight: 500;
+  font-size: 28px;
+  border: none;
+}
+
+.input-card-below {
+  display: flex !important;
+  width: 100% !important;
+}
+
+.input-card-below input {
+  margin-top: 10px;
+  width: 100% !important;
+}
+
+.card-input input:focus {
+  background: inherit !important;
+  outline: none;
+  border: none;
+}
+
+.card-arrow {
+  display: flex;
+  width: 100%;
+  position: absolute;
+  align-items: center;
+  justify-content: center;
+  left: 40%;
+  top: 35%;
+  background: rgb(173, 173, 173);
+  width: 35px;
+  height: 35px;
+  color: white;
+  border-radius: 50% !important;
+  border: 5px solid rgb(24, 26, 30) !important;
+  z-index: 99 !important;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  padding: 2px;
+}
+
+.card-arrow:hover {
+  background: rgb(33, 36, 41);
+  opacity: 0.5;
+}
+
+.connect-wallet-down {
+  width: 100% !important;
+  height: 50px !important;
+  background: rgb(23, 41, 65);
+  border-radius: 20px;
+  font-weight: 500 !important;
+  align-items: center !important;
+  cursor: pointer;
+  color: rgb(80, 144, 234);
+  border: none !important;
+  margin-top: 20px;
+}
+
+.connect-wallet-down:hover {
+  background-color: rgba(19, 54, 98, 0.44);
+}
+
+.input-card-top {
+  display: flex;
+  background: rgb(33, 36, 41) !important;
+  font-weight: 500;
+  align-items: center;
+  font-size: 28px;
+  border: none;
+  border-radius: 20px;
+  width: 100% !important;
+}
+
+.input-card-top input {
+  outline: none !important;
+  outline-style: none !important;
+}
+
+.input-card-top button {
+  margin-right: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 20px;
+  padding: 18px;
+}
+
+.swap-head {
+  display: flex;
+}
+
+.input-card-top {
+  margin-bottom: 10px;
+}
+
+.input-card-top div button {
+  height: 30px !important;
+  font-weight: 600 !important;
+  color: white;
+  font-size: 20px;
+}
