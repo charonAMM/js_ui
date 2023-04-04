@@ -47,9 +47,11 @@ function poseidon(inputs){
 
 
 function makeSendModal(){
-   send= new BrowserWindow({width: 700, height: 500}) 
+   sendWindow= new BrowserWindow({width: 700, height: 500, webPreferences: {
+      contentSecurityPolicy: "default-src 'self';",
+   }})
    console.log("loading")
-   send.loadURL(url.format ({ 
+   sendWindow.loadURL(url.format ({ 
        pathname: path.join(__dirname, '../modals/sendModal.html'), 
        protocol: 'file:', 
        slashes: true 
@@ -156,6 +158,7 @@ polCharon.queryFilter(filter, polSet[0], "latest").then(function(evtData){
 }
 
 $('#signAndSend').on('click', () => {
+   console.log("test")
    send()
 })
 

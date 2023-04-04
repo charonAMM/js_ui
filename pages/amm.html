@@ -118,23 +118,23 @@
                                     <div class="card-body">
                                         <div class="card-input input-group">
                                             <div class="input-card-top">
-                                                <input type="text" value="" placeholder="0.0" class="form-control"
-                                                   id="from-amount">
+                                                <input type="text" value="" placeholder="0" class="form-control"
+                                                   id="from-amount" style="color: whitesmoke;"> 
                                                 <div>
-                                                        <select class="btn dropdown-toggle" name="currency" id="swapCurrency" style="padding: 1px;border-radius: 1px;border-top-left-radius: 10px;border-top-right-radius: 10px;border-bottom-right-radius: 10px;border-bottom-left-radius: 10px;">
+                                                        <select class="btn dropdown-toggle" name="currency" id="from-currency" onchange= "updateToDropdown()" style="padding: 1px;border-radius: 1px;border-top-left-radius: 10px;border-top-right-radius: 10px;border-bottom-right-radius: 10px;border-bottom-left-radius: 10px;">
                                                             <option value="ETH" selected=""  style = "background-color:#212429">eth</option>
-                                                            <option value="xDAI"  style = "background-color:#212429">xdai</option>
+                                                            <option value="xDAI"  style = "background-color:#212429" disabled>xdai</option>
                                                             <option value="MATIC" style = "background-color:#212429">matic</option>
                                                             <option value="chd"   style = "background-color:#212429">chd</option>
                                                         </select>
                                                 </div>
-                                            </div>
+                                            </div> 
                                             <div class="card-arrow"><img src="../pages/assets/img/arrow.png" alt=""></div>
                                             <div class="input-card-top">
-                                                <input type="text" value="" class="form-control" id="to-amount" disabled>
+                                                <input type="text" value="" placeholder= "0" class="form-control" id="to-amount" style="color: whitesmoke;">
                                                 <div class="dropdown">
-                                                    <select class="btn dropdown-toggle" name="currency" id="swapCurrency" style="padding: 1px;border-radius: 1px;border-top-left-radius: 10px;border-top-right-radius: 10px;border-bottom-right-radius: 10px;border-bottom-left-radius: 10px;">
-                                                        <option value="ETH" selected=""  style = "background-color:#212429;">eth</option>
+                                                    <select class="btn dropdown-toggle" onchange= "updateToDropdown()" name="currency" id="to-currency" style="padding: 1px;border-radius: 1px;border-top-left-radius: 10px;border-top-right-radius: 10px;border-bottom-right-radius: 10px;border-bottom-left-radius: 10px;">
+                                                        <option value="ETH" style = "background-color:#212429;" disabled>eth</option>
                                                         <option value="xDAI"  style = "background-color:#212429">xdai</option>
                                                         <option value="MATIC" style = "background-color:#212429">matic</option>
                                                         <option value="chd"   style = "background-color:#212429">chd</option>
@@ -143,10 +143,12 @@
                                             </div>
                                             <div>estimated gas: <span id="gas-estimate"></span></div>
                                         </div>
-                                        <button type="button" class="connect-wallet-down" id="connectButton">
+                                        <!-- <button type="button" class="connect-wallet-down" id="connectButton">
                                             connect wallet
-                                        </button>
-                                    </div>
+                                        </button> -->
+                                            <button type="button" class="swap-down" id="swapButton">
+                                                swap
+                                            </button>
                                 </div>
                             </div>
                         </div>

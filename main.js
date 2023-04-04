@@ -12,7 +12,8 @@ function createWindow() {
       webPreferences: {
         nodeIntegration: true,
         enableRemoteModule: true,
-        contextIsolation: false
+        contextIsolation: false,
+        contentSecurityPolicy: "default-src 'self';"
       }})
    require("@electron/remote/main").enable(win.webContents) 
    win.loadURL(url.format ({ 

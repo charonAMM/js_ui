@@ -20,7 +20,8 @@
     "jquery": "^3.6.3"
   },
   "devDependencies": {
+    "@types/jquery": "^3.5.16",
     "babel-plugin-transform-object-rest-spread": "^6.26.0",
-    "electron": "^23.1.1"
+    "electron": "^23.2.1"
   }
 }
