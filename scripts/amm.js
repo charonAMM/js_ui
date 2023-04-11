@@ -115,6 +115,7 @@ $("#swapButton").on('click', () => {
 });
 
 const fromAmountBox = document.getElementById('from-amount');
+
 fromAmountBox.addEventListener('input', function (event) {
   const inputValue = event.target.value;
   if (!isNaN(inputValue)) {
@@ -123,11 +124,13 @@ fromAmountBox.addEventListener('input', function (event) {
 });
 
 const toAmountBox = document.getElementById('to-amount');
+
 toAmountBox.addEventListener('input', function (event) {
   const inputValue = event.target.value;
   if (!isNaN(inputValue)) {
     console.log('Number typed:', inputValue);
   }
+});
 
 
 
@@ -149,5 +152,6 @@ function prepareSwitchButtonClick() {
     toCurrencyDropdown.innerHTML = toCurrencyOptions;
   });
 }
+
 
 loadAndDisplay()
