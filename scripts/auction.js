@@ -38,6 +38,7 @@ ethCIT = new ethers.Contract(process.env.ETHEREUM_CIT, citABI, ethWallet);
 // }
 
 $('#signAndBid').on('click', () => {
+   console.log("sign and bid clicked")
    if($('#bidAmount').val() > $('#topBid').text()) {
       ethCIT.bid().then((result) => console.log(result));
    }
@@ -69,20 +70,28 @@ function timeUntil(timeStamp) {
    return d + " days, " + h + " hours, " + m + " minutes, ";
 }
 
-function setPublicBalances() {
-   ethCIT.topBidder().then((result) => $('#topBidder').text(result))
-   ethCIT.currentTopBid().then((result) => $('#topBid').text(Math.round(ethers.utils.formatEther(result) * 100) / 100));
-   ethCIT.endDate().then((result) => $('#timeLeft').text(timeUntil(result)));
+async function setPublicBalances() {
+   await ethCIT.topBidder().then((result) => $('#topBidder').text(result))
+   await ethCIT.currentTopBid().then((result) => $('#topBid').text(Math.round(ethers.utils.formatEther(result) * 100) / 100));
+
+   const currentDate = new Date();
+   const endDate = await ethCIT.endDate();
+
+   if (endDate <= currentDate) {
+      $('#timeLeft').text("0 day, 0 hours, 0 minutes,");
+      $('#endFeeRoundButton').removeAttr('disabled');
+      $('#bid').attr('disabled', true);
+      $('#endFeeRoundButton').on('click', async () => {
+         await ethCIT.startNewAuction().then((result) => console.log(result));
+         loadAndDisplay()
+      })
+   }else {
+   await ethCIT.endDate().then((result) => $('#timeLeft').text(timeUntil(result)));
+   $('#bid').removeAttr('disabled');
+   }
 }
 function loadAndDisplay() {
    setPublicBalances()
-
-   if (timeUntil(ethCIT.endDate()) == "0 days, 0 hours, 0 minutes, ") {
-      $('#claimFundsButton').removeAttr('disabled');
-      $('#claimFundsButton').on('click', () => {
-         ethCIT.startNewAuction().then((result) => console.log(result));
-      })
-   }
 }
 
 function makeBidModal() {

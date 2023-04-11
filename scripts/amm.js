@@ -30,100 +30,124 @@ polCharon = new ethers.Contract(process.env.POLYGON_CHARON, charonABI, polWallet
 
 function setPublicBalances() {
 
-   //chdTokens
-   ethCHD.balanceOf(ethWallet.address).then((result) => $('#chdETHBal').text(Math.round(ethers.utils.formatEther(result) * 100) / 100));
-   gnoCHD.balanceOf(gnoWallet.address).then((result) => $('#chdGNOBal').text(Math.round(ethers.utils.formatEther(result) * 100) / 100));
-   polCHD.balanceOf(polWallet.address).then((result) => $('#chdPOLBal').text(Math.round(ethers.utils.formatEther(result) * 100) / 100));
+  //chdTokens
+  ethCHD.balanceOf(ethWallet.address).then((result) => $('#chdETHBal').text(Math.round(ethers.utils.formatEther(result) * 100) / 100));
+  gnoCHD.balanceOf(gnoWallet.address).then((result) => $('#chdGNOBal').text(Math.round(ethers.utils.formatEther(result) * 100) / 100));
+  polCHD.balanceOf(polWallet.address).then((result) => $('#chdPOLBal').text(Math.round(ethers.utils.formatEther(result) * 100) / 100));
 
-   //baseTokens
+  //baseTokens
 
-   ethProvider.getBalance(ethWallet.address).then((result) => $('#ethBal').text(Math.round(ethers.utils.formatEther(result) * 100) / 100));
-   gnosisProvider.getBalance(gnoWallet.address).then((result) => $('#xDAIBal').text(Math.round(ethers.utils.formatEther(result) * 100) / 100));
-   polygonProvider.getBalance(polWallet.address).then((result) => $('#maticBal').text(Math.round(ethers.utils.formatEther(result) * 100) / 100));
+  ethProvider.getBalance(ethWallet.address).then((result) => $('#ethBal').text(Math.round(ethers.utils.formatEther(result) * 100) / 100));
+  gnosisProvider.getBalance(gnoWallet.address).then((result) => $('#xDAIBal').text(Math.round(ethers.utils.formatEther(result) * 100) / 100));
+  polygonProvider.getBalance(polWallet.address).then((result) => $('#maticBal').text(Math.round(ethers.utils.formatEther(result) * 100) / 100));
 
-   //lpTokens
-   ethCharon.balanceOf(ethWallet.address).then((result) => $('#lpETHBal').text(Math.round(ethers.utils.formatEther(result) * 100) / 100));
-   gnoCharon.balanceOf(gnoWallet.address).then((result) => $('#lpGNOBal').text(Math.round(ethers.utils.formatEther(result) * 100) / 100));
-   polCharon.balanceOf(polWallet.address).then((result) => $('#lpPOLBal').text(Math.round(ethers.utils.formatEther(result) * 100) / 100));
+  //lpTokens
+  ethCharon.balanceOf(ethWallet.address).then((result) => $('#lpETHBal').text(Math.round(ethers.utils.formatEther(result) * 100) / 100));
+  gnoCharon.balanceOf(gnoWallet.address).then((result) => $('#lpGNOBal').text(Math.round(ethers.utils.formatEther(result) * 100) / 100));
+  polCharon.balanceOf(polWallet.address).then((result) => $('#lpPOLBal').text(Math.round(ethers.utils.formatEther(result) * 100) / 100));
 
 }
 function loadAndDisplay() {
-   setPublicBalances()
-   prepareSwapButtonClick()
-
+  setPublicBalances()
+  prepareSwitchButtonClick()
 }
 
 function swap() {
-    const fromAmountInput = document.getElementById('from-amount');
-    const toAmountInput = document.getElementById('to-amount');
-    const fromCurrencyDropdown = document.getElementById('from-currency');
-    const toCurrencyDropdown = document.getElementById('to-currency');
-    const fromAmount = ethers.utils.parseEther(fromAmountInput.value);
-    const toAmount = ethers.utils.parseEther(toAmountInput.value);
-    const fromCurrency = fromCurrencyDropdown.value;
-    const toCurrency = toCurrencyDropdown.value;
+  const fromAmountInput = document.getElementById('from-amount');
+  const toAmountInput = document.getElementById('to-amount');
+  const fromCurrencyDropdown = document.getElementById('from-currency');
+  const toCurrencyDropdown = document.getElementById('to-currency');
+  const fromAmount = ethers.utils.parseEther(fromAmountInput.value);
+  const toAmount = ethers.utils.parseEther(toAmountInput.value);
+  const fromCurrency = fromCurrencyDropdown.value;
+  const toCurrency = toCurrencyDropdown.value;
 
-    if (fromCurrency === "ETH") {
+  if (fromCurrency === "ETH") {
     ethCharon.swap(fromAmount, fromCurrency, toCurrency).then((result) => {
-        console.log("swap result", result)
-        loadAndDisplay()
+      console.log("swap result", result)
+      loadAndDisplay()
     })
-    } else if (fromCurrency === "xDAI") {
+  } else if (fromCurrency === "xDAI") {
     gnoCharon.swap(fromAmount, fromCurrency, toCurrency).then((result) => {
-        console.log("swap result", result)
-        loadAndDisplay()
+      console.log("swap result", result)
+      loadAndDisplay()
     })
-    } else if (fromCurrency === "MATIC") {
+  } else if (fromCurrency === "MATIC") {
     polCharon.swap(fromAmount, fromCurrency, toCurrency).then((result) => {
-        console.log("swap result", result)
-        loadAndDisplay()
+      console.log("swap result", result)
+      loadAndDisplay()
     })
-    }
+  }
 }
 
 
 
 function updateToDropdown() {
-   const fromValue = document.getElementById("from-currency").value;
-   const toDropdown = document.getElementById("to-currency");
-   for (let i = 0; i < toDropdown.options.length; i++) {
-     if (toDropdown.options[i].value === fromValue) {
-       toDropdown.options[i].disabled = true;
-       if (toDropdown.options[i].selected) {
-         toDropdown.selectedIndex = (i + 1) % toDropdown.options.length;
-       }
-     } else {
-       toDropdown.options[i].disabled = false;
-     }
-   }
- 
-   const toValue = document.getElementById("to-currency").value;
-   const fromDropdown = document.getElementById("from-currency");
-   for (let i = 0; i < fromDropdown.options.length; i++) {
-     if (fromDropdown.options[i].value === toValue) {
-       fromDropdown.options[i].disabled = true;
-       if (fromDropdown.options[i].selected) {
-         fromDropdown.selectedIndex = (i + 1) % fromDropdown.options.length;
-       }
-     } else {
-       fromDropdown.options[i].disabled = false;
-     }
-   }
+  const fromValue = document.getElementById("from-currency").value;
+  const toDropdown = document.getElementById("to-currency");
+  for (let i = 0; i < toDropdown.options.length; i++) {
+    if (toDropdown.options[i].value === fromValue) {
+      toDropdown.options[i].disabled = true;
+      if (toDropdown.options[i].selected) {
+        toDropdown.selectedIndex = (i + 1) % toDropdown.options.length;
+      }
+    } else {
+      toDropdown.options[i].disabled = false;
+    }
+  }
+
+  const toValue = document.getElementById("to-currency").value;
+  const fromDropdown = document.getElementById("from-currency");
+  for (let i = 0; i < fromDropdown.options.length; i++) {
+    if (fromDropdown.options[i].value === toValue) {
+      fromDropdown.options[i].disabled = true;
+      if (fromDropdown.options[i].selected) {
+        fromDropdown.selectedIndex = (i + 1) % fromDropdown.options.length;
+      }
+    } else {
+      fromDropdown.options[i].disabled = false;
+    }
+  }
 }
 
+$("#swapButton").on('click', () => {
+  swap()
+});
 
-function prepareSwapButtonClick() {
-   const fromAmountInput = document.getElementById('from-amount');
-   const toAmountInput = document.getElementById('to-amount');
-   const arrowImg = document.querySelector('.card-arrow img');
-   const fromCurrencyDropdown = document.getElementById('from-currency');
-   const toCurrencyDropdown = document.getElementById('to-currency');
+const fromAmountBox = document.getElementById('from-amount');
+fromAmountBox.addEventListener('input', function (event) {
+  const inputValue = event.target.value;
+  if (!isNaN(inputValue)) {
+    console.log('Number typed:', inputValue);
+  }
+});
 
-   arrowImg.addEventListener('click', () => {
-      [fromAmountInput.value, toAmountInput.value] = [toAmountInput.value, fromAmountInput.value];
-      [fromCurrencyDropdown.value, toCurrencyDropdown.value] = [toCurrencyDropdown.value, fromCurrencyDropdown.value];
-      updateToDropdown();
-   });
+const toAmountBox = document.getElementById('to-amount');
+toAmountBox.addEventListener('input', function (event) {
+  const inputValue = event.target.value;
+  if (!isNaN(inputValue)) {
+    console.log('Number typed:', inputValue);
+  }
+
+
+
+function prepareSwitchButtonClick() {
+  const fromAmountInput = document.getElementById('from-amount');
+  const toAmountInput = document.getElementById('to-amount');
+  const arrowImg = document.querySelector('.card-arrow img');
+  const fromCurrencyDropdown = document.getElementById('from-currency');
+  const toCurrencyDropdown = document.getElementById('to-currency');
+
+  arrowImg.addEventListener('click', () => {
+    const temp = fromAmountInput.value;
+    fromAmountInput.value = toAmountInput.value;
+    toAmountInput.value = temp;
+
+    const toCurrencyOptions = fromCurrencyDropdown.innerHTML;
+
+    fromCurrencyDropdown.innerHTML = toCurrencyDropdown.innerHTML;
+    toCurrencyDropdown.innerHTML = toCurrencyOptions;
+  });
 }
 
 loadAndDisplay()
