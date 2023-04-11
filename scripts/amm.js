@@ -61,97 +61,106 @@ function swap() {
   const toAmount = ethers.utils.parseEther(toAmountInput.value);
   const fromCurrency = fromCurrencyDropdown.value;
   const toCurrency = toCurrencyDropdown.value;
+  // TODO: get the actual max price
+  const maxPrice = ethers.utils.parseEther("1.0");
 
   if (fromCurrency === "ETH") {
-    ethCharon.swap(fromAmount, fromCurrency, toCurrency).then((result) => {
+    console.log("swapping ETH to CHD")
+    //bool inisCHD, tokenAmountIn, minAmountOut, maxPrice (max price willing to send the pool to)
+    ethCharon.swap(false, fromAmount, toAmount, maxPrice).then((result) => {
       console.log("swap result", result)
       loadAndDisplay()
     })
   } else if (fromCurrency === "xDAI") {
-    gnoCharon.swap(fromAmount, fromCurrency, toCurrency).then((result) => {
+    gnoCharon.swap(false, fromAmount, toAmount, maxPrice).then((result) => {
       console.log("swap result", result)
       loadAndDisplay()
     })
   } else if (fromCurrency === "MATIC") {
-    polCharon.swap(fromAmount, fromCurrency, toCurrency).then((result) => {
+    polCharon.swap(false, fromAmount, toAmount, maxPrice).then((result) => {
       console.log("swap result", result)
       loadAndDisplay()
     })
   }
-}
-
-
-
-function updateToDropdown() {
-  const fromValue = document.getElementById("from-currency").value;
-  const toDropdown = document.getElementById("to-currency");
-  for (let i = 0; i < toDropdown.options.length; i++) {
-    if (toDropdown.options[i].value === fromValue) {
-      toDropdown.options[i].disabled = true;
-      if (toDropdown.options[i].selected) {
-        toDropdown.selectedIndex = (i + 1) % toDropdown.options.length;
-      }
-    } else {
-      toDropdown.options[i].disabled = false;
+  else if (toCurrency == "ETH") {
+    console.log("swapping CHD to ETH")
+    ethCharon.swap(true, fromAmount, toAmount, maxPrice).then((result) => {
+      console.log("swap result", result)
+      loadAndDisplay()
     }
-  }
-
-  const toValue = document.getElementById("to-currency").value;
-  const fromDropdown = document.getElementById("from-currency");
-  for (let i = 0; i < fromDropdown.options.length; i++) {
-    if (fromDropdown.options[i].value === toValue) {
-      fromDropdown.options[i].disabled = true;
-      if (fromDropdown.options[i].selected) {
-        fromDropdown.selectedIndex = (i + 1) % fromDropdown.options.length;
-      }
-    } else {
-      fromDropdown.options[i].disabled = false;
+    )
+  } else if (toCurrency == "xDAI") {
+    console.log("swapping CHD to xDAI")
+    gnoCharon.swap(true, fromAmount, toAmount, maxPrice).then((result) => {
+      console.log("swap result", result)
+      loadAndDisplay()
     }
+    )
+  } else if (toCurrency == "MATIC") {
+    console.log("swapping CHD to MATIC")
+    polCharon.swap(true, fromAmount, toAmount, maxPrice).then((result) => {
+      console.log("swap result", result)
+      loadAndDisplay()
+    }
+    )
   }
 }
 
-$("#swapButton").on('click', () => {
-  swap()
-});
-
-const fromAmountBox = document.getElementById('from-amount');
-
-fromAmountBox.addEventListener('input', function (event) {
-  const inputValue = event.target.value;
-  if (!isNaN(inputValue)) {
-    console.log('Number typed:', inputValue);
-  }
-});
-
-const toAmountBox = document.getElementById('to-amount');
-
-toAmountBox.addEventListener('input', function (event) {
-  const inputValue = event.target.value;
-  if (!isNaN(inputValue)) {
-    console.log('Number typed:', inputValue);
-  }
-});
-
-
-
-function prepareSwitchButtonClick() {
-  const fromAmountInput = document.getElementById('from-amount');
-  const toAmountInput = document.getElementById('to-amount');
-  const arrowImg = document.querySelector('.card-arrow img');
-  const fromCurrencyDropdown = document.getElementById('from-currency');
-  const toCurrencyDropdown = document.getElementById('to-currency');
-
-  arrowImg.addEventListener('click', () => {
-    const temp = fromAmountInput.value;
-    fromAmountInput.value = toAmountInput.value;
-    toAmountInput.value = temp;
-
-    const toCurrencyOptions = fromCurrencyDropdown.innerHTML;
-
-    fromCurrencyDropdown.innerHTML = toCurrencyDropdown.innerHTML;
-    toCurrencyDropdown.innerHTML = toCurrencyOptions;
+  $("#swapButton").on('click', () => {
+    swap()
   });
-}
+
+  const fromAmountBox = document.getElementById('from-amount');
+  fromAmountBox.addEventListener('input', function (event) {
+    const inputValue = event.target.value;
+    if (!isNaN(inputValue)) {
+      console.log('Number typed:', inputValue);
+      // TODO: call output amount function
+      const outputAmount = inputValue * 1.5;
+      const toAmountBox = document.getElementById('to-amount');
+      toAmountBox.value = outputAmount;
+
+      // TODO: call estimateGas
+      $('#gas-estimate').text("0.000000")
+    }
+  });
+
+  const toAmountBox = document.getElementById('to-amount');
+  toAmountBox.addEventListener('input', function (event) {
+    const inputValue = event.target.value;
+    if (!isNaN(inputValue)) {
+      console.log('Number typed:', inputValue);
+      // TODO: call output amount function
+      const outputAmount = inputValue * 1.5;
+      const fromAmountBox = document.getElementById('from-amount');
+      fromAmountBox.value = outputAmount;
+
+      // TODO: call estimateGas
+      $('#gas-estimate').text("0.000000")
+
+    }
+  });
 
 
-loadAndDisplay()
+
+  function prepareSwitchButtonClick() {
+    const fromAmountInput = document.getElementById('from-amount');
+    const toAmountInput = document.getElementById('to-amount');
+    const arrowImg = document.querySelector('.card-arrow img');
+    const fromCurrencyDropdown = document.getElementById('from-currency');
+    const toCurrencyDropdown = document.getElementById('to-currency');
+
+    arrowImg.addEventListener('click', () => {
+      const temp = fromAmountInput.value;
+      fromAmountInput.value = toAmountInput.value;
+      toAmountInput.value = temp;
+
+      const toCurrencyOptions = fromCurrencyDropdown.innerHTML;
+
+      fromCurrencyDropdown.innerHTML = toCurrencyDropdown.innerHTML;
+      toCurrencyDropdown.innerHTML = toCurrencyOptions;
+    });
+  }
+
+
+  loadAndDisplay()
