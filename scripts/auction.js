@@ -55,38 +55,51 @@ $('bidAmount').on('input', () => {
    console.log("here")
 })
 
-
-function timeUntil(timeStamp) {
-   var now = new Date(),
-      ms = (timeStamp - now.getTime()) / 1000;
-   ms = Math.abs(Number(ms))
-   var d, h, m, s;
-   s = Math.floor(ms / 1000);
-   m = Math.floor(s / 60);
-   h = Math.floor(m / 60);
-   m = m % 60;
-   d = Math.floor(h / 24);
-   h = h % 24;
-   return d + " days, " + h + " hours, " + m + " minutes, ";
-}
+function timeLeft(timestamp) {
+   const now = Date.now();
+   const timeLeft = timestamp - now;
+   const seconds = Math.floor(timeLeft / 1000);
+   const days = Math.floor(seconds / (24 * 60 * 60));
+   const hours = Math.floor((seconds % (24 * 60 * 60)) / (60 * 60));
+   const minutes = Math.floor((seconds % (60 * 60)) / 60);
+   let timeString = '';
+   if (days > 0) {
+     timeString += days + ' day' + (days > 1 ? 's' : '') + ', ';
+   }
+   if (hours > 0) {
+     timeString += hours + ' hour' + (hours > 1 ? 's' : '') + ', ';
+   }
+   timeString += minutes + ' minute' + (minutes > 1 ? 's' : '');
+   return timeString;
+ }
+ 
 
 async function setPublicBalances() {
    await ethCIT.topBidder().then((result) => $('#topBidder').text(result))
    await ethCIT.currentTopBid().then((result) => $('#topBid').text(Math.round(ethers.utils.formatEther(result) * 100) / 100));
 
    const currentDate = new Date();
-   const endDate = await ethCIT.endDate();
+   const currentUnix = Math.floor(currentDate.getTime()/1000);
+   const endDateUnix = await ethCIT.endDate();
+   console.log("end date unix " + endDateUnix)
+   const endDateString = new Date( endDateUnix * 1000).toLocaleString();
+   console.log("curent date " + currentDate)
+   console.log("end date " + endDateString)
 
-   if (endDate <= currentDate) {
+   console.log("time left " + timeLeft(endDateUnix * 1000))
+  
+
+   if (endDateUnix <= currentUnix) {
       $('#timeLeft').text("0 day, 0 hours, 0 minutes,");
       $('#endFeeRoundButton').removeAttr('disabled');
       $('#bid').attr('disabled', true);
       $('#endFeeRoundButton').on('click', async () => {
+         console.log("end date" + endDateUnix)
          await ethCIT.startNewAuction().then((result) => console.log(result));
          loadAndDisplay()
       })
    }else {
-   await ethCIT.endDate().then((result) => $('#timeLeft').text(timeUntil(result)));
+   await ethCIT.endDate().then((result) => $('#timeLeft').text(timeLeft(result * 1000)));
    $('#bid').removeAttr('disabled');
    }
 }

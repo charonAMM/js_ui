@@ -52,7 +52,7 @@ function loadAndDisplay() {
   prepareSwitchButtonClick()
 }
 
-function swap() {
+async function swap() {
   const fromAmountInput = document.getElementById('from-amount');
   const toAmountInput = document.getElementById('to-amount');
   const fromCurrencyDropdown = document.getElementById('from-currency');
@@ -61,23 +61,77 @@ function swap() {
   const toAmount = ethers.utils.parseEther(toAmountInput.value);
   const fromCurrency = fromCurrencyDropdown.value;
   const toCurrency = toCurrencyDropdown.value;
-  // TODO: get the actual max price
-  const maxPrice = ethers.utils.parseEther("1.0");
+  const gasLimit = 300000;
 
   if (fromCurrency === "ETH") {
     console.log("swapping ETH to CHD")
+    console.log("record balance", ethers.utils.formatEther(await ethCharon.recordBalance()))
+    console.log("record balance synth", ethers.utils.formatEther(await ethCharon.recordBalanceSynth()))
+    const EthspotPrice = await ethCharon.calcSpotPrice(
+      await ethCharon.recordBalance(), // uint256 _tokenBalanceIn
+      await ethCharon.recordBalanceSynth(), // tokenBalanceOut
+      0
+  );
+  console.log("spotPrice", ethers.utils.formatEther(EthspotPrice));
+  const expectedIn = EthspotPrice * fromAmountInput.value
+  console.log("expectedIn", ethers.utils.formatEther(expectedIn.toString()))
+    minAmountOut = await ethCharon.calcOutGivenIn(
+    await ethCharon.recordBalance(), // uint256 _tokenBalanceIn
+    await ethCharon.recordBalanceSynth(), // tokenBalanceOut
+    ethers.utils.parseEther(expectedIn.toString()), //adjustedIn?
+    0 //swapFee
+    ) 
+    console.log("minAmountOut", ethers.utils.formatEther(minAmountOut))
     //bool inisCHD, tokenAmountIn, minAmountOut, maxPrice (max price willing to send the pool to)
-    ethCharon.swap(false, fromAmount, toAmount, maxPrice).then((result) => {
+    ethCharon.swap(false, fromAmount, minAmountOut, EthspotPrice, { gasLimit }).then((result) => {
       console.log("swap result", result)
       loadAndDisplay()
     })
   } else if (fromCurrency === "xDAI") {
-    gnoCharon.swap(false, fromAmount, toAmount, maxPrice).then((result) => {
+    console.log("swapping xDAI to CHD")
+    console.log("record balance", ethers.utils.formatEther(await gnoCharon.recordBalance()))
+    console.log("record balance synth", ethers.utils.formatEther(await gnoCharon.recordBalanceSynth()))
+    const GnospotPrice = await gnoCharon.calcSpotPrice(
+      await gnoCharon.recordBalance(), // uint256 _tokenBalanceIn
+      await gnoCharon.recordBalanceSynth(), // tokenBalanceOut
+      0
+  );
+  console.log("spotPrice", ethers.utils.formatEther(GnospotPrice));
+  const expectedIn = GnospotPrice * fromAmountInput.value
+  console.log("expectedIn", ethers.utils.formatEther(expectedIn.toString()))
+    minAmountOut = await gnoCharon.calcOutGivenIn(
+    await gnoCharon.recordBalance(), // uint256 _tokenBalanceIn
+    await gnoCharon.recordBalanceSynth(), // tokenBalanceOut
+    ethers.utils.parseEther(expectedIn.toString()), //adjustedIn?
+    0 //swapFee
+    )
+    console.log("minAmountOut", ethers.utils.formatEther(minAmountOut))
+    //bool inisCHD, tokenAmountIn, minAmountOut, maxPrice (max price willing to send the pool to)
+    gnoCharon.swap(false, fromAmount, minAmountOut, GnospotPrice, { gasLimit }).then((result) => {
       console.log("swap result", result)
       loadAndDisplay()
     })
   } else if (fromCurrency === "MATIC") {
-    polCharon.swap(false, fromAmount, toAmount, maxPrice).then((result) => {
+    console.log("swapping MATIC to CHD")
+    console.log("record balance", ethers.utils.formatEther(await polCharon.recordBalance()))
+    console.log("record balance synth", ethers.utils.formatEther(await polCharon.recordBalanceSynth()))
+    const PolspotPrice = await polCharon.calcSpotPrice(
+      await polCharon.recordBalance(), // uint256 _tokenBalanceIn
+      await polCharon.recordBalanceSynth(), // tokenBalanceOut
+      0
+  );
+  console.log("spotPrice", ethers.utils.formatEther(PolspotPrice));
+  const expectedIn = PolspotPrice * fromAmountInput.value
+  console.log("expectedIn", ethers.utils.formatEther(expectedIn.toString()))
+    minAmountOut = await polCharon.calcOutGivenIn(
+    await polCharon.recordBalance(), // uint256 _tokenBalanceIn
+    await polCharon.recordBalanceSynth(), // tokenBalanceOut
+    ethers.utils.parseEther(expectedIn.toString()), //adjustedIn?
+    0 //swapFee
+    )
+    console.log("minAmountOut", ethers.utils.formatEther(minAmountOut))
+    //bool inisCHD, tokenAmountIn, minAmountOut, maxPrice (max price willing to send the pool to)
+    polCharon.swap(false, fromAmount, minAmountOut, PolspotPrice, { gasLimit }).then((result) => {
       console.log("swap result", result)
       loadAndDisplay()
     })
@@ -116,7 +170,7 @@ function swap() {
     if (!isNaN(inputValue)) {
       console.log('Number typed:', inputValue);
       // TODO: call output amount function
-      const outputAmount = inputValue * 1.5;
+      const outputAmount = inputValue * 150;
       const toAmountBox = document.getElementById('to-amount');
       toAmountBox.value = outputAmount;
 
