@@ -11,6 +11,7 @@
     <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Inter:300italic,400italic,600italic,700italic,800italic,400,300,600,700,800&amp;display=swap">
     <link rel="stylesheet" href="../pages/assets/css/Login-Form-Basic-icons.css">
     <link rel="stylesheet" href="../pages/assets/css/Studious-selectbox.css">
+    <script src="../scripts/index.js"></script>
   </head>
   <body>
   <header class="bg-dark">
@@ -28,16 +29,22 @@
       <div class="card-body text-center">
           <h4 class="card-title">select chd type</h4>
           <h6 class="text-muted card-subtitle mb-2">please select a transaction chd type</h6>
-          <p><input type="checkbox" value="private">&nbsp; private</p>
-          <p><input type="checkbox" value="visible">&nbsp; visible</p>
+          <div class="d-flex justify-content-center align-items-center" style="margin-top: 30px; margin-bottom: 20px;">
+          <label class="switch" >
+            <span style="position: absolute; right: 80px; color:white;">public</span>
+            <input type="checkbox" name="visibility" id="txType-switch">
+            <span class="slider"></span>
+            <span style="position: absolute; left: 80px; color:white;">private</span>
+          </label>          
+        </div>
           <div class="row d-flex justify-content-center">
               <div class="col-md-6 col-xl-4">
                   <div class="card mb-5">
                       <div class="card-body d-flex flex-column align-items-center">
                           <form class="text-center" method="post">
                               <div class="mb-3"><input class="form-control" id="toAddy" name="fname" placeholder="address"></div>
-                              <div class="mb-3"><input class="form-control" id="toAmount" name="fname" placeholder="amount"></div>
-                              <div class="mb-3"><button class="btn btn-primary d-block w-100" type="submit" id="signAndSend">send</button></div>
+                              <div class="mb-3"><input class="form-control" id="toAmount" name="lname" placeholder="amount"></div>
+                              <div class="mb-3"><button class="btn btn-primary d-block w-100" type="button" id="signAndSend">send</button></div>
                               <p class="text-muted"></p>
                           </form>
                       </div>
@@ -55,6 +62,5 @@
   <script src="../pages/assets/js/bs-init.js"></script>
   <script src="../pages/assets/js/bold-and-dark.js"></script>
   <script src="../pages/assets/js/Studious-selectbox-selectbox.js"></script>
-  <script src = "../scripts/index.js" ></script>
 </body>
 </html>

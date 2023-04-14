@@ -7,14 +7,18 @@
     <title>charon - a privacy preserving cross-chain AMM</title>
     <link href="../public/Charon_mono.png" rel="icon">
     <link rel="stylesheet" href="assets/bootstrap/css/bootstrap.min.css">
-    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Inter:300italic,400italic,600italic,700italic,800italic,400,300,600,700,800&amp;display=swap">
+    <link rel="stylesheet"
+        href="https://fonts.googleapis.com/css?family=Inter:300italic,400italic,600italic,700italic,800italic,400,300,600,700,800&amp;display=swap">
     <link rel="stylesheet" href="../main.css" />
     <link rel="stylesheet" href="assets/css/Swap-form.css">
 </head>
 
 <body>
     <nav class="navbar navbar-dark navbar-expand-md sticky-top py-3" id="mainNav">
-        <div class="container"><a class="navbar-brand d-flex align-items-center" href="../pages/index.html"><span>charon</span></a><button data-bs-toggle="collapse" class="navbar-toggler" data-bs-target="#navcol-1"><span class="visually-hidden">Toggle navigation</span><span class="navbar-toggler-icon"></span></button>
+        <div class="container"><a class="navbar-brand d-flex align-items-center"
+                href="../pages/index.html"><span>charon</span></a><button data-bs-toggle="collapse"
+                class="navbar-toggler" data-bs-target="#navcol-1"><span class="visually-hidden">Toggle
+                    navigation</span><span class="navbar-toggler-icon"></span></button>
             <div class="collapse navbar-collapse" id="navcol-1">
                 <ul class="navbar-nav mx-auto">
                     <li class="nav-item"><a class="nav-link" href="../pages/index.html">home</a></li>
@@ -30,7 +34,7 @@
             <div class="row">
                 <div class="col-md-12">
                     <br></br>
-                    <p class="fw-bold text-success text-center" id ="myAddress">address</p>
+                    <p class="fw-bold text-success text-center" id="myAddress">address</p>
                 </div>
             </div>
             <div class="row">
@@ -45,15 +49,15 @@
                             <tbody>
                                 <tr>
                                     <td class="text-start">eth</td>
-                                    <td class="text-center" id = "ethBal">...</td>
+                                    <td class="text-center" id="ethBal">...</td>
                                 </tr>
                                 <tr class="text-center">
                                     <td class="text-start">chd</td>
-                                    <td class="text-center" id = "chdETHBal">...</td>
+                                    <td class="text-center" id="chdETHBal">...</td>
                                 </tr>
                                 <tr class="text-center">
                                     <td class="text-start">lp tokens</td>
-                                    <td class="text-center" id = "lpETHBal">...</td>
+                                    <td class="text-center" id="lpETHBal">...</td>
                                 </tr>
                             </tbody>
                         </table>
@@ -68,11 +72,11 @@
                             <tbody>
                                 <tr>
                                     <td class="text-start">xdai</td>
-                                    <td class="text-center" id = "xDAIBal">...</td>
+                                    <td class="text-center" id="xDAIBal">...</td>
                                 </tr>
                                 <tr class="text-center">
                                     <td class="text-start">chd</td>
-                                    <td class="text-center" id = "chdGNOBal">...</td>
+                                    <td class="text-center" id="chdGNOBal">...</td>
                                 </tr>
                                 <tr class="text-center">
                                     <td class="text-start">lp tokens</td>
@@ -95,7 +99,7 @@
                                 </tr>
                                 <tr class="text-center">
                                     <td class="text-start">chd</td>
-                                    <td class="text-center" id = "chdPOLBal">...</td>
+                                    <td class="text-center" id="chdPOLBal">...</td>
                                 </tr>
                                 <tr class="text-center">
                                     <td class="text-start">lp tokens</td>
@@ -109,7 +113,7 @@
                     <div class="tab-content " id="pills-tabContent">
                         <div class="swap-container tab-pane fade show active" id="pills-swap" role="tabpanel"
                             aria-labelledby="pills-swap-tab">
-        
+
                             <div class="swap-contents">
                                 <div class="card swap-contents-card">
                                     <div class="swap-head card-header">
@@ -118,45 +122,57 @@
                                     <div class="card-body">
                                         <div class="card-input input-group">
                                             <div class="input-card-top">
-                                                <input type="text" value="" placeholder="0.0" class="form-control"
-                                                   id="from-amount">
+                                                <input type="text" value="" placeholder="0" class="form-control"
+                                                    id="from-amount" style="color: whitesmoke;">
                                                 <div>
-                                                        <select class="btn dropdown-toggle" name="currency" id="swapCurrency" style="padding: 1px;border-radius: 1px;border-top-left-radius: 10px;border-top-right-radius: 10px;border-bottom-right-radius: 10px;border-bottom-left-radius: 10px;">
-                                                            <option value="ETH" selected=""  style = "background-color:#212429">eth</option>
-                                                            <option value="xDAI"  style = "background-color:#212429">xdai</option>
-                                                            <option value="MATIC" style = "background-color:#212429">matic</option>
-                                                            <option value="chd"   style = "background-color:#212429">chd</option>
-                                                        </select>
+                                                    <select class="btn dropdown-toggle" name="currency"
+                                                        id="from-currency"
+                                                        style="padding: 1px;border-radius: 1px;border-top-left-radius: 10px;border-top-right-radius: 10px;border-bottom-right-radius: 10px;border-bottom-left-radius: 10px;">
+                                                        <option value="ETH" selected=""
+                                                            style="background-color:#212429">eth</option>
+                                                        <option value="xDAI" style="background-color:#212429">xdai
+                                                        </option>
+                                                        <option value="MATIC" style="background-color:#212429">matic
+                                                        </option>
+                                                        <!-- <option value="chd"   style = "background-color:#212429">chd</option> -->
+                                                    </select>
                                                 </div>
                                             </div>
-                                            <div class="card-arrow"><img src="../pages/assets/img/arrow.png" alt=""></div>
+                                            <div class="card-arrow"><img src="../pages/assets/img/arrow.png" alt="">
+                                            </div>
                                             <div class="input-card-top">
-                                                <input type="text" value="" class="form-control" id="to-amount" disabled>
+                                                <input type="text" value="" placeholder="0" class="form-control"
+                                                    id="to-amount" style="color: whitesmoke;">
                                                 <div class="dropdown">
-                                                    <select class="btn dropdown-toggle" name="currency" id="swapCurrency" style="padding: 1px;border-radius: 1px;border-top-left-radius: 10px;border-top-right-radius: 10px;border-bottom-right-radius: 10px;border-bottom-left-radius: 10px;">
-                                                        <option value="ETH" selected=""  style = "background-color:#212429;">eth</option>
+                                                    <select class="btn dropdown-toggle" name="currency" id="to-currency"
+                                                        style="padding: 1px;border-radius: 1px;border-top-left-radius: 10px;border-top-right-radius: 10px;border-bottom-right-radius: 10px;border-bottom-left-radius: 10px;">
+                                                        <!-- <option value="ETH" style = "background-color:#212429;" disabled>eth</option>
                                                         <option value="xDAI"  style = "background-color:#212429">xdai</option>
-                                                        <option value="MATIC" style = "background-color:#212429">matic</option>
-                                                        <option value="chd"   style = "background-color:#212429">chd</option>
+                                                        <option value="MATIC" style = "background-color:#212429">matic</option> -->
+                                                        <option value="chd" style="background-color:#212429">chd
+                                                        </option>
                                                     </select>
+                                                    
                                                 </div>
                                             </div>
                                             <div>estimated gas: <span id="gas-estimate"></span></div>
                                         </div>
-                                        <button type="button" class="connect-wallet-down" id="connectButton">
+                                        <!-- <button type="button" class="connect-wallet-down" id="connectButton">
                                             connect wallet
+                                        </button> -->
+                                        <button type="button" class="swap-down" id="swapButton">
+                                            swap
                                         </button>
                                     </div>
                                 </div>
                             </div>
                         </div>
-                        </div>
-        
-                        </div>
+
                     </div>
                 </div>
-                </div>
             </div>
+        </div>
+        </div>
         </div>
     </header>
     <footer class="bg-dark">
@@ -168,7 +184,7 @@
     <script src="assets/bootstrap/js/bootstrap.min.js"></script>
     <script src="assets/js/bs-init.js"></script>
     <script src="assets/js/bold-and-dark.js"></script>
-    <script src = "../scripts/amm.js" ></script>
+    <script src="../scripts/amm.js"></script>
 </body>
 
 </html>

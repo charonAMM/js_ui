@@ -101,7 +101,7 @@
   opacity: 0.5;
 }
 
-.connect-wallet-down {
+.swap-down {
   width: 100% !important;
   height: 50px !important;
   background: rgb(23, 41, 65);
@@ -114,7 +114,7 @@
   margin-top: 20px;
 }
 
-.connect-wallet-down:hover {
+.swap-down:hover {
   background-color: rgba(19, 54, 98, 0.44);
 }
 

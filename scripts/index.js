@@ -47,10 +47,21 @@ function poseidon(inputs){
 
 
 function makeSendModal(){
-   send= new BrowserWindow({width: 700, height: 500}) 
+   sendWindow= new BrowserWindow({width: 700, height: 550, webPreferences: {nodeIntegration:false}})
    console.log("loading")
-   send.loadURL(url.format ({ 
+   sendWindow.loadURL(url.format ({ 
        pathname: path.join(__dirname, '../modals/sendModal.html'), 
+       protocol: 'file:', 
+       slashes: true 
+    })) 
+    console.log("done")
+}
+
+function makeBridgeModal(){
+   bridgeWindow= new BrowserWindow({width: 700, height: 500, webPreferences: {nodeIntegration:false}})
+   console.log("loading")
+   bridgeWindow.loadURL(url.format ({ 
+       pathname: path.join(__dirname, '../modals/bridgeModal.html'), 
        protocol: 'file:', 
        slashes: true 
     })) 
@@ -62,18 +73,31 @@ function send(){
    let _to = $('#toAddy').val()
    let _amount = $('#toAmount').val()
    let _network = $('input[name="netType"]:checked').val();
-   let _visType = $('input[name="visType"]:checked').val();
+   // let _visType = $('input[name="visType"]:checked').val();
+   let _visType = $('#txType-switch').prop('checked') ? 'public' : 'private';
    console.log(_network,_visType)
    console.log("to: ",_to, "amount ",_amount)
    if(_visType == "visible"){
       if(_network == "ethereum"){
          ethCHD.transfer(_to,_amount).then((result) => console.log(result));;
+         console.log("sent")
       }
       else if(_network == "gnosis"){
          gnoCHD.transfer(_to,_amount).then((result) => console.log(result));
       }
       else if (_network == "polygon"){
          polCHD.transfer(_to,_amount).then((result) => console.log(result));
+      }
+   }      
+   else{
+      if(_network == "ethereum"){
+         console.log("private send eth")
+      }
+      else if(_network == "gnosis"){
+         console.log("private send gno")
+      }
+      else if (_network == "polygon"){
+         console.log("private send pol")
       }
    }
 
@@ -155,12 +179,18 @@ polCharon.queryFilter(filter, polSet[0], "latest").then(function(evtData){
     });
 }
 
-$('#signAndSend').on('click', () => {
-   send()
-})
-
 $('#send').on('click', () => {
    makeSendModal()
+})
+
+$('#bridge').on('click', () => {
+   makeBridgeModal()
+})
+
+$('#signAndSend').on('click', () => {
+   console.log("sending")
+   send()
+   console.log("sent")
 })
 
 function loadPrivateBalances(){
