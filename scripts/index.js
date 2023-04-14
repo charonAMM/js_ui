@@ -9,6 +9,7 @@ const Utxo = require('../src/utxo')
 const { abi : chdABI } = require("../artifacts/charonAMM/contracts/CHD.sol/CHD.json")
 const { abi : charonABI } = require("../artifacts/charonAMM/contracts/Charon.sol/Charon.json")
 const { buildPoseidon } = require("circomlibjs");
+const { toFixedHex } = require('../src/utils.js')
 require('dotenv').config()
 let filename = 'bootstrap'
 let sno = 0
@@ -40,7 +41,6 @@ polCharon = new ethers.Contract(process.env.POLYGON_CHARON, charonABI , polWalle
 
 
 function poseidon(inputs){
-   console.log(builtPoseidon)
    let val = builtPoseidon(inputs)
    return builtPoseidon.F.toString(val)
  }
@@ -104,73 +104,77 @@ function send(){
 }
 
 function setData(){
-   if(fs.existsSync(filename)) {
-      let data = fs.readFileSync(filename, 'utf8').split(',')
-      ethSet = [data[0],data[1]]
-      polSet = [data[2],data[3]]
-      gnoSet = [data[4],data[5]]
-      fs.unlinkSync(filename);
-   }
+   let myKeypair = new Keypair({privkey:process.env.PRIVATE_KEY, myHashFunc: poseidon});
+   // if(fs.existsSync(filename)) {
+   //    let data = fs.readFileSync(filename, 'utf8').split(',')
+   //    ethSet = [data[0],data[1]]
+   //    polSet = [data[2],data[3]]
+   //    gnoSet = [data[4],data[5]]
+   //    fs.unlinkSync(filename);
+   //    console.log("it exists!!")
+   // }
 
       console.log(ethSet[0])
       console.log(polSet[0])
       console.log(gnoSet[0])
-   const eventFilter = ["0xf3843eddcfcac65d12d9f26261dab50671fdbf5dc44441816c8bbdace2411afd"];
-   let myUtxo;
-
-const filter =  ethCharon.filters.NewCommitment();
-ethCharon.queryFilter(filter, ethSet[0], "latest").then(function(evtData){
+let eventFilter = ethCharon.filters.NewCommitment()
+ethCharon.queryFilter(eventFilter,0,"latest").then(function(evtData){
    let index;
-   console.log("ETH evtData", evtData)
-   for (index in evtData) {
-      if(evtData[0].args._encryptedOutput){
-         console.log("encryptedOutput", evtData[0].args._encryptedOutput)
-         try{
-            myUtxo = Utxo.decrypt(myKeypair, evtData[0].args._encryptedOutput, evtData[0].args._index)
-            if(myUtxo.amount > 0){
-               ethSet[1] = ethSet[1] + myUtxo.amount;
-            }
-         }
-         catch{}
+   for (let i=0;i< evtData.length; i++) {
+            try{
+               myUtxo = Utxo.decrypt(myKeypair, evtData[i].args._encryptedOutput, evtData[i].args._index)
+               myUtxo.chainID = 5;
+            //nowCreate nullifier
+               myNullifier = myUtxo.getNullifier(poseidon)
+               myNullifier = toFixedHex(myNullifier)
+               ethCharon.isSpent(myNullifier).then(function(result){
+                  if(!result){
+                     ethSet[1] = ethSet[1] + parseInt(myUtxo.amount);
+                  }
+               })
+            }catch{}
       }
-   }
 })
-gnoCharon.queryFilter(filter, gnoSet[0], "latest").then(function(evtData){
+eventFilter = gnoCharon.filters.NewCommitment()
+gnoCharon.queryFilter(eventFilter,0, "latest").then(function(evtData){
    let index;
-   console.log("GNO evtData", evtData)
-   for (index in evtData) {
-      if(evtData[0].args._encryptedOutput){
-         console.log("encryptedOutput", evtData[0].args._encryptedOutput)
-         try{
-            myUtxo = Utxo.decrypt(myKeypair, evtData[0].args._encryptedOutput, evtData[0].args._index)
-            console.log("good decrypt :",myUtxo)
-            if(myUtxo.amount > 0){
-               console.log("good set", myUtxo.amount)
-               gnoSet[1] = gnoSet[1] + myUtxo.amount;
+   for (let i=0;i< evtData.length; i++) {
+      try{
+         myUtxo = Utxo.decrypt(myKeypair, evtData[i].args._encryptedOutput, evtData[i].args._index)
+         myUtxo.chainID = 10200;
+      //nowCreate nullifier
+         myNullifier = myUtxo.getNullifier(poseidon)
+         myNullifier = toFixedHex(myNullifier)
+         gnoCharon.isSpent(myNullifier).then(function(result){
+            if(!result){
+               gnoSet[1] = gnoSet[1] + parseInt(myUtxo.amount);
             }
-         }catch{}
-      }
-   }
+         })
+      }catch{}
+}
 })
-polCharon.queryFilter(filter, polSet[0], "latest").then(function(evtData){
-   let index;
-   console.log("POL evtData", evtData)
-   for (index in evtData) {
-      if(evtData[0].args._encryptedOutput){
-         console.log("encryptedOutput", evtData[0].args._encryptedOutput)
-         try{
-            myUtxo = Utxo.decrypt(myKeypair, evtData[0].args._encryptedOutput, evtData[0].args._index)
-            if(myUtxo.amount > 0){
-               polSet[1] = polSet[1] + myUtxo.amount;
+eventFilter = polCharon.filters.NewCommitment()
+polCharon.queryFilter(eventFilter,0, "latest").then(function(evtData){
+   let index, myNullifier;
+   for (let i=0;i< evtData.length; i++) {
+      try{
+         myUtxo = Utxo.decrypt(myKeypair, evtData[i].args._encryptedOutput, evtData[i].args._index)
+         myUtxo.chainID = 80001;
+      //nowCreate nullifier
+         myNullifier = myUtxo.getNullifier(poseidon)
+         myNullifier = toFixedHex(myNullifier)
+         polCharon.isSpent(myNullifier).then(function(result){
+            if(!result){
+               polSet[1] = polSet[1] + parseInt(myUtxo.amount);
             }
-         }catch{}
-      }
-   }
+         })
+      }catch{}
+}
 })
-
-   ethProvider.getBlockNumber().then((result) => ethSet[0] = result);
-   polygonProvider.getBlockNumber().then((result) => polSet[0] = result);
-   gnosisProvider.getBlockNumber().then((result) => gnoSet[0] = result);
+   //for testing, turn back on
+   // ethProvider.getBlockNumber().then((result) => ethSet[0] = result);
+   // polygonProvider.getBlockNumber().then((result) => polSet[0] = result);
+   // gnosisProvider.getBlockNumber().then((result) => gnoSet[0] = result);
 
    return new Promise(resolve => {
       setTimeout(() => {
@@ -178,6 +182,7 @@ polCharon.queryFilter(filter, polSet[0], "latest").then(function(evtData){
       }, 2000);
     });
 }
+
 
 $('#send').on('click', () => {
    makeSendModal()
@@ -200,18 +205,21 @@ function loadPrivateBalances(){
       console.log(ethSet, "eth")
       console.log(gnoSet, "gno")
       console.log(polSet, "pol")
-      $('#ethPCHD').text(Math.round(ethers.utils.formatEther(ethSet[1])*100)/100)
-      $('#gnoPCHD').text(Math.round(ethers.utils.formatEther(gnoSet[1])*100)/100)
-      $('#polPCHD').text(Math.round(ethers.utils.formatEther(polSet[1])*100)/100)
-      $('#totalBal').text(Math.round((eVal + gVal + pVal + ethSet[1] + gnoSet[1] + polSet[1])*100)/100)
+      let eeVal = Math.round(ethers.utils.formatEther(ethSet[1].toString())*100)/100;
+      let geVal = Math.round(ethers.utils.formatEther(gnoSet[1].toString())*100)/100;
+      let peVal = Math.round(ethers.utils.formatEther(polSet[1].toString())*100)/100
+      $('#ethPCHD').text(eeVal)
+      $('#gnoPCHD').text(geVal)
+      $('#polPCHD').text(peVal)
+      $('#totalBal').text(Math.round((eVal + gVal + pVal + eeVal + geVal +peVal)*100)/100)
 
       //update baseblock and balance in local file
       fs.writeFile(filename, '', (err) => {
          if(err)
             console.log(err)
       })
-      let _data = ethSet[0] + ',' + ethSet[1] + ',' + polSet[0] + ',' + polSet[1] + ',' + gnoSet[0]+ ',' + gnoSet[1]
-      fs.appendFile(filename, JSON.stringify(_data), (err) => err && console.error(err));
+      //let _data = ethSet[0] + ',' + ethSet[1] + ',' + polSet[0] + ',' + polSet[1] + ',' + gnoSet[0]+ ',' + gnoSet[1]
+      //fs.appendFile(filename, JSON.stringify(_data), (err) => err && console.error(err));
       //fs.appendFile(filename,  )
       //fs.unlinkSync(filename);//for testing
 }
@@ -234,7 +242,10 @@ function loadPublicBalances(){
    $('#ethCHD').text(eVal)
    $('#gnoCHD').text(gVal)
    $('#polCHD').text(pVal)
-   $('#totalBal').text(Math.round((eVal + gVal + pVal + ethSet[1] + gnoSet[1] + polSet[1])*100)/100)
+   let eeVal = Math.round(ethers.utils.formatEther(ethSet[1].toString())*100)/100;
+   let geVal = Math.round(ethers.utils.formatEther(gnoSet[1].toString())*100)/100;
+   let peVal = Math.round(ethers.utils.formatEther(polSet[1].toString())*100)/100
+   $('#totalBal').text(Math.round((eVal + gVal + pVal + eeVal + geVal + peVal)*100)/100)
 }
 
 function loadAndDisplayContacts() {  

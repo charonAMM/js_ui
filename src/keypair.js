@@ -113,9 +113,6 @@ class Keypair {
    * @returns {Buffer}
    */
   decrypt(data) {
-    console.log("decrypt")
-    console.log(data)
-    console.log(this.privkey)
     return Buffer.from(decrypt({encryptedData: unpackEncryptedMessage(data), privateKey: this.privkey.slice(2)}), 'base64')
   }
 }
