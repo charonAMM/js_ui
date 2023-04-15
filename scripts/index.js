@@ -10,14 +10,18 @@ const { abi : chdABI } = require("../artifacts/charonAMM/contracts/CHD.sol/CHD.j
 const { abi : charonABI } = require("../artifacts/charonAMM/contracts/Charon.sol/Charon.json")
 const { buildPoseidon } = require("circomlibjs");
 const { toFixedHex } = require('../src/utils.js')
+const { isFunction } = require('jquery')
 require('dotenv').config()
 let filename = 'bootstrap'
 let sno = 0
 let builtPoseidon, myKeypair
-let eVal,gVal,pVal;
+let eVal,gVal,pVal, peVal, pgVal,ppVal;
 let ethSet = [0,0] //block, balnce initSet
 let gnoSet = [0,0] //block, balnce initSet
 let polSet = [0,0] //block, balnce initSet
+let polUTXOs = [] //beSure to add in save mode
+let ethUTXOs = [] 
+let gnoUTXOs = [] 
 
 //   0x2a4eA8464bd2DaC1Ad4f841Dcc7A8EFB4d84A27d
 console.log("here")
@@ -97,6 +101,58 @@ function send(){
          console.log("private send gno")
       }
       else if (_network == "polygon"){
+         //ADD checkbox if withdraw, add MAX button to autofill balance
+         //get amount and address (can we just use an address?  Test that that person can then do something with it, if not, you need a registry?)
+         if(ppVal < _amount){
+            alert("not enough private balance on mumbai!!")
+         }
+         else{
+         let myUTXOs = []
+         let utxoAmount = 0
+         let changeUtxos = []
+         for(i=0;i<polUTXOs.length;i++){
+            if (utxoAmount >= amount){
+               break
+            }
+            else{
+               myUTXOs.push(polUTXOs[i])
+               utxoAmount += parseInt(polUTXOs[i].amount)
+            }
+         }
+           if(_withdrawal){
+              if(utxoAmount != amount){
+                  changeUtxos.push(new Utxo({
+                     amount: utxoAmount.sub(_amount),
+                     myHashFunc: poseidon,
+                     keypair: myKeypair,
+                     chainID: 80001
+                  }))
+              }
+           }
+           else{
+            changeUtxos.push(new Utxo({ amount: _amount,myHashFunc: poseidon, keypair: Keypair.fromString(_to,poseidon), chainID: 80001 }))
+            changeUtxos. push(new Utxo({
+                amount: utxoAmount.sub(_amount),
+                myHashFunc: poseidon,
+                keypair: myKeypair,
+                chainID: 80001
+            }))
+            _to = "0x0000000000000000000000000000000000000000"
+           }
+         //submit
+         prepareTransaction({
+               charon: polCharon,
+               inputs:myUTXOs,
+               outputs: changeUtxos,
+               recipient: _to,
+               privateChainID: 80001,
+               myHasherFunc: poseidon,
+               myHasherFunc2: poseidon2
+            }).then(function(inputData){
+               polCharon.transact(inputData.args,inputData.extData)
+            })
+         //to add, if fee > 0, send to relayer network!! (not built yet)
+         }
          console.log("private send pol")
       }
    }
@@ -205,13 +261,13 @@ function loadPrivateBalances(){
       console.log(ethSet, "eth")
       console.log(gnoSet, "gno")
       console.log(polSet, "pol")
-      let eeVal = Math.round(ethers.utils.formatEther(ethSet[1].toString())*100)/100;
-      let geVal = Math.round(ethers.utils.formatEther(gnoSet[1].toString())*100)/100;
-      let peVal = Math.round(ethers.utils.formatEther(polSet[1].toString())*100)/100
-      $('#ethPCHD').text(eeVal)
-      $('#gnoPCHD').text(geVal)
-      $('#polPCHD').text(peVal)
-      $('#totalBal').text(Math.round((eVal + gVal + pVal + eeVal + geVal +peVal)*100)/100)
+      peVal = Math.round(ethers.utils.formatEther(ethSet[1].toString())*100)/100;
+      pgVal = Math.round(ethers.utils.formatEther(gnoSet[1].toString())*100)/100;
+      ppVal = Math.round(ethers.utils.formatEther(polSet[1].toString())*100)/100
+      $('#ethPCHD').text(peVal)
+      $('#gnoPCHD').text(pgVal)
+      $('#polPCHD').text(ppVal)
+      $('#totalBal').text(Math.round((eVal + gVal + pVal + peVal + pgVal +ppVal)*100)/100)
 
       //update baseblock and balance in local file
       fs.writeFile(filename, '', (err) => {
@@ -242,10 +298,7 @@ function loadPublicBalances(){
    $('#ethCHD').text(eVal)
    $('#gnoCHD').text(gVal)
    $('#polCHD').text(pVal)
-   let eeVal = Math.round(ethers.utils.formatEther(ethSet[1].toString())*100)/100;
-   let geVal = Math.round(ethers.utils.formatEther(gnoSet[1].toString())*100)/100;
-   let peVal = Math.round(ethers.utils.formatEther(polSet[1].toString())*100)/100
-   $('#totalBal').text(Math.round((eVal + gVal + pVal + eeVal + geVal + peVal)*100)/100)
+   $('#totalBal').text(Math.round((eVal + gVal + pVal + peVal + pgVal + ppVal)*100)/100)
 }
 
 function loadAndDisplayContacts() {  
