@@ -33,15 +33,10 @@
     },
     {
       "inputs": [],
-      "name": "getTokens",
+      "name": "token",
       "outputs": [
         {
-          "internalType": "address",
-          "name": "",
-          "type": "address"
-        },
-        {
-          "internalType": "address",
+          "internalType": "contract IERC20",
           "name": "",
           "type": "address"
         }

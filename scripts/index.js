@@ -9,14 +9,19 @@ const Utxo = require('../src/utxo')
 const { abi: chdABI } = require("../artifacts/charonAMM/contracts/CHD.sol/CHD.json")
 const { abi: charonABI } = require("../artifacts/charonAMM/contracts/Charon.sol/Charon.json")
 const { buildPoseidon } = require("circomlibjs");
+const { toFixedHex } = require('../src/utils.js')
+const { isFunction } = require('jquery')
 require('dotenv').config()
 let filename = 'bootstrap'
 let sno = 0
 let builtPoseidon, myKeypair
-let eVal, gVal, pVal;
-let ethSet = [0, 0] //block, balnce initSet
-let gnoSet = [0, 0] //block, balnce initSet
-let polSet = [0, 0] //block, balnce initSet
+let eVal,gVal,pVal, peVal, pgVal,ppVal;
+let ethSet = [0,0] //block, balnce initSet
+let gnoSet = [0,0] //block, balnce initSet
+let polSet = [0,0] //block, balnce initSet
+let polUTXOs = [] //beSure to add in save mode
+let ethUTXOs = [] 
+let gnoUTXOs = [] 
 
 //   0x2a4eA8464bd2DaC1Ad4f841Dcc7A8EFB4d84A27d
 console.log("here")
@@ -38,9 +43,7 @@ ethCharon = new ethers.Contract(process.env.ETHEREUM_CHARON, charonABI, ethWalle
 gnoCharon = new ethers.Contract(process.env.GNOSIS_CHARON, charonABI, gnoWallet);
 polCharon = new ethers.Contract(process.env.POLYGON_CHARON, charonABI, polWallet);
 
-
-function poseidon(inputs) {
-   console.log(builtPoseidon)
+function poseidon(inputs){
    let val = builtPoseidon(inputs)
    return builtPoseidon.F.toString(val)
 }
@@ -58,9 +61,95 @@ function makeSendModal() {
    console.log("done")
 }
 
+function send(){
+   console.log("here")
+   let _to = $('#toAddy').val()
+   let _amount = $('#toAmount').val()
+   let _network = $('input[name="netType"]:checked').val();
+   // let _visType = $('input[name="visType"]:checked').val();
+   let _visType = $('#txType-switch').prop('checked') ? 'public' : 'private';
+   console.log(_network,_visType)
+   console.log("to: ",_to, "amount ",_amount)
+   if(_visType == "visible"){
+      if(_network == "ethereum"){
+         ethCHD.transfer(_to,_amount).then((result) => console.log(result));;
+         console.log("sent")
+      }
+      else if(_network == "gnosis"){
+         gnoCHD.transfer(_to,_amount).then((result) => console.log(result));
+      }
+      else if (_network == "polygon"){
+         polCHD.transfer(_to,_amount).then((result) => console.log(result));
+      }
+   }      
+   else{
+      if(_network == "ethereum"){
+         console.log("private send eth")
+      }
+      else if(_network == "gnosis"){
+         console.log("private send gno")
+      }
+      else if (_network == "polygon"){
+         //ADD checkbox if withdraw, add MAX button to autofill balance
+         //get amount and address (can we just use an address?  Test that that person can then do something with it, if not, you need a registry?)
+         if(ppVal < _amount){
+            alert("not enough private balance on mumbai!!")
+         }
+         else{
+         let myUTXOs = []
+         let utxoAmount = 0
+         let changeUtxos = []
+         for(i=0;i<polUTXOs.length;i++){
+            if (utxoAmount >= amount){
+               break
+            }
+            else{
+               myUTXOs.push(polUTXOs[i])
+               utxoAmount += parseInt(polUTXOs[i].amount)
+            }
+         }
+           if(_withdrawal){
+              if(utxoAmount != amount){
+                  changeUtxos.push(new Utxo({
+                     amount: utxoAmount.sub(_amount),
+                     myHashFunc: poseidon,
+                     keypair: myKeypair,
+                     chainID: 80001
+                  }))
+              }
+           }
+           else{
+            changeUtxos.push(new Utxo({ amount: _amount,myHashFunc: poseidon, keypair: Keypair.fromString(_to,poseidon), chainID: 80001 }))
+            changeUtxos. push(new Utxo({
+                amount: utxoAmount.sub(_amount),
+                myHashFunc: poseidon,
+                keypair: myKeypair,
+                chainID: 80001
+            }))
+            _to = "0x0000000000000000000000000000000000000000"
+           }
+         //submit
+         prepareTransaction({
+               charon: polCharon,
+               inputs:myUTXOs,
+               outputs: changeUtxos,
+               recipient: _to,
+               privateChainID: 80001,
+               myHasherFunc: poseidon,
+               myHasherFunc2: poseidon2
+            }).then(function(inputData){
+               polCharon.transact(inputData.args,inputData.extData)
+            })
+         //to add, if fee > 0, send to relayer network!! (not built yet)
+         }
+         console.log("private send pol")
+      }
+   }
+
 function makeBridgeModal() {
    // Enable @electron/remote module for the bridgeWindow's webContents
    bridgeModal = new BrowserWindow({ width: 720, height: 370, webPreferences: { nodeIntegration: true, enableRemoteModule: true, contextIsolation: false } })
+
 
    bridgeModal.loadURL(url.format({
       pathname: path.join(__dirname, '../modals/bridgeModal.html'),
@@ -70,81 +159,85 @@ function makeBridgeModal() {
    // bridgeModal.webContents.openDevTools()
 }
 
-function setData() {
-   if (fs.existsSync(filename)) {
-      let data = fs.readFileSync(filename, 'utf8').split(',')
-      ethSet = [data[0], data[1]]
-      polSet = [data[2], data[3]]
-      gnoSet = [data[4], data[5]]
-      fs.unlinkSync(filename);
-   }
+function setData(){
+   let myKeypair = new Keypair({privkey:process.env.PRIVATE_KEY, myHashFunc: poseidon});
+   // if(fs.existsSync(filename)) {
+   //    let data = fs.readFileSync(filename, 'utf8').split(',')
+   //    ethSet = [data[0],data[1]]
+   //    polSet = [data[2],data[3]]
+   //    gnoSet = [data[4],data[5]]
+   //    fs.unlinkSync(filename);
+   //    console.log("it exists!!")
+   // }
 
-   console.log(ethSet[0])
-   console.log(polSet[0])
-   console.log(gnoSet[0])
-   const eventFilter = ["0xf3843eddcfcac65d12d9f26261dab50671fdbf5dc44441816c8bbdace2411afd"];
-   let myUtxo;
-
-   const filter = ethCharon.filters.NewCommitment();
-   ethCharon.queryFilter(filter, ethSet[0], "latest").then(function (evtData) {
-      let index;
-      console.log("ETH evtData", evtData)
-      for (index in evtData) {
-         if (evtData[0].args._encryptedOutput) {
-            console.log("encryptedOutput", evtData[0].args._encryptedOutput)
-            try {
-               myUtxo = Utxo.decrypt(myKeypair, evtData[0].args._encryptedOutput, evtData[0].args._index)
-               if (myUtxo.amount > 0) {
-                  ethSet[1] = ethSet[1] + myUtxo.amount;
-               }
+      console.log(ethSet[0])
+      console.log(polSet[0])
+      console.log(gnoSet[0])
+let eventFilter = ethCharon.filters.NewCommitment()
+ethCharon.queryFilter(eventFilter,0,"latest").then(function(evtData){
+   let index;
+   for (let i=0;i< evtData.length; i++) {
+            try{
+               myUtxo = Utxo.decrypt(myKeypair, evtData[i].args._encryptedOutput, evtData[i].args._index)
+               myUtxo.chainID = 5;
+            //nowCreate nullifier
+               myNullifier = myUtxo.getNullifier(poseidon)
+               myNullifier = toFixedHex(myNullifier)
+               ethCharon.isSpent(myNullifier).then(function(result){
+                  if(!result){
+                     ethSet[1] = ethSet[1] + parseInt(myUtxo.amount);
+                  }
+               })
+            }catch{}
+      }
+})
+eventFilter = gnoCharon.filters.NewCommitment()
+gnoCharon.queryFilter(eventFilter,0, "latest").then(function(evtData){
+   let index;
+   for (let i=0;i< evtData.length; i++) {
+      try{
+         myUtxo = Utxo.decrypt(myKeypair, evtData[i].args._encryptedOutput, evtData[i].args._index)
+         myUtxo.chainID = 10200;
+      //nowCreate nullifier
+         myNullifier = myUtxo.getNullifier(poseidon)
+         myNullifier = toFixedHex(myNullifier)
+         gnoCharon.isSpent(myNullifier).then(function(result){
+            if(!result){
+               gnoSet[1] = gnoSet[1] + parseInt(myUtxo.amount);
             }
-            catch { }
-         }
-      }
-   })
-   gnoCharon.queryFilter(filter, gnoSet[0], "latest").then(function (evtData) {
-      let index;
-      console.log("GNO evtData", evtData)
-      for (index in evtData) {
-         if (evtData[0].args._encryptedOutput) {
-            console.log("encryptedOutput", evtData[0].args._encryptedOutput)
-            try {
-               myUtxo = Utxo.decrypt(myKeypair, evtData[0].args._encryptedOutput, evtData[0].args._index)
-               console.log("good decrypt :", myUtxo)
-               if (myUtxo.amount > 0) {
-                  console.log("good set", myUtxo.amount)
-                  gnoSet[1] = gnoSet[1] + myUtxo.amount;
-               }
-            } catch { }
-         }
-      }
-   })
-   polCharon.queryFilter(filter, polSet[0], "latest").then(function (evtData) {
-      let index;
-      console.log("POL evtData", evtData)
-      for (index in evtData) {
-         if (evtData[0].args._encryptedOutput) {
-            console.log("encryptedOutput", evtData[0].args._encryptedOutput)
-            try {
-               myUtxo = Utxo.decrypt(myKeypair, evtData[0].args._encryptedOutput, evtData[0].args._index)
-               if (myUtxo.amount > 0) {
-                  polSet[1] = polSet[1] + myUtxo.amount;
-               }
-            } catch { }
-         }
-      }
-   })
-
-   ethProvider.getBlockNumber().then((result) => ethSet[0] = result);
-   polygonProvider.getBlockNumber().then((result) => polSet[0] = result);
-   gnosisProvider.getBlockNumber().then((result) => gnoSet[0] = result);
-
+         })
+      }catch{}
+}
+})
+eventFilter = polCharon.filters.NewCommitment()
+polCharon.queryFilter(eventFilter,0, "latest").then(function(evtData){
+   let index, myNullifier;
+   for (let i=0;i< evtData.length; i++) {
+      try{
+         myUtxo = Utxo.decrypt(myKeypair, evtData[i].args._encryptedOutput, evtData[i].args._index)
+         myUtxo.chainID = 80001;
+      //nowCreate nullifier
+         myNullifier = myUtxo.getNullifier(poseidon)
+         myNullifier = toFixedHex(myNullifier)
+         polCharon.isSpent(myNullifier).then(function(result){
+            if(!result){
+               polSet[1] = polSet[1] + parseInt(myUtxo.amount);
+            }
+         })
+      }catch{}
+}
+})
+   //for testing, turn back on
+   // ethProvider.getBlockNumber().then((result) => ethSet[0] = result);
+   // polygonProvider.getBlockNumber().then((result) => polSet[0] = result);
+   // gnosisProvider.getBlockNumber().then((result) => gnoSet[0] = result);
    return new Promise(resolve => {
       setTimeout(() => {
          resolve('resolved');
       }, 2000);
    });
 }
+
 
 $('#send').on('click', () => {
    makeSendModal()
@@ -156,25 +249,28 @@ $('#bridge').on('click', () => {
 
 function loadPrivateBalances() {
    //try and load from stored file and set base block / balance (contract start if not)
-   //loop through all other events and get new ones
-   //set dom state
-   console.log(ethSet, "eth")
-   console.log(gnoSet, "gno")
-   console.log(polSet, "pol")
-   $('#ethPCHD').text(Math.round(ethers.utils.formatEther(ethSet[1]) * 100) / 100)
-   $('#gnoPCHD').text(Math.round(ethers.utils.formatEther(gnoSet[1]) * 100) / 100)
-   $('#polPCHD').text(Math.round(ethers.utils.formatEther(polSet[1]) * 100) / 100)
-   $('#totalBal').text(Math.round((eVal + gVal + pVal + ethSet[1] + gnoSet[1] + polSet[1]) * 100) / 100)
+      //loop through all other events and get new ones
+      //set dom state
+      console.log(ethSet, "eth")
+      console.log(gnoSet, "gno")
+      console.log(polSet, "pol")
+      peVal = Math.round(ethers.utils.formatEther(ethSet[1].toString())*100)/100;
+      pgVal = Math.round(ethers.utils.formatEther(gnoSet[1].toString())*100)/100;
+      ppVal = Math.round(ethers.utils.formatEther(polSet[1].toString())*100)/100
+      $('#ethPCHD').text(peVal)
+      $('#gnoPCHD').text(pgVal)
+      $('#polPCHD').text(ppVal)
+      $('#totalBal').text(Math.round((eVal + gVal + pVal + peVal + pgVal +ppVal)*100)/100)
 
-   //update baseblock and balance in local file
-   fs.writeFile(filename, '', (err) => {
-      if (err)
-         console.log(err)
-   })
-   let _data = ethSet[0] + ',' + ethSet[1] + ',' + polSet[0] + ',' + polSet[1] + ',' + gnoSet[0] + ',' + gnoSet[1]
-   fs.appendFile(filename, JSON.stringify(_data), (err) => err && console.error(err));
-   //fs.appendFile(filename,  )
-   //fs.unlinkSync(filename);//for testing
+      //update baseblock and balance in local file
+      fs.writeFile(filename, '', (err) => {
+         if(err)
+            console.log(err)
+      })
+      //let _data = ethSet[0] + ',' + ethSet[1] + ',' + polSet[0] + ',' + polSet[1] + ',' + gnoSet[0]+ ',' + gnoSet[1]
+      //fs.appendFile(filename, JSON.stringify(_data), (err) => err && console.error(err));
+      //fs.appendFile(filename,  )
+      //fs.unlinkSync(filename);//for testing
 }
 
 function setPublicBalances() {
@@ -195,7 +291,7 @@ function loadPublicBalances() {
    $('#ethCHD').text(eVal)
    $('#gnoCHD').text(gVal)
    $('#polCHD').text(pVal)
-   $('#totalBal').text(Math.round((eVal + gVal + pVal + ethSet[1] + gnoSet[1] + polSet[1]) * 100) / 100)
+   $('#totalBal').text(Math.round((eVal + gVal + pVal + peVal + pgVal + ppVal)*100)/100)
 }
 
 function loadAndDisplayContacts() {

@@ -15,8 +15,13 @@
       "outputs": [
         {
           "internalType": "bytes",
-          "name": "",
+          "name": "_value",
           "type": "bytes"
+        },
+        {
+          "internalType": "address",
+          "name": "_caller",
+          "type": "address"
         }
       ],
       "stateMutability": "nonpayable",

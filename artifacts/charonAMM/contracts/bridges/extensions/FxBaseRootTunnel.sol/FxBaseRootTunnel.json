@@ -77,19 +77,6 @@
     {
       "inputs": [
         {
-          "internalType": "bytes",
-          "name": "inputData",
-          "type": "bytes"
-        }
-      ],
-      "name": "receiveMessage",
-      "outputs": [],
-      "stateMutability": "nonpayable",
-      "type": "function"
-    },
-    {
-      "inputs": [
-        {
           "internalType": "address",
           "name": "_fxChildTunnel",
           "type": "address"
