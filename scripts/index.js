@@ -145,6 +145,7 @@ function send(){
          console.log("private send pol")
       }
    }
+}
 
 function makeBridgeModal() {
    // Enable @electron/remote module for the bridgeWindow's webContents
