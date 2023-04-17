@@ -59,7 +59,15 @@ async function swap() {
   const toCurrency = toCurrencyDropdown.value;
   const gasLimit = 300000;
 
+
+
   if (fromCurrency === "ETH") {
+    //check user has enough ETH
+    const ethBalance = await ethProvider.getBalance(ethWallet.address)
+    if (ethers.utils.formatEther(ethBalance) < ethers.utils.formatEther(fromAmount)) {
+      alert("You don't have enough ETH to make this swap")
+      return
+    }
     console.log("swapping ETH to CHD")
     console.log("record balance", ethers.utils.formatEther(await ethCharon.recordBalance()))
     console.log("record balance synth", ethers.utils.formatEther(await ethCharon.recordBalanceSynth()))
@@ -84,6 +92,11 @@ async function swap() {
       loadAndDisplay()
     })
   } else if (fromCurrency === "xDAI") {
+    const xDAIBalance = await gnosisProvider.getBalance(gnoWallet.address)
+    if (ethers.utils.formatEther(xDAIBalance) < ethers.utils.formatEther(fromAmount)) {
+      alert("You don't have enough xDAI to make this swap")
+      return
+    }
     console.log("swapping xDAI to CHD")
     console.log("record balance", ethers.utils.formatEther(await gnoCharon.recordBalance()))
     console.log("record balance synth", ethers.utils.formatEther(await gnoCharon.recordBalanceSynth()))
@@ -108,6 +121,11 @@ async function swap() {
       loadAndDisplay()
     })
   } else if (fromCurrency === "MATIC") {
+    const MATICBalance = await polygonProvider.getBalance(polWallet.address)
+    if (ethers.utils.formatEther(MATICBalance) < ethers.utils.formatEther(fromAmount)) {
+      alert("You don't have enough MATIC to make this swap")
+      return
+    }
     console.log("swapping MATIC to CHD")
     console.log("record balance", ethers.utils.formatEther(await polCharon.recordBalance()))
     console.log("record balance synth", ethers.utils.formatEther(await polCharon.recordBalanceSynth()))
@@ -133,6 +151,11 @@ async function swap() {
     })
   }
   else if (toCurrency == "ETH") {
+    const chdBalance = await ethCHD.getBalance(ethWallet.address)
+    if (ethers.utils.formatEther(chdBalance) < ethers.utils.formatEther(fromAmount)) {
+      alert("You don't have enough CHD to make this swap")
+      return
+    }
     console.log("swapping CHD to ETH")
     const chdSpotPrice = await ethCharon.calcSpotPrice(
       await ethCharon.recordBalanceSynth(), // uint256 _tokenBalanceIn
@@ -155,6 +178,11 @@ async function swap() {
     }
     )
   } else if (toCurrency == "xDAI") {
+    const chdBalance = await gnoCHD.getBalance(gnoWallet.address)
+    if (ethers.utils.formatEther(chdBalance) < ethers.utils.formatEther(fromAmount)) {
+      alert("You don't have enough CHD to make this swap")
+      return
+    }
     console.log("swapping CHD to xDAI")
     const chdSpotPrice = await gnoCharon.calcSpotPrice(
       await gnoCharon.recordBalanceSynth(), // uint256 _tokenBalanceIn
@@ -177,6 +205,11 @@ async function swap() {
     }
     )
   } else if (toCurrency == "MATIC") {
+    const chdBalance = await polCHD.getBalance(polWallet.address)
+    if (ethers.utils.formatEther(chdBalance) < ethers.utils.formatEther(fromAmount)) {
+      alert("You don't have enough CHD to make this swap")
+      return
+    }
     console.log("swapping CHD to MATIC")
     const chdSpotPrice = await polCharon.calcSpotPrice(
       await polCharon.recordBalanceSynth(), // uint256 _tokenBalanceIn
@@ -206,13 +239,13 @@ $("#swapButton").on('click', () => {
 });
 
 const fromAmountBox = document.getElementById('from-amount');
-fromAmountBox.addEventListener('input', async function (event) {
-  const swapButton = document.getElementById('swapButton');
-  const inputValue = event.target.value;
+fromAmountBox.addEventListener('input', () => calculateConversion());
+
+async function calculateConversion () {
+  const inputValue = fromAmountBox.value;
   const toAmountBox = document.getElementById('to-amount');
   if (!isNaN(inputValue)) {
     console.log('Number typed:', inputValue);
-    swapButton.disabled = true
     toAmountBox.value = "..."
     const fromCurrencyDropdown = document.getElementById('from-currency');
     const toCurrencyDropdown = document.getElementById('to-currency');
@@ -262,10 +295,34 @@ fromAmountBox.addEventListener('input', async function (event) {
     const outputAmount = ethers.utils.formatEther(expectedIn.toString());
     console.log("outputAmount", outputAmount)
     toAmountBox.value = (parseFloat(outputAmount).toFixed(3));
-    swapButton.disabled = false
-    $('#gas-estimate').text("0.000000")
+
+    await ethProvider.getFeeData().then((result) => {
+      console.log("result", result)
+      const gasPrice = result.gasPrice;
+      const gasLimit = result.maxFeePerGas;
+      const gasEstimate = gasPrice * gasLimit;
+      console.log("gasEstimate", gasEstimate)
+      console.log("gasLimit", gasLimit/1000000000)
+      $('#gas-estimate').text((gasEstimate/1000000000).toFixed(3))
+    })
+
+    //calculate slippage for ETH to CHD
+    if (fromCurrencyDropdown.value == "ETH" && toCurrencyDropdown.value == "chd") {
+      const minAmountOut = await ethCharon.calcSingleOutGivenIn(
+      await ethCharon.recordBalance(), // uint256 _tokenBalanceIn
+      await ethCharon.recordBalanceSynth(), // tokenBalanceOut
+      ethers.utils.parseEther(expectedIn.toString()), //adjustedIn
+      0, //swapFee
+      false // bool isPool
+    )
+      console.log("minAmountOut", ethers.utils.formatEther(minAmountOut))
+      console.log("expectedIn", ethers.utils.formatEther(expectedIn.toString()))
+      const slippage = (minAmountOut - expectedIn) / expectedIn;
+      console.log("slippage", slippage)
+      // $('#slippage').text((slippage * 100).toFixed(3))
+    }
   }
-});
+}
 
 function prepareSwitchButtonClick() {
   const fromAmountInput = document.getElementById('from-amount');
@@ -283,6 +340,8 @@ function prepareSwitchButtonClick() {
 
     fromCurrencyDropdown.innerHTML = toCurrencyDropdown.innerHTML;
     toCurrencyDropdown.innerHTML = toCurrencyOptions;
+
+    calculateConversion();
   });
 }
 
