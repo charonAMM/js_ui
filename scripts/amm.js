@@ -214,12 +214,48 @@ fromAmountBox.addEventListener('input', async function (event) {
     console.log('Number typed:', inputValue);
     swapButton.disabled = true
     toAmountBox.value = "..."
-    const EthspotPrice = await ethCharon.calcSpotPrice(
+    const fromCurrencyDropdown = document.getElementById('from-currency');
+    const toCurrencyDropdown = document.getElementById('to-currency');
+    let spotPrice;
+    if (fromCurrencyDropdown.value == "ETH") {
+      spotPrice = await ethCharon.calcSpotPrice(
       await ethCharon.recordBalance(), // uint256 _tokenBalanceIn
       await ethCharon.recordBalanceSynth(), // tokenBalanceOut
       0
     );
-    const expectedIn = EthspotPrice * inputValue
+    } else if (fromCurrencyDropdown.value == "xDAI") {
+      spotPrice = await gnoCharon.calcSpotPrice(
+      await gnoCharon.recordBalance(), // uint256 _tokenBalanceIn
+      await gnoCharon.recordBalanceSynth(), // tokenBalanceOut
+      0
+    );
+    } else if (fromCurrencyDropdown.value == "MATIC") {
+      spotPrice = await polCharon.calcSpotPrice(
+      await polCharon.recordBalance(), // uint256 _tokenBalanceIn
+      await polCharon.recordBalanceSynth(), // tokenBalanceOut
+      0
+    );
+    } else if (fromCurrencyDropdown.value == "chd" && toCurrencyDropdown.value == "ETH") {
+      spotPrice = await ethCharon.calcSpotPrice(
+      await ethCharon.recordBalanceSynth(), // uint256 _tokenBalanceIn
+      await ethCharon.recordBalance(), // tokenBalanceOut
+      0
+    );
+    } else if (fromCurrencyDropdown.value == "chd" && toCurrencyDropdown.value == "xDAI") {
+      spotPrice = await gnoCharon.calcSpotPrice(
+      await gnoCharon.recordBalanceSynth(), // uint256 _tokenBalanceIn
+      await gnoCharon.recordBalance(), // tokenBalanceOut
+      0
+    );
+    } else if (fromCurrencyDropdown.value == "chd" && toCurrencyDropdown.value == "MATIC") {
+      spotPrice = await polCharon.calcSpotPrice(
+      await polCharon.recordBalanceSynth(), // uint256 _tokenBalanceIn
+      await polCharon.recordBalance(), // tokenBalanceOut
+      0
+    );
+    }
+    console.log("spotPrice", ethers.utils.formatEther(spotPrice));
+    const expectedIn = spotPrice * inputValue
     console.log("expectedIn", ethers.utils.formatEther(expectedIn.toString()))
     console.log("balance", ethers.utils.formatEther(await ethCharon.recordBalance()))
     console.log("balanceSynth", ethers.utils.formatEther(await ethCharon.recordBalanceSynth()))
@@ -228,22 +264,6 @@ fromAmountBox.addEventListener('input', async function (event) {
     toAmountBox.value = (parseFloat(outputAmount).toFixed(3));
     swapButton.disabled = false
     $('#gas-estimate').text("0.000000")
-  }
-});
-
-const toAmountBox = document.getElementById('to-amount');
-toAmountBox.addEventListener('input', function (event) {
-  const inputValue = event.target.value;
-  if (!isNaN(inputValue)) {
-    console.log('Number typed:', inputValue);
-    // TODO: call output amount function
-    const outputAmount = calcOutGivenIn(inputValue);
-    const fromAmountBox = document.getElementById('from-amount');
-    fromAmountBox.value = outputAmount;
-
-    // TODO: call estimateGas
-    $('#gas-estimate').text("0.000000")
-
   }
 });
 
