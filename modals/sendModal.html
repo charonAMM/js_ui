@@ -11,9 +11,17 @@
     <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Inter:300italic,400italic,600italic,700italic,800italic,400,300,600,700,800&amp;display=swap">
     <link rel="stylesheet" href="../pages/assets/css/Login-Form-Basic-icons.css">
     <link rel="stylesheet" href="../pages/assets/css/Studious-selectbox.css">
-    <script src="../scripts/index.js"></script>
   </head>
   <body>
+      <div class="container">
+        <div class="row">
+          <div class="col-md-12">
+            <nav class="navbar navbar-expand-lg navbar-light">
+              <p style="font-size: 22px; color: white; font-weight: bold;">charon</p>
+            </nav>
+          </div>
+        </div>
+      </div>
   <header class="bg-dark">
     <div class="card">
       <div class="card-body text-center">
@@ -43,7 +51,7 @@
                       <div class="card-body d-flex flex-column align-items-center">
                           <form class="text-center" method="post">
                               <div class="mb-3"><input class="form-control" id="toAddy" name="fname" placeholder="address"></div>
-                              <div class="mb-3"><input class="form-control" id="toAmount" name="lname" placeholder="amount"></div>
+                              <div class="mb-3"><input class="form-control" type= "number" id="toAmount" name="lname" placeholder="amount" ></div>
                               <div class="mb-3"><button class="btn btn-primary d-block w-100" type="button" id="signAndSend">send</button></div>
                               <p class="text-muted"></p>
                           </form>
@@ -62,5 +70,6 @@
   <script src="../pages/assets/js/bs-init.js"></script>
   <script src="../pages/assets/js/bold-and-dark.js"></script>
   <script src="../pages/assets/js/Studious-selectbox-selectbox.js"></script>
+  <script src="../scripts/sendModal.js"></script>
 </body>
 </html>
