@@ -2,12 +2,12 @@ let $ = require('jquery')
 let fs = require('fs')
 const { BrowserWindow } = require('@electron/remote')
 const { Keypair } = require('../src/keypair')
-const url = require('url') 
-const path = require('path')  
-const ethers  = require("ethers");
+const url = require('url')
+const path = require('path')
+const ethers = require("ethers");
 const Utxo = require('../src/utxo')
-const { abi : chdABI } = require("../artifacts/charonAMM/contracts/CHD.sol/CHD.json")
-const { abi : charonABI } = require("../artifacts/charonAMM/contracts/Charon.sol/Charon.json")
+const { abi: chdABI } = require("../artifacts/charonAMM/contracts/CHD.sol/CHD.json")
+const { abi: charonABI } = require("../artifacts/charonAMM/contracts/Charon.sol/Charon.json")
 const { buildPoseidon } = require("circomlibjs");
 const { toFixedHex } = require('../src/utils.js')
 const { isFunction } = require('jquery')
@@ -36,40 +36,29 @@ gnoWallet = new ethers.Wallet(process.env.PRIVATE_KEY, gnosisProvider);
 polWallet = new ethers.Wallet(process.env.PRIVATE_KEY, polygonProvider);
 console.log("using address ", ethWallet.address)
 $('#myAddress').text(ethWallet.address)
-ethCHD = new ethers.Contract(process.env.ETHEREUM_CHD, chdABI , ethWallet);
-gnoCHD = new ethers.Contract(process.env.GNOSIS_CHD, chdABI , gnoWallet);
-polCHD = new ethers.Contract(process.env.POLYGON_CHD, chdABI , polWallet);
-ethCharon= new ethers.Contract(process.env.ETHEREUM_CHARON, charonABI , ethWallet);
-gnoCharon = new ethers.Contract(process.env.GNOSIS_CHARON, charonABI , gnoWallet);
-polCharon = new ethers.Contract(process.env.POLYGON_CHARON, charonABI , polWallet);
-
+ethCHD = new ethers.Contract(process.env.ETHEREUM_CHD, chdABI, ethWallet);
+gnoCHD = new ethers.Contract(process.env.GNOSIS_CHD, chdABI, gnoWallet);
+polCHD = new ethers.Contract(process.env.POLYGON_CHD, chdABI, polWallet);
+ethCharon = new ethers.Contract(process.env.ETHEREUM_CHARON, charonABI, ethWallet);
+gnoCharon = new ethers.Contract(process.env.GNOSIS_CHARON, charonABI, gnoWallet);
+polCharon = new ethers.Contract(process.env.POLYGON_CHARON, charonABI, polWallet);
 
 function poseidon(inputs){
    let val = builtPoseidon(inputs)
    return builtPoseidon.F.toString(val)
- }
-
-
-function makeSendModal(){
-   sendWindow= new BrowserWindow({width: 700, height: 550, webPreferences: {nodeIntegration:false}})
-   console.log("loading")
-   sendWindow.loadURL(url.format ({ 
-       pathname: path.join(__dirname, '../modals/sendModal.html'), 
-       protocol: 'file:', 
-       slashes: true 
-    })) 
-    console.log("done")
 }
 
-function makeBridgeModal(){
-   bridgeWindow= new BrowserWindow({width: 700, height: 500, webPreferences: {nodeIntegration:false}})
-   console.log("loading")
-   bridgeWindow.loadURL(url.format ({ 
-       pathname: path.join(__dirname, '../modals/bridgeModal.html'), 
-       protocol: 'file:', 
-       slashes: true 
-    })) 
-    console.log("done")
+
+function makeSendModal() {
+   sendModal = new BrowserWindow({ width: 700, height: 600, webPreferences: { nodeIntegration: true, enableRemoteModule: true, contextIsolation: false } })
+
+   sendModal.loadURL(url.format({
+      pathname: path.join(__dirname, '../modals/sendModal.html'),
+      protocol: 'file:',
+      slashes: true,
+   }))
+   // sendModal.webContents.openDevTools()
+   console.log("done")
 }
 
 function send(){
@@ -157,6 +146,17 @@ function send(){
       }
    }
 
+function makeBridgeModal() {
+   // Enable @electron/remote module for the bridgeWindow's webContents
+   bridgeModal = new BrowserWindow({ width: 720, height: 370, webPreferences: { nodeIntegration: true, enableRemoteModule: true, contextIsolation: false } })
+
+
+   bridgeModal.loadURL(url.format({
+      pathname: path.join(__dirname, '../modals/bridgeModal.html'),
+      protocol: 'file:',
+      slashes: true
+   }))
+   // bridgeModal.webContents.openDevTools()
 }
 
 function setData(){
@@ -231,12 +231,11 @@ polCharon.queryFilter(eventFilter,0, "latest").then(function(evtData){
    // ethProvider.getBlockNumber().then((result) => ethSet[0] = result);
    // polygonProvider.getBlockNumber().then((result) => polSet[0] = result);
    // gnosisProvider.getBlockNumber().then((result) => gnoSet[0] = result);
-
    return new Promise(resolve => {
       setTimeout(() => {
-        resolve('resolved');
+         resolve('resolved');
       }, 2000);
-    });
+   });
 }
 
 
@@ -248,13 +247,7 @@ $('#bridge').on('click', () => {
    makeBridgeModal()
 })
 
-$('#signAndSend').on('click', () => {
-   console.log("sending")
-   send()
-   console.log("sent")
-})
-
-function loadPrivateBalances(){
+function loadPrivateBalances() {
    //try and load from stored file and set base block / balance (contract start if not)
       //loop through all other events and get new ones
       //set dom state
@@ -280,44 +273,44 @@ function loadPrivateBalances(){
       //fs.unlinkSync(filename);//for testing
 }
 
-function setPublicBalances(){
+function setPublicBalances() {
 
 
-   ethCHD.balanceOf(ethWallet.address).then((result) => eVal = Math.round(ethers.utils.formatEther(result)*100)/100) ;
-   gnoCHD.balanceOf(gnoWallet.address).then((result) => gVal = Math.round(ethers.utils.formatEther(result)*100)/100) ;
-   polCHD.balanceOf(polWallet.address).then((result) => pVal = Math.round(ethers.utils.formatEther(result)*100)/100) ;
+   ethCHD.balanceOf(ethWallet.address).then((result) => eVal = Math.round(ethers.utils.formatEther(result) * 100) / 100);
+   gnoCHD.balanceOf(gnoWallet.address).then((result) => gVal = Math.round(ethers.utils.formatEther(result) * 100) / 100);
+   polCHD.balanceOf(polWallet.address).then((result) => pVal = Math.round(ethers.utils.formatEther(result) * 100) / 100);
 
    return new Promise(resolve => {
       setTimeout(() => {
-        resolve('resolved');
+         resolve('resolved');
       }, 2000);
-    });
+   });
 }
 
-function loadPublicBalances(){
+function loadPublicBalances() {
    $('#ethCHD').text(eVal)
    $('#gnoCHD').text(gVal)
    $('#polCHD').text(pVal)
    $('#totalBal').text(Math.round((eVal + gVal + pVal + peVal + pgVal + ppVal)*100)/100)
 }
 
-function loadAndDisplayContacts() {  
+function loadAndDisplayContacts() {
    setData().then((result) => loadPrivateBalances());
    setPublicBalances().then((result) => loadPublicBalances());
 
 }
 
-function pBuild(){
-   
-   buildPoseidon().then(function(res) {
+function pBuild() {
+
+   buildPoseidon().then(function (res) {
       builtPoseidon = res;
-      myKeypair = new Keypair({privKey:process.env.PRIVATE_KEY,myHashFunc:poseidon}) // contains private and public keys
+      myKeypair = new Keypair({ privKey: process.env.PRIVATE_KEY, myHashFunc: poseidon }) // contains private and public keys
    })
    return new Promise(resolve => {
       setTimeout(() => {
-        resolve('resolved');
+         resolve('resolved');
       }, 2000);
-    });
+   });
 }
 
 pBuild().then(() => loadAndDisplayContacts())
