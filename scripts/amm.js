@@ -29,14 +29,12 @@ gnoCharon = new ethers.Contract(process.env.GNOSIS_CHARON, charonABI, gnoWallet)
 polCharon = new ethers.Contract(process.env.POLYGON_CHARON, charonABI, polWallet);
 
 function setPublicBalances() {
-
   //chdTokens
   ethCHD.balanceOf(ethWallet.address).then((result) => $('#chdETHBal').text(Math.round(ethers.utils.formatEther(result) * 100) / 100));
   gnoCHD.balanceOf(gnoWallet.address).then((result) => $('#chdGNOBal').text(Math.round(ethers.utils.formatEther(result) * 100) / 100));
   polCHD.balanceOf(polWallet.address).then((result) => $('#chdPOLBal').text(Math.round(ethers.utils.formatEther(result) * 100) / 100));
 
   //baseTokens
-
   ethProvider.getBalance(ethWallet.address).then((result) => $('#ethBal').text(Math.round(ethers.utils.formatEther(result) * 100) / 100));
   gnosisProvider.getBalance(gnoWallet.address).then((result) => $('#xDAIBal').text(Math.round(ethers.utils.formatEther(result) * 100) / 100));
   polygonProvider.getBalance(polWallet.address).then((result) => $('#maticBal').text(Math.round(ethers.utils.formatEther(result) * 100) / 100));
@@ -69,16 +67,16 @@ async function swap() {
       await ethCharon.recordBalance(), // uint256 _tokenBalanceIn
       await ethCharon.recordBalanceSynth(), // tokenBalanceOut
       0
-  );
-  console.log("spotPrice", ethers.utils.formatEther(EthspotPrice));
-  const expectedIn = EthspotPrice * fromAmountInput.value
-  console.log("expectedIn", ethers.utils.formatEther(expectedIn.toString()))
+    );
+    console.log("spotPrice", ethers.utils.formatEther(EthspotPrice));
+    const expectedIn = EthspotPrice * fromAmountInput.value
+    console.log("expectedIn", ethers.utils.formatEther(expectedIn.toString()))
     const minAmountOut = await ethCharon.calcOutGivenIn(
-    await ethCharon.recordBalance(), // uint256 _tokenBalanceIn
-    await ethCharon.recordBalanceSynth(), // tokenBalanceOut
-    ethers.utils.parseEther(expectedIn.toString()), //adjustedIn
-    0 //swapFee
-    ) 
+      await ethCharon.recordBalance(), // uint256 _tokenBalanceIn
+      await ethCharon.recordBalanceSynth(), // tokenBalanceOut
+      ethers.utils.parseEther(expectedIn.toString()), //adjustedIn
+      0 //swapFee
+    )
     console.log("minAmountOut", ethers.utils.formatEther(minAmountOut))
     //bool inisCHD, tokenAmountIn, minAmountOut, maxPrice (max price willing to send the pool to)
     ethCharon.swap(false, fromAmount, minAmountOut, EthspotPrice, { gasLimit }).then((result) => {
@@ -93,15 +91,15 @@ async function swap() {
       await gnoCharon.recordBalance(), // uint256 _tokenBalanceIn
       await gnoCharon.recordBalanceSynth(), // tokenBalanceOut
       0
-  );
-  console.log("spotPrice", ethers.utils.formatEther(GnospotPrice));
-  const expectedIn = GnospotPrice * fromAmountInput.value
-  console.log("expectedIn", ethers.utils.formatEther(expectedIn.toString()))
+    );
+    console.log("spotPrice", ethers.utils.formatEther(GnospotPrice));
+    const expectedIn = GnospotPrice * fromAmountInput.value
+    console.log("expectedIn", ethers.utils.formatEther(expectedIn.toString()))
     const minAmountOut = await gnoCharon.calcOutGivenIn(
-    await gnoCharon.recordBalance(), // uint256 _tokenBalanceIn
-    await gnoCharon.recordBalanceSynth(), // tokenBalanceOut
-    ethers.utils.parseEther(expectedIn.toString()), //adjustedIn
-    0 //swapFee
+      await gnoCharon.recordBalance(), // uint256 _tokenBalanceIn
+      await gnoCharon.recordBalanceSynth(), // tokenBalanceOut
+      ethers.utils.parseEther(expectedIn.toString()), //adjustedIn
+      0 //swapFee
     )
     console.log("minAmountOut", ethers.utils.formatEther(minAmountOut))
     //bool inisCHD, tokenAmountIn, minAmountOut, maxPrice (max price willing to send the pool to)
@@ -117,15 +115,15 @@ async function swap() {
       await polCharon.recordBalance(), // uint256 _tokenBalanceIn
       await polCharon.recordBalanceSynth(), // tokenBalanceOut
       0
-  );
-  console.log("spotPrice", ethers.utils.formatEther(PolspotPrice));
-  const expectedIn = PolspotPrice * fromAmountInput.value
-  console.log("expectedIn", ethers.utils.formatEther(expectedIn.toString()))
+    );
+    console.log("spotPrice", ethers.utils.formatEther(PolspotPrice));
+    const expectedIn = PolspotPrice * fromAmountInput.value
+    console.log("expectedIn", ethers.utils.formatEther(expectedIn.toString()))
     const minAmountOut = await polCharon.calcOutGivenIn(
-    await polCharon.recordBalance(), // uint256 _tokenBalanceIn
-    await polCharon.recordBalanceSynth(), // tokenBalanceOut
-    ethers.utils.parseEther(expectedIn.toString()), //adjustedIn
-    0 //swapFee
+      await polCharon.recordBalance(), // uint256 _tokenBalanceIn
+      await polCharon.recordBalanceSynth(), // tokenBalanceOut
+      ethers.utils.parseEther(expectedIn.toString()), //adjustedIn
+      0 //swapFee
     )
     console.log("minAmountOut", ethers.utils.formatEther(minAmountOut))
     //bool inisCHD, tokenAmountIn, minAmountOut, maxPrice (max price willing to send the pool to)
@@ -140,16 +138,16 @@ async function swap() {
       await ethCharon.recordBalanceSynth(), // uint256 _tokenBalanceIn
       await ethCharon.recordBalance(), // tokenBalanceOut
       0
-  );
-  console.log("spotPrice", ethers.utils.formatEther(chdSpotPrice));
-  const expectedIn = chdSpotPrice * fromAmountInput.value
-  console.log("expectedIn", ethers.utils.formatEther(expectedIn.toString()))
+    );
+    console.log("spotPrice", ethers.utils.formatEther(chdSpotPrice));
+    const expectedIn = chdSpotPrice * fromAmountInput.value
+    console.log("expectedIn", ethers.utils.formatEther(expectedIn.toString()))
     const minAmountOut = await ethCharon.calcSingleOutGivenIn(
-    await ethCharon.recordBalanceSynth(), // uint256 _tokenBalanceIn
-    await ethCharon.recordBalance(), // tokenBalanceOut
-    ethers.utils.parseEther(expectedIn.toString()), //adjustedIn
-    0, //swapFee
-    false // bool isPool
+      await ethCharon.recordBalanceSynth(), // uint256 _tokenBalanceIn
+      await ethCharon.recordBalance(), // tokenBalanceOut
+      ethers.utils.parseEther(expectedIn.toString()), //adjustedIn
+      0, //swapFee
+      false // bool isPool
     )
     ethCharon.swap(true, fromAmount, minAmountOut, chdSpotPrice, { gasLimit }).then((result) => {
       console.log("swap result", result)
@@ -162,16 +160,16 @@ async function swap() {
       await gnoCharon.recordBalanceSynth(), // uint256 _tokenBalanceIn
       await gnoCharon.recordBalance(), // tokenBalanceOut
       0
-  );
-  console.log("spotPrice", ethers.utils.formatEther(chdSpotPrice));
-  const expectedIn = chdSpotPrice * fromAmountInput.value
-  console.log("expectedIn", ethers.utils.formatEther(expectedIn.toString()))
+    );
+    console.log("spotPrice", ethers.utils.formatEther(chdSpotPrice));
+    const expectedIn = chdSpotPrice * fromAmountInput.value
+    console.log("expectedIn", ethers.utils.formatEther(expectedIn.toString()))
     const minAmountOut = await gnoCharon.calcSingleOutGivenIn(
-    await gnoCharon.recordBalanceSynth(), // uint256 _tokenBalanceIn
-    await gnoCharon.recordBalance(), // tokenBalanceOut
-    ethers.utils.parseEther(expectedIn.toString()), //adjustedIn
-    0, //swapFee
-    false // bool isPool
+      await gnoCharon.recordBalanceSynth(), // uint256 _tokenBalanceIn
+      await gnoCharon.recordBalance(), // tokenBalanceOut
+      ethers.utils.parseEther(expectedIn.toString()), //adjustedIn
+      0, //swapFee
+      false // bool isPool
     )
     gnoCharon.swap(true, fromAmount, minAmountOut, chdSpotPrice, { gasLimit }).then((result) => {
       console.log("swap result", result)
@@ -184,18 +182,17 @@ async function swap() {
       await polCharon.recordBalanceSynth(), // uint256 _tokenBalanceIn
       await polCharon.recordBalance(), // tokenBalanceOut
       0
-  );
-  console.log("spotPrice", ethers.utils.formatEther(chdSpotPrice));
-  const expectedIn = chdSpotPrice * fromAmountInput.value
-  console.log("expectedIn", ethers.utils.formatEther(expectedIn.toString()))
+    );
+    console.log("spotPrice", ethers.utils.formatEther(chdSpotPrice));
+    const expectedIn = chdSpotPrice * fromAmountInput.value
+    console.log("expectedIn", ethers.utils.formatEther(expectedIn.toString()))
     const minAmountOut = await polCharon.calcSingleOutGivenIn(
-    await polCharon.recordBalanceSynth(), // uint256 _tokenBalanceIn
-    await polCharon.recordBalance(), // tokenBalanceOut
-    ethers.utils.parseEther(expectedIn.toString()), //adjustedIn
-    0, //swapFee
-    false // bool isPool
+      await polCharon.recordBalanceSynth(), // uint256 _tokenBalanceIn
+      await polCharon.recordBalance(), // tokenBalanceOut
+      ethers.utils.parseEther(expectedIn.toString()), //adjustedIn
+      0, //swapFee
+      false // bool isPool
     )
-
     polCharon.swap(true, fromAmount, minAmountOut, chdSpotPrice, { gasLimit }).then((result) => {
       console.log("swap result", result)
       loadAndDisplay()
@@ -204,61 +201,72 @@ async function swap() {
   }
 }
 
-  $("#swapButton").on('click', () => {
-    swap()
-  });
+$("#swapButton").on('click', () => {
+  swap()
+});
 
-  const fromAmountBox = document.getElementById('from-amount');
-  fromAmountBox.addEventListener('input', function (event) {
-    const inputValue = event.target.value;
-    if (!isNaN(inputValue)) {
-      console.log('Number typed:', inputValue);
-      // TODO: call output amount function
-      const outputAmount = inputValue * 150;
-      const toAmountBox = document.getElementById('to-amount');
-      toAmountBox.value = outputAmount;
-
-      // TODO: call estimateGas
-      $('#gas-estimate').text("0.000000")
-    }
-  });
-
+const fromAmountBox = document.getElementById('from-amount');
+fromAmountBox.addEventListener('input', async function (event) {
+  const swapButton = document.getElementById('swapButton');
+  const inputValue = event.target.value;
   const toAmountBox = document.getElementById('to-amount');
-  toAmountBox.addEventListener('input', function (event) {
-    const inputValue = event.target.value;
-    if (!isNaN(inputValue)) {
-      console.log('Number typed:', inputValue);
-      // TODO: call output amount function
-      const outputAmount = inputValue * 1.5;
-      const fromAmountBox = document.getElementById('from-amount');
-      fromAmountBox.value = outputAmount;
-
-      // TODO: call estimateGas
-      $('#gas-estimate').text("0.000000")
-
-    }
-  });
-
-
-
-  function prepareSwitchButtonClick() {
-    const fromAmountInput = document.getElementById('from-amount');
-    const toAmountInput = document.getElementById('to-amount');
-    const arrowImg = document.querySelector('.card-arrow img');
-    const fromCurrencyDropdown = document.getElementById('from-currency');
-    const toCurrencyDropdown = document.getElementById('to-currency');
-
-    arrowImg.addEventListener('click', () => {
-      const temp = fromAmountInput.value;
-      fromAmountInput.value = toAmountInput.value;
-      toAmountInput.value = temp;
-
-      const toCurrencyOptions = fromCurrencyDropdown.innerHTML;
-
-      fromCurrencyDropdown.innerHTML = toCurrencyDropdown.innerHTML;
-      toCurrencyDropdown.innerHTML = toCurrencyOptions;
-    });
+  if (!isNaN(inputValue)) {
+    console.log('Number typed:', inputValue);
+    toAmountBox.disabled = true
+    swapButton.disabled = true
+    toAmountBox.value = "..."
+    const EthspotPrice = await ethCharon.calcSpotPrice(
+      await ethCharon.recordBalance(), // uint256 _tokenBalanceIn
+      await ethCharon.recordBalanceSynth(), // tokenBalanceOut
+      0
+    );
+    const expectedIn = EthspotPrice * inputValue
+    console.log("expectedIn", ethers.utils.formatEther(expectedIn.toString()))
+    console.log("balance", ethers.utils.formatEther(await ethCharon.recordBalance()))
+    console.log("balanceSynth", ethers.utils.formatEther(await ethCharon.recordBalanceSynth()))
+    const outputAmount = ethers.utils.formatEther(expectedIn.toString());
+    console.log("outputAmount", outputAmount)
+    toAmountBox.value = (parseFloat(outputAmount).toFixed(3));
+    toAmountBox.disabled = false
+    swapButton.disabled = false
+    $('#gas-estimate').text("0.000000")
   }
+});
+
+const toAmountBox = document.getElementById('to-amount');
+toAmountBox.addEventListener('input', function (event) {
+  const inputValue = event.target.value;
+  if (!isNaN(inputValue)) {
+    console.log('Number typed:', inputValue);
+    // TODO: call output amount function
+    const outputAmount = calcOutGivenIn(inputValue);
+    const fromAmountBox = document.getElementById('from-amount');
+    fromAmountBox.value = outputAmount;
+
+    // TODO: call estimateGas
+    $('#gas-estimate').text("0.000000")
+
+  }
+});
+
+function prepareSwitchButtonClick() {
+  const fromAmountInput = document.getElementById('from-amount');
+  const toAmountInput = document.getElementById('to-amount');
+  const arrowImg = document.querySelector('.card-arrow img');
+  const fromCurrencyDropdown = document.getElementById('from-currency');
+  const toCurrencyDropdown = document.getElementById('to-currency');
+
+  arrowImg.addEventListener('click', () => {
+    const temp = fromAmountInput.value;
+    fromAmountInput.value = toAmountInput.value;
+    toAmountInput.value = temp;
+
+    const toCurrencyOptions = fromCurrencyDropdown.innerHTML;
+
+    fromCurrencyDropdown.innerHTML = toCurrencyDropdown.innerHTML;
+    toCurrencyDropdown.innerHTML = toCurrencyOptions;
+  });
+}
 
 
-  loadAndDisplay()
+loadAndDisplay()

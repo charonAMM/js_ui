@@ -16,29 +16,6 @@ $('#myAddress').text(ethWallet.address)
 ethCIT = new ethers.Contract(process.env.ETHEREUM_CIT, citABI, ethWallet);
 
 
-// function bid() {
-//    console.log("here")
-//    let _to = $('#toAddy').val()
-//    let _amount = $('#toAmount').val()
-//    let _network = $('input[name="netType"]:checked').val();
-//    let _visType = $('input[name="visType"]:checked').val();
-//    console.log(_network, _visType)
-//    console.log("to: ", _to, "amount ", _amount)
-//    if (_visType == "visible") {
-//       if (_network == "ethereum") {
-//          ethCHD.transfer(_to, _amount).then((result) => console.log(result));;
-//       }
-//       else if (_network == "gnosis") {
-//          gnoCHD.transfer(_to, _amount).then((result) => console.log(result));
-//       }
-//       else if (_network == "polygon") {
-//          polCHD.transfer(_to, _amount).then((result) => console.log(result));
-//       }
-//    }
-// }
-
-
-
 $('#bid').on('click', () => {
    makeBidModal()
 })
@@ -85,6 +62,7 @@ async function setPublicBalances() {
       $('#endFeeRoundButton').on('click', async () => {
          console.log("end date" + endDateUnix)
          await ethCIT.startNewAuction().then((result) => console.log(result));
+         window.alert("Auction has ended. New auction has started.")
          loadAndDisplay()
       })
    } else {
@@ -97,7 +75,6 @@ function loadAndDisplay() {
 }
 
 function makeBidModal() {
-
    bidModal = new BrowserWindow({
       width: 700, height: 300, webPreferences: { nodeIntegration: true, enableRemoteModule: true, contextIsolation: false }
    })
@@ -107,29 +84,8 @@ function makeBidModal() {
       protocol: 'file:',
       slashes: true
    }))
-   bidModal.webContents.openDevTools()
+   // bidModal.webContents.openDevTools()
 
 }
-
-
-// function addListener() {
-//    bidAmountField = document.getElementById('bidAmount')
-//    bidButton = document.getElementById('bidSignAndSend')
-//    // const currentTopBid = Math.round(ethers.utils.formatEther(ethCIT.currentTopBid()) * 100) / 100
-//    const currentTopBid = 100
-
-//    console.log(currentTopBid)
-
-//    bidAmountField.addEventListener('input', () => {
-//       const bidValue = parseInt(bidAmountField.value)
-//       console.log(bidValue)
-//       if (bidValue > currentTopBid) {
-//          bidButton.removeAttribute('disabled')
-//       }
-//       else {
-//          bidButton.setAttribute('disabled', true)
-//       }
-//    })
-// }
 
 loadAndDisplay()

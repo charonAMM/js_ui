@@ -47,27 +47,27 @@ function poseidon(inputs) {
 
 
 function makeSendModal() {
-   sendModal = new BrowserWindow({ width: 700, height: 550, webPreferences: { nodeIntegration: true, enableRemoteModule: true, contextIsolation: false } })
+   sendModal = new BrowserWindow({ width: 700, height: 600, webPreferences: { nodeIntegration: true, enableRemoteModule: true, contextIsolation: false } })
 
    sendModal.loadURL(url.format({
       pathname: path.join(__dirname, '../modals/sendModal.html'),
       protocol: 'file:',
       slashes: true,
    }))
-   sendModal.webContents.openDevTools()
+   // sendModal.webContents.openDevTools()
    console.log("done")
 }
 
 function makeBridgeModal() {
    // Enable @electron/remote module for the bridgeWindow's webContents
-   bridgeModal = new BrowserWindow({ width: 700, height: 500, webPreferences: { nodeIntegration: true, enableRemoteModule: true, contextIsolation: false } })
+   bridgeModal = new BrowserWindow({ width: 720, height: 370, webPreferences: { nodeIntegration: true, enableRemoteModule: true, contextIsolation: false } })
 
    bridgeModal.loadURL(url.format({
       pathname: path.join(__dirname, '../modals/bridgeModal.html'),
       protocol: 'file:',
       slashes: true
    }))
-   bridgeModal.webContents.openDevTools()
+   // bridgeModal.webContents.openDevTools()
 }
 
 function setData() {

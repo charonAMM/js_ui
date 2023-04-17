@@ -2,15 +2,13 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <!-- <meta http-equiv="X-UA-Compatible" content="IE=edge"> -->
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Charon - A privacy preserving cross-chain AMM</title>
   <link rel="icon" href="../public/Charon_mono.png">
   <link rel="stylesheet" href="../main.css">
   <link rel="stylesheet" href="../pages/assets/bootstrap/css/bootstrap.min.css">
   <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Inter:300italic,400italic,600italic,700italic,800italic,400,300,600,700,800&amp;display=swap">
-  <!-- <link rel="stylesheet" href ="../pages/assets/css/Login-Form-Basic-icons.css">
-  <link rel="stylesheet" href="../pages/assets/css/Studious-selectbox.css"> -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css" />
 </head>
 <body>
   <!-- Header -->
@@ -20,6 +18,7 @@
         <div class="col-md-12">
           <nav class="navbar navbar-expand-lg navbar-light">
             <p style="font-size: 22px; color: white; font-weight: bold;">charon</p>
+            <!-- <img src="../public/Charon_mono.png" alt="Charon Icon" height="100" style="filter: invert(100%);"> -->
           </nav>
         </div>
       </div>
@@ -33,9 +32,38 @@
         <div class="col-md-6 col-xl-4">
           <div class="card mb-5">
             <div class="card-body">
-              <h2 class="text-center mb-3">Bridge tokens</h2>
               <form class="text-center" method="post">
-               
+                <div class="row mb-3">
+                  <div class="d-flex justify-content-between">
+                  <div class="col-sm-6">
+                    <label for="from">From:</label>
+                    <select class="form-select" name="from" id="from">
+                      <option value="ethereum" selected>Ethereum</option>
+                      <option value="gnosis">Gnosis</option>
+                      <option value="polygon" disabled>Polygon</option>
+                    </select>
+                  </div>
+                  <button type="button" class="btn btn-primary" id="swap-networks-btn" aria-label="Swap Networks">
+                    <i class="fas fa-exchange-alt"></i>
+                  </button>
+                               
+                  <div class="col-sm-6">
+                    <label for="to">To:</label>
+                    <select class="form-select" name="to" id="to">
+                      <option value="ethereum" disabled >Ethereum</option>
+                      <option value="gnosis">Gnosis</option>
+                      <option value="polygon" selected>Polygon</option>
+                    </select>
+                  </div>
+                </div>
+                </div>
+                <div class="row mb-3">
+                  <div class="col-sm-12">
+                    <label for="amount">Amount:</label>
+                    <input type="number" name="amount" id="amount" class="form-control" placeholder="0.00" step="0.01" required>
+                  </div>
+                </div>
+                <button type="submit" class="btn btn-primary">Bridge</button>
               </form>  
             </div>
           </div>
