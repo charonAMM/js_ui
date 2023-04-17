@@ -212,7 +212,6 @@ fromAmountBox.addEventListener('input', async function (event) {
   const toAmountBox = document.getElementById('to-amount');
   if (!isNaN(inputValue)) {
     console.log('Number typed:', inputValue);
-    toAmountBox.disabled = true
     swapButton.disabled = true
     toAmountBox.value = "..."
     const EthspotPrice = await ethCharon.calcSpotPrice(
@@ -227,7 +226,6 @@ fromAmountBox.addEventListener('input', async function (event) {
     const outputAmount = ethers.utils.formatEther(expectedIn.toString());
     console.log("outputAmount", outputAmount)
     toAmountBox.value = (parseFloat(outputAmount).toFixed(3));
-    toAmountBox.disabled = false
     swapButton.disabled = false
     $('#gas-estimate').text("0.000000")
   }
