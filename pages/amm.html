@@ -126,7 +126,7 @@
                                                     id="from-amount" style="color: whitesmoke;">
                                                 <div>
                                                     <select class="btn dropdown-toggle" name="currency"
-                                                        id="from-currency"
+                                                        id="from-currency" onchange="calculateConversion()"
                                                         style="padding: 1px;border-radius: 1px;border-top-left-radius: 10px;border-top-right-radius: 10px;border-bottom-right-radius: 10px;border-bottom-left-radius: 10px;">
                                                         <option value="ETH" selected=""
                                                             style="background-color:#212429">eth</option>
@@ -145,6 +145,7 @@
                                                     id="to-amount" style="color:lightslategray" disabled readonly>
                                                 <div class="dropdown">
                                                     <select class="btn dropdown-toggle" name="currency" id="to-currency"
+                                                        onchange="calculateConversion()"
                                                         style="padding: 1px;border-radius: 1px;border-top-left-radius: 10px;border-top-right-radius: 10px;border-bottom-right-radius: 10px;border-bottom-left-radius: 10px;">
                                                         <!-- <option value="ETH" style = "background-color:#212429;" disabled>eth</option>
                                                         <option value="xDAI"  style = "background-color:#212429">xdai</option>
@@ -152,10 +153,13 @@
                                                         <option value="chd" style="background-color:#212429">chd
                                                         </option>
                                                     </select>
-                                                    
+
                                                 </div>
                                             </div>
-                                            <div>estimated gas: <span id="gas-estimate"></span></div>
+                                            <div>
+                                                <div>estimated gas: <span id="gas-estimate"></span></div>
+                                                <div>slippage: <span id="slippage"></span></div>
+                                            </div>
                                         </div>
                                         <!-- <button type="button" class="connect-wallet-down" id="connectButton">
                                             connect wallet

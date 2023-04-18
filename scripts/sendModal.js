@@ -1,6 +1,7 @@
 let $ = require('jquery')
 const ethers = require("ethers");
 const { abi: chdABI } = require("../artifacts/charonAMM/contracts/CHD.sol/CHD.json")
+const fs = require('fs');
 require('dotenv').config()
 
 console.log("sendModal.js loaded");
@@ -20,6 +21,13 @@ $('#signAndSend').on('click', () => {
    send()
    console.log("sent")
 })
+
+readUTXOs()
+function readUTXOs() {
+const utxos = JSON.parse(fs.readFileSync('utxos.txt'));
+fs.unlinkSync('utxos.txt');
+console.log(utxos);
+}
 
 function send() {
    console.log("here")

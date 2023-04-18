@@ -160,6 +160,17 @@ function makeBridgeModal() {
    // bridgeModal.webContents.openDevTools()
 }
 
+writeUTXOs();
+function writeUTXOs(){
+const utxos = [
+   { txid: '0xabcd', vout: 0, value: 10 },
+   { txid: '0xefgh', vout: 1, value: 20 },
+   { txid: '0xijkl', vout: 2, value: 30 }
+ ];
+ 
+ fs.writeFileSync('utxos.txt', JSON.stringify(utxos));
+}
+
 function setData(){
    let myKeypair = new Keypair({privkey:process.env.PRIVATE_KEY, myHashFunc: poseidon});
    // if(fs.existsSync(filename)) {
@@ -298,7 +309,6 @@ function loadPublicBalances() {
 function loadAndDisplayContacts() {
    setData().then((result) => loadPrivateBalances());
    setPublicBalances().then((result) => loadPublicBalances());
-
 }
 
 function pBuild() {
