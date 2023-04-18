@@ -364,8 +364,8 @@ async function calculateConversion() {
       const adjustedIn = inputValue - exitFee
       console.log("adjustedIn", ethers.utils.parseEther(adjustedIn.toString()))
       const minAmountOut = await ethCharon.calcSingleOutGivenIn(
-        await ethCharon.recordBalance(), // uint256 _tokenBalanceIn
-        await ethCharon.recordBalanceSynth(), // tokenBalanceOut
+        await ethCharon.recordBalance(), // uint256 _tokenBalanceOut
+        await ethCharon.recordBalanceSynth(), // tokenBalanceIn
         ethers.utils.parseEther(adjustedIn.toString()), //adjustedIn
         0, //swapFee
         false //isPool
@@ -394,8 +394,8 @@ async function calculateConversion() {
       const adjustedIn = inputValue - exitFee
       console.log("adjustedIn", ethers.utils.parseEther(adjustedIn.toString()))
       const minAmountOut = await gnoCharon.calcSingleOutGivenIn(
-        await gnoCharon.recordBalance(), // uint256 _tokenBalanceIn
-        await gnoCharon.recordBalanceSynth(), // tokenBalanceOut
+        await gnoCharon.recordBalance(), // uint256 _tokenBalanceOut
+        await gnoCharon.recordBalanceSynth(), // tokenBalanceIn
         ethers.utils.parseEther(adjustedIn.toString()), //adjustedIn
         0, //swapFee
         false //isPool
@@ -423,8 +423,8 @@ async function calculateConversion() {
       const adjustedIn = inputValue - exitFee
       console.log("adjustedIn", ethers.utils.parseEther(adjustedIn.toString()))
       const minAmountOut = await polCharon.calcSingleOutGivenIn(
-        await polCharon.recordBalance(), // uint256 _tokenBalanceIn
-        await polCharon.recordBalanceSynth(), // tokenBalanceOut
+        await polCharon.recordBalance(), // uint256 tokenBalanceOut
+        await polCharon.recordBalanceSynth(), // tokenBalanceIn
         ethers.utils.parseEther(adjustedIn.toString()), //adjustedIn
         0, //swapFee
         false //isPool
