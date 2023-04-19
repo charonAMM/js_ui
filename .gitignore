@@ -6,3 +6,9 @@ package-lock.json
 ./package-lock.json
 bootstrap
 ./bootstrap
+./proof.json
+proof.json
+public.json
+./public.json
+inputs.json
+./inputs.json
