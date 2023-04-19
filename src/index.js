@@ -1,9 +1,10 @@
 const MerkleTree = require('fixed-merkle-tree')
-const { ethers } = require('hardhat')
+const ethers = require("ethers");
 const { BigNumber } = ethers
 const { toFixedHex, poseidonHash2, getExtDataHash, FIELD_SIZE, shuffle } = require('./utils')
 const Utxo = require('./utxo')
 const zero = "21663839004416932945382355908790599225266501822907911457504978515578255421292"
+const tzero = "04b62e2dd879d4d69100cf37471e23dc49da556b3e157c908d041a5afc010f57d1b774d638f4032e20c66960a1b3227092b36e451ebd9b0e0f4c9c8f486cc49999"
 const { prove } = require('./prover')
 const MERKLE_TREE_HEIGHT = 5
 
@@ -62,6 +63,7 @@ async function getProof({
   }
 
   const extDataHash = getExtDataHash(extData)
+  console.log("inputs", inputs)
   let input = {
     root: await tree.root,
     chainID: privateChainID,
@@ -121,11 +123,15 @@ async function prepareTransaction({
   if (inputs.length > 16 || outputs.length > 2) {
     throw new Error('Incorrect inputs/outputs count')
   }
+  let nU
   while (inputs.length !== 2 && inputs.length < 16) {
-    inputs.push(new Utxo({myHashFunc:myHasherFunc, chainID: privateChainID}))
+    console.log("here pushing inputs")
+    nU =  new Utxo({myHashFunc:myHasherFunc, keypair:Keypair.fromString(tzero,myHasherFunc) ,chainID: privateChainID})
+    inputs.push(nU)
   }
   while (outputs.length < 2) {
-    outputs.push(new Utxo({myHashFunc:myHasherFunc, chainID: privateChainID}))
+    nU =  new Utxo({myHashFunc:myHasherFunc, keypair:Keypair.fromString(tzero,myHasherFunc) ,chainID: privateChainID})
+    outputs.push(nU)
   }
   let extAmount = BigNumber.from(fee)
     .add(outputs.reduce((sum, x) => sum.add(x.amount), BigNumber.from(0)))

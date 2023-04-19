@@ -70,6 +70,7 @@ class Keypair {
    * @returns {Keypair}
    */
   static fromString(str,myHashFunc) {
+    console.log(str.length)
     if (str.length === 130) {
       str = str.slice(2)
     }

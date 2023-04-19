@@ -9,6 +9,7 @@ const exec = util.promisify(require('child_process').exec)
 const { toFixedHex } = require('./utils')
 
 async function prove(input, wasmBasePath, keyBasePath) {
+  console.log("ip", input);
   const { proof } = await groth16.fullProve(
     utils.stringifyBigInts(input),
     `${wasmBasePath}.wasm`,
