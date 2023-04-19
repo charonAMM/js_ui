@@ -33,22 +33,28 @@ function bridge() {
   if (fromNetwork === "ethereum") {
     if (toNetwork === "gnosis") {
       //magic
+      window.alert("Bridged to Gnosis!")
     } else if (toNetwork === "polygon") {
       //magic
+      window.alert("Bridged to Polygon!")
     }
   }
   if (fromNetwork === "gnosis") {
     if (toNetwork === "ethereum") {
       //magic
+      window.alert("Bridged to Ethereum!")
     } else if (toNetwork === "polygon") {
       //magic
+      window.alert("Bridged to Polygon!")
     }
   }
   if (fromNetwork === "polygon") {
     if (toNetwork === "ethereum") {
       //magic
+      window.alert("Bridged to Ethereum!")
     } else if (toNetwork === "gnosis") {
       //magic
+      window.alert("Bridged to Gnosis!")
     }
   }
 }
