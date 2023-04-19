@@ -66,10 +66,10 @@ function send() {
    const _amount = $('#toAmount').val()
    const _network = $('input[name="netType"]:checked').val();
    const _visType = $('#txType-switch').prop('checked') ? 'private' : 'public';
-   const _withdrawalBool = $('#withdrawalCheckbox').prop('checked') ? true : false;
+   const _withdrawal = $('#withdrawalCheckbox').prop('checked') ? true : false;
    console.log(_network, _visType)
    console.log("to: ", _to, "amount ", _amount)
-   console.log("withdrawal: ", _withdrawalBool)
+   console.log("withdrawal: ", _withdrawal)
    if (_visType == "public") {
       if (_network == "ethereum") {
          ethCHD.transfer(_to, _amount).then((result) => console.log(result));;
