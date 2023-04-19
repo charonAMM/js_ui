@@ -22,6 +22,16 @@ $('#signAndSend').on('click', () => {
    console.log("sent")
 })
 
+const networkButtons = document.querySelectorAll('input[type="radio"]');
+const toAmountInput = document.querySelector('#toAmount');
+
+networkButtons.forEach((networkButton) => {
+   networkButton.addEventListener('change', () => {
+    toAmountInput.value = '';
+  });
+});
+
+
 $("#maxButton").on('click', () => {
    console.log("maxbutton clicked")
    let amountInput = document.querySelector('#toAmount')
