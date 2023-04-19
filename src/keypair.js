@@ -1,5 +1,5 @@
 const { encrypt, decrypt, getEncryptionPublicKey } = require('@metamask/eth-sig-util')
-const ethers  = require("ethers");
+const { ethers } = require('ethers')
 const { BigNumber } = ethers
 const { poseidonHash, toFixedHex } = require('./utils')
 
@@ -70,7 +70,6 @@ class Keypair {
    * @returns {Keypair}
    */
   static fromString(str,myHashFunc) {
-    console.log(str.length)
     if (str.length === 130) {
       str = str.slice(2)
     }

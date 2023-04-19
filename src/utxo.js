@@ -1,4 +1,4 @@
-const ethers  = require("ethers");
+const { ethers } = require('ethers')
 const { BigNumber } = ethers
 const { randomBN, poseidonHash, toBuffer } = require('./utils')
 const { Keypair } = require('./keypair')
@@ -27,7 +27,7 @@ class Utxo {
    */
   getCommitment(poseidonFunc) {
     if (!this._commitment) {
-      this._commitment = poseidonFunc([this.amount, this.keypair.pubkey, this.blinding])
+      this._commitment = poseidonFunc([this.amount, this.chainID, this.keypair.pubkey, this.blinding])
     }
     return this._commitment
   }

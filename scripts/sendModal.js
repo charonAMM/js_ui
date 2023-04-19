@@ -7,7 +7,8 @@ const fs = require('fs');
 require('dotenv').config()
 const { Keypair } = require('../src/keypair')
 const { prepareTransaction } = require('../src/index')
-const Utxo = require('../src/utxo')
+const Utxo = require('../src/utxo');
+const { toFixedHex } = require('../src/utils');
 const { BigNumber } = ethers
 let m
 console.log("sendModal.js loaded");
@@ -52,11 +53,9 @@ readUTXOs()
    console.log(m);
 }
 
-let myUTXOs = []
+let newUTXOs = []
 let utxoAmount = BigNumber.from("0")
 let changeUtxos = []
-let tUtxo;
-
 async function prepare2(){
    let _to = $('#toAddy').val()
    let _amount = $('#toAmount').val()
@@ -75,7 +74,7 @@ async function prepare2(){
    }
    else{
       console.log(utxoAmount)
-      console.log("myUTXOs", myUTXOs)
+      console.log("newUTXOs", newUTXOs)
        changeUtxos.push(new Utxo({ amount: _amount,myHashFunc: poseidon, keypair:toKey, chainID: 80001 }))
        changeUtxos. push(new Utxo({
         amount: BigNumber.from(utxoAmount).sub(_amount),
@@ -88,30 +87,29 @@ async function prepare2(){
 }
 async function prepareSend(){
 
-   let _to = $('#toAddy').val()
    let _amount = $('#toAmount').val()
+   console.log(ethers.utils.parseEther(m.ppVal.toString()),_amount)
    if(ethers.utils.parseEther(m.ppVal.toString()) < _amount){
       alert("not enough private balance on mumbai!!")
    }
    else{
+   newUTXOs = []
    let myIndex;
-   for(i=0;i<m.polUTXOs.length;i++){
-      if (utxoAmount >= _amount){
-         break
-      }
-      else{
-         console.log(m.polUTXOs[i].index)
-         myIndex = m.polUTXOs[i].index
+   let jj = 0;
+   let tUtxo
+      while (utxoAmount < _amount && jj < m.polUTXOs.length){
+         console.log(m.polUTXOs[jj].index)
+         myIndex = m.polUTXOs[jj].index
          console.log("index",myIndex)
-         console.log("index2",parseInt(m.polUTXOs[i].index.hex))
-         tUtxo = new Utxo({amount:m.polUTXOs[i].amount, myHashFunc: poseidon, keypair: myKeypair, blinding:m.polUTXOs[i].blinding, index:parseInt(m.polUTXOs[i].index.hex), chainID : m.polUTXOs[i].chainID})
-         tUtxo._commitment = m.polUTXOs[i]._commitment
-         tUtxo._nullifier = m.polUTXOs[i]._nullifier
-         console.log(tUtxo)
-         myUTXOs.push(tUtxo)
-         utxoAmount = utxoAmount.add(m.polUTXOs[i].amount)
+         console.log("index2",parseInt(m.polUTXOs[jj].index.hex))
+         tUtxo = new Utxo({amount:m.polUTXOs[jj].amount, myHashFunc: poseidon, keypair: myKeypair, blinding:m.polUTXOs[jj].blinding, index:parseInt(m.polUTXOs[jj].index.hex), chainID : m.polUTXOs[jj].chainID})
+         console.log('txt',toFixedHex(tUtxo.getCommitment(poseidon)))
+         tUtxo._commitment = m.polUTXOs[jj]._commitment
+         tUtxo._nullifier = m.polUTXOs[jj]._nullifier
+         newUTXOs.push(tUtxo)
+         utxoAmount = utxoAmount.add(m.polUTXOs[jj].amount)
+         console.log("my us ", newUTXOs)
       }
-   }
    console.log("starting2")
    await prepare2();
    }
@@ -150,16 +148,13 @@ async function send() {
          window.alert("Transaction sent on Gnosis network! private tx hash: xxx")
       }
       else if (_network == "polygon") {
-         console.log("starting private txn on Polygon")
          console.log(myKeypair.pubkey)
           //ADD checkbox if withdraw, add MAX button to autofill balance
          //get amount and address (can we just use an address?  Test that that person can then do something with it, if not, you need a registry?)
-         console.log(m.ppVal.toString())
-         console.log("starting p")
          await prepareSend();
          prepareTransaction({
                charon: polCharon,
-               inputs: myUTXOs,
+               inputs: newUTXOs,
                outputs: changeUtxos,
                privateChainID: 80001,
                myHasherFunc: poseidon,

@@ -144,29 +144,32 @@ gnoCharon.queryFilter(eventFilter,0, "latest").then(function(evtData){
       }catch{}
 }
 })
-eventFilter = polCharon.filters.NewCommitment()
-polCharon.queryFilter(eventFilter,0, "latest").then(function(evtData){
-   let index, myNullifier, pUtxo;
+peventFilter = polCharon.filters.NewCommitment()
+polCharon.queryFilter(peventFilter,0, "latest").then(function(evtData3){
+   let mypNullifier, pUtxo;
    let j=0;
    let pUtxos = []
-   for (let i=0;i< evtData.length; i++) {
+   for (let ii=0;ii< evtData3.length; ii++) {
       try{
-         pUtxo = Utxo.decrypt(myKeypair, evtData[i].args._encryptedOutput, evtData[i].args._index)
+         pUtxo = Utxo.decrypt(myKeypair, evtData3[ii].args._encryptedOutput, evtData3[ii].args._index)
          pUtxo.chainID = 80001;
-         pUtxos.push(pUtxo);
-      //nowCreate nullifier
-      console.log("indices", evtData[i].args._index, pUtxo.index)
-         myNullifier = pUtxo.getNullifier(poseidon)
-         myNullifier = toFixedHex(myNullifier)
-         polCharon.isSpent(myNullifier).then(function(result){
-            if(!result){
-               polSet[1] = polSet[1] + parseInt(pUtxos[j].amount);
-               polUTXOs.push(pUtxos[j])
-               j++
-            }else{
-               j++;
-            }
-         })
+         if(pUtxo.amount > 0 && toFixedHex(evtData3[ii].args._commitment) == toFixedHex(pUtxo.getCommitment(poseidon))){
+            pUtxos.push(pUtxo);
+            //nowCreate nullifier
+            console.log(toFixedHex(evtData3[ii].args._commitment))
+            console.log("indices", toFixedHex(pUtxo.getCommitment(poseidon)))
+            mypNullifier = pUtxo.getNullifier(poseidon)
+            mypNullifier = toFixedHex(mypNullifier)
+            polCharon.isSpent(mypNullifier).then(function(result){
+               if(!result){
+                  polSet[1] = polSet[1] + parseInt(pUtxos[j].amount);
+                  polUTXOs.push(pUtxos[j])
+                  j++
+               }else{
+                  j++;
+               }
+            })
+         }
       }catch{}
 }
 })
