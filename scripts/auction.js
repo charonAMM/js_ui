@@ -64,6 +64,7 @@ async function setPublicBalances() {
          await ethCIT.startNewAuction().then((result) => console.log(result));
          window.alert("Auction has ended. New auction has started.")
          loadAndDisplay()
+         location.reload()
       })
    } else {
       await ethCIT.endDate().then((result) => $('#timeLeft').text(timeLeft(result * 1000)));

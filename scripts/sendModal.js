@@ -115,6 +115,46 @@ async function prepareSend(){
    }
 }
 
+const networkButtons = document.querySelectorAll('input[type="radio"]');
+const toAmountInput = document.querySelector('#toAmount');
+
+networkButtons.forEach((networkButton) => {
+   networkButton.addEventListener('change', () => {
+    toAmountInput.value = '';
+  });
+});
+
+
+$("#maxButton").on('click', () => {
+   console.log("maxbutton clicked")
+   let amountInput = document.querySelector('#toAmount')
+   // amountInput.value = 100
+   const _network = $('input[name="netType"]:checked').val();
+   const _visType = $('#txType-switch').prop('checked') ? 'private' : 'public';
+   console.log(_network, _visType)
+   if (_visType == "public") {
+      if (_network == "ethereum") {
+         ethCHD.balanceOf(ethWallet.address).then((result) => amountInput.value = ethers.utils.formatEther(result));
+      }
+      else if (_network == "gnosis") {
+         gnoCHD.balanceOf(gnoWallet.address).then((result) => amountInput.value = ethers.utils.formatEther(result));
+      }
+      else if (_network == "polygon") {
+         polCHD.balanceOf(polWallet.address).then((result) => amountInput.value = ethers.utils.formatEther(result));
+      }
+   }
+   else {
+      if (_network == "ethereum") {
+         //private balance of eth
+      }
+      else if (_network == "gnosis") {
+         //private balance of gno
+      }
+      else if (_network == "polygon") {
+         //private balance of pol 
+      }
+   }
+})
 async function send() {
    myKeypair = new Keypair({ privkey: process.env.PRIVATE_KEY, myHashFunc: poseidon }) // contains private and public keys
    await myKeypair.pubkey
@@ -126,10 +166,12 @@ async function send() {
    let _withdrawal = false
    console.log(_network, _visType)
    console.log("to: ", _to, "amount ", _amount)
-   if (_visType == "visible") {
+   console.log("withdrawal: ", _withdrawal)
+   if (_visType == "public") {
       if (_network == "ethereum") {
-         ethCHD.transfer(_to, _amount).then((result) => console.log(result));
+         ethCHD.transfer(_to, _amount).then((result) => console.log(result));;
          window.alert("Transaction sent on Ethereum network! public tx hash: " + result.hash + " (https://etherscan.io/tx/" + result.hash)
+         console.log("sent")
       }
       else if (_network == "gnosis") {
          gnoCHD.transfer(_to, _amount).then((result) => console.log(result));
@@ -140,11 +182,13 @@ async function send() {
          window.alert("Transaction sent on Polygon network! public tx hash: " + result.hash + " (https://polygonscan.com/tx/" + result.hash)
       }
    }
-   else if (_visType == "private") {
+   else {
       if (_network == "ethereum") {
+         console.log("private send eth")
          window.alert("Transaction sent on Ethereum network! private tx hash: xxx")
       }
       else if (_network == "gnosis") {
+         console.log("private send gno")
          window.alert("Transaction sent on Gnosis network! private tx hash: xxx")
       }
       else if (_network == "polygon") {
