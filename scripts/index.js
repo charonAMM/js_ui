@@ -10,11 +10,9 @@ const { abi: chdABI } = require("../artifacts/charonAMM/contracts/CHD.sol/CHD.js
 const { abi: charonABI } = require("../artifacts/charonAMM/contracts/Charon.sol/Charon.json")
 const { buildPoseidon } = require("circomlibjs");
 const { toFixedHex } = require('../src/utils.js')
-const { isFunction } = require('jquery')
 require('dotenv').config()
 let filename = 'bootstrap'
-let sno = 0
-let builtPoseidon, myKeypair
+let builtPoseidon
 let eVal,gVal,pVal, peVal, pgVal,ppVal;
 let ethSet = [0,0] //block, balnce initSet
 let gnoSet = [0,0] //block, balnce initSet
@@ -23,18 +21,12 @@ let polUTXOs = [] //beSure to add in save mode
 let ethUTXOs = [] 
 let gnoUTXOs = [] 
 
-//   0x2a4eA8464bd2DaC1Ad4f841Dcc7A8EFB4d84A27d
-console.log("here")
-// //Check if file exists
-// Connect a wallet to mainnet
 ethProvider = new ethers.providers.JsonRpcProvider(process.env.NODE_URL_ETHEREUM);
 gnosisProvider = new ethers.providers.JsonRpcProvider(process.env.NODE_URL_GNOSIS);
 polygonProvider = new ethers.providers.JsonRpcProvider(process.env.NODE_URL_POLYGON);
-
 ethWallet = new ethers.Wallet(process.env.PRIVATE_KEY, ethProvider);
 gnoWallet = new ethers.Wallet(process.env.PRIVATE_KEY, gnosisProvider);
 polWallet = new ethers.Wallet(process.env.PRIVATE_KEY, polygonProvider);
-console.log("using address ", ethWallet.address)
 $('#myAddress').text(ethWallet.address)
 ethCHD = new ethers.Contract(process.env.ETHEREUM_CHD, chdABI, ethWallet);
 gnoCHD = new ethers.Contract(process.env.GNOSIS_CHD, chdABI, gnoWallet);
@@ -51,21 +43,16 @@ function poseidon(inputs){
 
 function makeSendModal() {
    sendModal = new BrowserWindow({ width: 700, height: 600, webPreferences: { nodeIntegration: true, enableRemoteModule: true, contextIsolation: false } })
-
    sendModal.loadURL(url.format({
       pathname: path.join(__dirname, '../modals/sendModal.html'),
       protocol: 'file:',
       slashes: true,
    }))
-   // sendModal.webContents.openDevTools()
-   console.log("done")
 }
 
 function makeBridgeModal() {
    // Enable @electron/remote module for the bridgeWindow's webContents
    bridgeModal = new BrowserWindow({ width: 720, height: 370, webPreferences: { nodeIntegration: true, enableRemoteModule: true, contextIsolation: false } })
-
-
    bridgeModal.loadURL(url.format({
       pathname: path.join(__dirname, '../modals/bridgeModal.html'),
       protocol: 'file:',
@@ -78,7 +65,6 @@ function writeUTXOs(){
    try{
       fs.unlinkSync('utxos.txt');
    }catch{}
-   console.log(polUTXOs)
    const sendVars = {
       "polUTXOs": polUTXOs,
       "gnoUTXOs": gnoUTXOs,
@@ -93,54 +79,53 @@ function writeUTXOs(){
 
 function setData(){
    let myKeypair = new Keypair({privkey:process.env.PRIVATE_KEY, myHashFunc: poseidon});
-   console.log("myKey", myKeypair)
-   // if(fs.existsSync(filename)) {
-   //    let data = fs.readFileSync(filename, 'utf8').split(',')
-   //    ethSet = [data[0],data[1]]
-   //    polSet = [data[2],data[3]]
-   //    gnoSet = [data[4],data[5]]
-   //    fs.unlinkSync(filename);
-   //    console.log("it exists!!")
-   // }
-
-      console.log(ethSet[0])
-      console.log(polSet[0])
-      console.log(gnoSet[0])
-let eventFilter = ethCharon.filters.NewCommitment()
-ethCharon.queryFilter(eventFilter,0,"latest").then(function(evtData){
-   let index;
+   let eventFilter = ethCharon.filters.NewCommitment()
+   ethCharon.queryFilter(eventFilter,0,"latest").then(function(evtData){
+   let eUtxo,myNullifier;
+   let jjj = 0;
+   let eUtxos = []
    for (let i=0;i< evtData.length; i++) {
             try{
-               myUtxo = Utxo.decrypt(myKeypair, evtData[i].args._encryptedOutput, evtData[i].args._index)
-               myUtxo.chainID = 5;
-            //nowCreate nullifier
-               myNullifier = myUtxo.getNullifier(poseidon)
-               myNullifier = toFixedHex(myNullifier)
-               ethCharon.isSpent(myNullifier).then(function(result){
-                  if(!result){
-                     ethSet[1] = ethSet[1] + parseInt(myUtxo.amount);
-                     ethUTXOs.push(myUtxo)
-                  }
-               })
+               eUtxo = Utxo.decrypt(myKeypair, evtData[i].args._encryptedOutput, evtData[i].args._index)
+               eUtxo.chainID = 5;
+               if(eUtxo.amount > 0 && toFixedHex(evtData[i].args._commitment) == toFixedHex(eUtxo.getCommitment(poseidon))){
+                  eUtxos.push(eUtxo);
+                  myNullifier = toFixedHex(eUtxo.getNullifier(poseidon))
+                  ethCharon.isSpent(myNullifier).then(function(result){
+                     if(!result){
+                        ethSet[1] = ethSet[1] + parseInt(eUtxos[jjj].amount);
+                        ethUTXOs.push(eUtxos[jjj])
+                        jjj++
+                     }else{
+                        jjj++;
+                     }
+                  })
+               }
             }catch{}
       }
 })
-eventFilter = gnoCharon.filters.NewCommitment()
-gnoCharon.queryFilter(eventFilter,0, "latest").then(function(evtData){
-   let gUtxo;
-   for (let i=0;i< evtData.length; i++) {
+gEventFilter = gnoCharon.filters.NewCommitment()
+gnoCharon.queryFilter(gEventFilter,0, "latest").then(function(evtData2){
+   let  gUtxo, mygNullifier;
+   let jj =0;
+   let gUtxos = []
+   for (let iii=0;iii< evtData2.length; iii++) {
       try{
-         gUtxo = Utxo.decrypt(myKeypair, evtData[i].args._encryptedOutput, evtData[i].args._index)
+         gUtxo = Utxo.decrypt(myKeypair, evtData2[iii].args._encryptedOutput, evtData2[iii].args._index)
          gUtxo.chainID = 10200;
-      //nowCreate nullifier
-         myNullifier = gUtxo.getNullifier(poseidon)
-         myNullifier = toFixedHex(myNullifier)
-         gnoCharon.isSpent(myNullifier).then(function(result){
-            if(!result){
-               gnoSet[1] = gnoSet[1] + parseInt(gUtxo.amount);
-               gnoUTXOs.push(gUtxo)
-            }
-         })
+         if(gUtxo.amount > 0 && toFixedHex(evtData2[iii].args._commitment) == toFixedHex(gUtxo.getCommitment(poseidon))){
+            gUtxos.push(gUtxo);
+            mygNullifier = toFixedHex(gUtxo.getNullifier(poseidon))
+            gnoCharon.isSpent(mygNullifier).then(function(result){
+               if(!result){
+                  gnoSet[1] = gnoSet[1] + parseInt(gUtxos[jj].amount);
+                  gnoUTXOs.push(gUtxos[jj])
+                  jj++
+               }else{
+                  jj++;
+               }
+            })
+         }
       }catch{}
 }
 })
@@ -155,11 +140,7 @@ polCharon.queryFilter(peventFilter,0, "latest").then(function(evtData3){
          pUtxo.chainID = 80001;
          if(pUtxo.amount > 0 && toFixedHex(evtData3[ii].args._commitment) == toFixedHex(pUtxo.getCommitment(poseidon))){
             pUtxos.push(pUtxo);
-            //nowCreate nullifier
-            console.log(toFixedHex(evtData3[ii].args._commitment))
-            console.log("indices", toFixedHex(pUtxo.getCommitment(poseidon)))
-            mypNullifier = pUtxo.getNullifier(poseidon)
-            mypNullifier = toFixedHex(mypNullifier)
+            mypNullifier = toFixedHex(pUtxo.getNullifier(poseidon))
             polCharon.isSpent(mypNullifier).then(function(result){
                if(!result){
                   polSet[1] = polSet[1] + parseInt(pUtxos[j].amount);
@@ -194,12 +175,6 @@ $('#bridge').on('click', () => {
 })
 
 function loadPrivateBalances() {
-   //try and load from stored file and set base block / balance (contract start if not)
-      //loop through all other events and get new ones
-      //set dom state
-      console.log(ethSet, "eth")
-      console.log(gnoSet, "gno")
-      console.log(polSet, "pol")
       peVal = Math.round(ethers.utils.formatEther(ethSet[1].toString())*100)/100;
       pgVal = Math.round(ethers.utils.formatEther(gnoSet[1].toString())*100)/100;
       ppVal = Math.round(ethers.utils.formatEther(polSet[1].toString())*100)/100
@@ -220,12 +195,9 @@ function loadPrivateBalances() {
 }
 
 function setPublicBalances() {
-
-
    ethCHD.balanceOf(ethWallet.address).then((result) => eVal = Math.round(ethers.utils.formatEther(result) * 100) / 100);
    gnoCHD.balanceOf(gnoWallet.address).then((result) => gVal = Math.round(ethers.utils.formatEther(result) * 100) / 100);
    polCHD.balanceOf(polWallet.address).then((result) => pVal = Math.round(ethers.utils.formatEther(result) * 100) / 100);
-
    return new Promise(resolve => {
       setTimeout(() => {
          resolve('resolved');
@@ -238,7 +210,6 @@ function loadPublicBalances() {
    $('#gnoCHD').text(gVal)
    $('#polCHD').text(pVal)
    $('#totalBal').text(Math.round((eVal + gVal + pVal + peVal + pgVal + ppVal)*100)/100)
-   
 }
 
 function loadAndDisplayContacts() {
@@ -247,7 +218,6 @@ function loadAndDisplayContacts() {
 }
 
 function pBuild() {
-
    buildPoseidon().then(function (res) {
       builtPoseidon = res;
    })
