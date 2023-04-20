@@ -5,15 +5,25 @@ const fs = require('fs')
 const tmp = require('tmp-promise')
 const util = require('util')
 const exec = util.promisify(require('child_process').exec)
-
 const { toFixedHex } = require('./utils')
 
+function sleep(ms) {
+  return new Promise(resolve => setTimeout(resolve, ms));
+}
+
 async function prove(input, wasmBasePath, keyBasePath) {
-  const { proof } = await groth16.fullProve(
-    utils.stringifyBigInts(input),
-    `${wasmBasePath}.wasm`,
-    `${keyBasePath}.zkey`,
-  )
+  utils.stringifyBigInts(input)
+  fs.writeFileSync('inputs.json', JSON.stringify(utils.stringifyBigInts(input)))
+  await sleep(400)
+  exec(`snarkjs groth16 fullprove inputs.json ${wasmBasePath}.wasm ${keyBasePath}.zkey proof.json public.json`);
+  await sleep(5000)
+  let proof = JSON.parse(fs.readFileSync('proof.json'));
+  console.log(proof)
+  // const { proof } = await groth16.fullProve(
+  //   utils.stringifyBigInts(input),
+  //   `${wasmBasePath}.wasm`,
+  //   `${keyBasePath}.zkey`,
+  // )
   return (
     '0x' +
     toFixedHex(proof.pi_a[0]).slice(2) +

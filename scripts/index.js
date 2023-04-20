@@ -61,92 +61,6 @@ function makeSendModal() {
    console.log("done")
 }
 
-function send(){
-   console.log("here")
-   let _to = $('#toAddy').val()
-   let _amount = $('#toAmount').val()
-   let _network = $('input[name="netType"]:checked').val();
-   // let _visType = $('input[name="visType"]:checked').val();
-   let _visType = $('#txType-switch').prop('checked') ? 'public' : 'private';
-   console.log(_network,_visType)
-   console.log("to: ",_to, "amount ",_amount)
-   if(_visType == "visible"){
-      if(_network == "ethereum"){
-         ethCHD.transfer(_to,_amount).then((result) => console.log(result));;
-         console.log("sent")
-      }
-      else if(_network == "gnosis"){
-         gnoCHD.transfer(_to,_amount).then((result) => console.log(result));
-      }
-      else if (_network == "polygon"){
-         polCHD.transfer(_to,_amount).then((result) => console.log(result));
-      }
-   }      
-   else{
-      if(_network == "ethereum"){
-         console.log("private send eth")
-      }
-      else if(_network == "gnosis"){
-         console.log("private send gno")
-      }
-      else if (_network == "polygon"){
-         //ADD checkbox if withdraw, add MAX button to autofill balance
-         //get amount and address (can we just use an address?  Test that that person can then do something with it, if not, you need a registry?)
-         if(ppVal < _amount){
-            alert("not enough private balance on mumbai!!")
-         }
-         else{
-         let myUTXOs = []
-         let utxoAmount = 0
-         let changeUtxos = []
-         for(i=0;i<polUTXOs.length;i++){
-            if (utxoAmount >= amount){
-               break
-            }
-            else{
-               myUTXOs.push(polUTXOs[i])
-               utxoAmount += parseInt(polUTXOs[i].amount)
-            }
-         }
-           if(_withdrawal){
-              if(utxoAmount != amount){
-                  changeUtxos.push(new Utxo({
-                     amount: utxoAmount.sub(_amount),
-                     myHashFunc: poseidon,
-                     keypair: myKeypair,
-                     chainID: 80001
-                  }))
-              }
-           }
-           else{
-            changeUtxos.push(new Utxo({ amount: _amount,myHashFunc: poseidon, keypair: Keypair.fromString(_to,poseidon), chainID: 80001 }))
-            changeUtxos. push(new Utxo({
-                amount: utxoAmount.sub(_amount),
-                myHashFunc: poseidon,
-                keypair: myKeypair,
-                chainID: 80001
-            }))
-            _to = "0x0000000000000000000000000000000000000000"
-           }
-         //submit
-         prepareTransaction({
-               charon: polCharon,
-               inputs:myUTXOs,
-               outputs: changeUtxos,
-               recipient: _to,
-               privateChainID: 80001,
-               myHasherFunc: poseidon,
-               myHasherFunc2: poseidon2
-            }).then(function(inputData){
-               polCharon.transact(inputData.args,inputData.extData)
-            })
-         //to add, if fee > 0, send to relayer network!! (not built yet)
-         }
-         console.log("private send pol")
-      }
-   }
-}
-
 function makeBridgeModal() {
    // Enable @electron/remote module for the bridgeWindow's webContents
    bridgeModal = new BrowserWindow({ width: 720, height: 370, webPreferences: { nodeIntegration: true, enableRemoteModule: true, contextIsolation: false } })
@@ -160,19 +74,26 @@ function makeBridgeModal() {
    // bridgeModal.webContents.openDevTools()
 }
 
-writeUTXOs();
 function writeUTXOs(){
-const utxos = [
-   { txid: '0xabcd', vout: 0, value: 10 },
-   { txid: '0xefgh', vout: 1, value: 20 },
-   { txid: '0xijkl', vout: 2, value: 30 }
- ];
- 
- fs.writeFileSync('utxos.txt', JSON.stringify(utxos));
+   try{
+      fs.unlinkSync('utxos.txt');
+   }catch{}
+   console.log(polUTXOs)
+   const sendVars = {
+      "polUTXOs": polUTXOs,
+      "gnoUTXOs": gnoUTXOs,
+      "ethUTXOs":ethUTXOs,
+      "ppVal": ppVal,
+      "peVal": peVal,
+      "pgVal":pgVal
+
+   }
+   fs.writeFileSync('utxos.txt', JSON.stringify(sendVars));
 }
 
 function setData(){
    let myKeypair = new Keypair({privkey:process.env.PRIVATE_KEY, myHashFunc: poseidon});
+   console.log("myKey", myKeypair)
    // if(fs.existsSync(filename)) {
    //    let data = fs.readFileSync(filename, 'utf8').split(',')
    //    ethSet = [data[0],data[1]]
@@ -198,6 +119,7 @@ ethCharon.queryFilter(eventFilter,0,"latest").then(function(evtData){
                ethCharon.isSpent(myNullifier).then(function(result){
                   if(!result){
                      ethSet[1] = ethSet[1] + parseInt(myUtxo.amount);
+                     ethUTXOs.push(myUtxo)
                   }
                })
             }catch{}
@@ -205,37 +127,49 @@ ethCharon.queryFilter(eventFilter,0,"latest").then(function(evtData){
 })
 eventFilter = gnoCharon.filters.NewCommitment()
 gnoCharon.queryFilter(eventFilter,0, "latest").then(function(evtData){
-   let index;
+   let gUtxo;
    for (let i=0;i< evtData.length; i++) {
       try{
-         myUtxo = Utxo.decrypt(myKeypair, evtData[i].args._encryptedOutput, evtData[i].args._index)
-         myUtxo.chainID = 10200;
+         gUtxo = Utxo.decrypt(myKeypair, evtData[i].args._encryptedOutput, evtData[i].args._index)
+         gUtxo.chainID = 10200;
       //nowCreate nullifier
-         myNullifier = myUtxo.getNullifier(poseidon)
+         myNullifier = gUtxo.getNullifier(poseidon)
          myNullifier = toFixedHex(myNullifier)
          gnoCharon.isSpent(myNullifier).then(function(result){
             if(!result){
-               gnoSet[1] = gnoSet[1] + parseInt(myUtxo.amount);
+               gnoSet[1] = gnoSet[1] + parseInt(gUtxo.amount);
+               gnoUTXOs.push(gUtxo)
             }
          })
       }catch{}
 }
 })
-eventFilter = polCharon.filters.NewCommitment()
-polCharon.queryFilter(eventFilter,0, "latest").then(function(evtData){
-   let index, myNullifier;
-   for (let i=0;i< evtData.length; i++) {
+peventFilter = polCharon.filters.NewCommitment()
+polCharon.queryFilter(peventFilter,0, "latest").then(function(evtData3){
+   let mypNullifier, pUtxo;
+   let j=0;
+   let pUtxos = []
+   for (let ii=0;ii< evtData3.length; ii++) {
       try{
-         myUtxo = Utxo.decrypt(myKeypair, evtData[i].args._encryptedOutput, evtData[i].args._index)
-         myUtxo.chainID = 80001;
-      //nowCreate nullifier
-         myNullifier = myUtxo.getNullifier(poseidon)
-         myNullifier = toFixedHex(myNullifier)
-         polCharon.isSpent(myNullifier).then(function(result){
-            if(!result){
-               polSet[1] = polSet[1] + parseInt(myUtxo.amount);
-            }
-         })
+         pUtxo = Utxo.decrypt(myKeypair, evtData3[ii].args._encryptedOutput, evtData3[ii].args._index)
+         pUtxo.chainID = 80001;
+         if(pUtxo.amount > 0 && toFixedHex(evtData3[ii].args._commitment) == toFixedHex(pUtxo.getCommitment(poseidon))){
+            pUtxos.push(pUtxo);
+            //nowCreate nullifier
+            console.log(toFixedHex(evtData3[ii].args._commitment))
+            console.log("indices", toFixedHex(pUtxo.getCommitment(poseidon)))
+            mypNullifier = pUtxo.getNullifier(poseidon)
+            mypNullifier = toFixedHex(mypNullifier)
+            polCharon.isSpent(mypNullifier).then(function(result){
+               if(!result){
+                  polSet[1] = polSet[1] + parseInt(pUtxos[j].amount);
+                  polUTXOs.push(pUtxos[j])
+                  j++
+               }else{
+                  j++;
+               }
+            })
+         }
       }catch{}
 }
 })
@@ -273,7 +207,7 @@ function loadPrivateBalances() {
       $('#gnoPCHD').text(pgVal)
       $('#polPCHD').text(ppVal)
       $('#totalBal').text(Math.round((eVal + gVal + pVal + peVal + pgVal +ppVal)*100)/100)
-
+      writeUTXOs();
       //update baseblock and balance in local file
       fs.writeFile(filename, '', (err) => {
          if(err)
@@ -304,6 +238,7 @@ function loadPublicBalances() {
    $('#gnoCHD').text(gVal)
    $('#polCHD').text(pVal)
    $('#totalBal').text(Math.round((eVal + gVal + pVal + peVal + pgVal + ppVal)*100)/100)
+   
 }
 
 function loadAndDisplayContacts() {
@@ -315,7 +250,6 @@ function pBuild() {
 
    buildPoseidon().then(function (res) {
       builtPoseidon = res;
-      myKeypair = new Keypair({ privKey: process.env.PRIVATE_KEY, myHashFunc: poseidon }) // contains private and public keys
    })
    return new Promise(resolve => {
       setTimeout(() => {

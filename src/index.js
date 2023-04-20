@@ -1,16 +1,19 @@
 const MerkleTree = require('fixed-merkle-tree')
-const { ethers } = require('hardhat')
+const { ethers } = require('ethers')
 const { BigNumber } = ethers
 const { toFixedHex, poseidonHash2, getExtDataHash, FIELD_SIZE, shuffle } = require('./utils')
 const Utxo = require('./utxo')
 const zero = "21663839004416932945382355908790599225266501822907911457504978515578255421292"
 const { prove } = require('./prover')
-const MERKLE_TREE_HEIGHT = 5
+const MERKLE_TREE_HEIGHT = 23
 
 async function buildMerkleTree(charon, hasherFunc) {
   let filter = charon.filters.NewCommitment()
-  const events = await charon.queryFilter(filter, 0)
+  console.log(charon)
+  const events = await charon.queryFilter(filter, 0 , "latest")
+  //console.log(events)
   const leaves = events.sort((a, b) => a.args._index - b.args._index).map((e) => toFixedHex(e.args._commitment))
+  console.log(leaves)
   let tree = await new MerkleTree.default(MERKLE_TREE_HEIGHT,[], { hashFunction: hasherFunc, zeroElement: zero })
   await tree.bulkInsert(leaves)
   return tree
@@ -23,8 +26,8 @@ async function getProof({
   tree,
   extAmount,
   fee,
+  rebate,
   recipient,
-  relayer,
   privateChainID,
   myHasherFunc,
   test
@@ -45,7 +48,17 @@ async function getProof({
         throw new Error(`Input commitment ${toFixedHex(input.getCommitment(myHasherFunc))} was not found`)
       }
       inputMerklePathIndices.push(input.index)
-      inputMerklePathElements.push(tree.path(input.index).pathElements)
+      try{
+        inputMerklePathElements.push(tree.path(input.index).pathElements)
+      }
+      catch{
+        if(test){
+          inputMerklePathElements.push(new Array(tree.levels).fill(0))
+        }
+        else{
+          throw new Error("index out of bounds")
+        }
+      }
     } else {
       inputMerklePathIndices.push(0)
       inputMerklePathElements.push(new Array(tree.levels).fill(0))
@@ -55,8 +68,8 @@ async function getProof({
   const extData = {
     recipient: toFixedHex(recipient, 20),
     extAmount: toFixedHex(extAmount),
-    relayer: toFixedHex(relayer, 20),
     fee: toFixedHex(fee),
+    rebate: toFixedHex(rebate),
     encryptedOutput1: outputs[0].encrypt(),
     encryptedOutput2: outputs[1].encrypt()
   }
@@ -112,7 +125,7 @@ async function prepareTransaction({
   outputs = [],
   fee = 0,
   recipient = 0,
-  relayer = 0,
+  rebate = 0,
   privateChainID = 2,
   myHasherFunc,
   myHasherFunc2,
@@ -137,8 +150,8 @@ async function prepareTransaction({
     tree: await buildMerkleTree(charon, myHasherFunc2),
     extAmount,
     fee,
+    rebate,
     recipient,
-    relayer,
     privateChainID,
     myHasherFunc,
     test
