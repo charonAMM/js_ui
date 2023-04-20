@@ -79,6 +79,8 @@ function writeUTXOs(){
 
 function setData(){
    let myKeypair = new Keypair({privkey:process.env.PRIVATE_KEY, myHashFunc: poseidon});
+   console.log("myKeyPair", myKeypair);
+   console.log('mk', myKeypair.address())
    let eventFilter = ethCharon.filters.NewCommitment()
    ethCharon.queryFilter(eventFilter,0,"latest").then(function(evtData){
    let eUtxo,myNullifier;
