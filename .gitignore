@@ -12,3 +12,5 @@ public.json
 ./public.json
 inputs.json
 ./inputs.json
+utxos.txt
+./utxos.txt
