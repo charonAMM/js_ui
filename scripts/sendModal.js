@@ -4,8 +4,6 @@ const { abi: chdABI } = require("../artifacts/charonAMM/contracts/CHD.sol/CHD.js
 const fs = require('fs');
 require('dotenv').config()
 
-console.log("sendModal.js loaded");
-
 ethProvider = new ethers.providers.JsonRpcProvider(process.env.NODE_URL_ETHEREUM);
 gnosisProvider = new ethers.providers.JsonRpcProvider(process.env.NODE_URL_GNOSIS);
 polygonProvider = new ethers.providers.JsonRpcProvider(process.env.NODE_URL_POLYGON);
@@ -17,9 +15,7 @@ gnoCHD = new ethers.Contract(process.env.GNOSIS_CHD, chdABI, gnoWallet);
 polCHD = new ethers.Contract(process.env.POLYGON_CHD, chdABI, polWallet);
 
 $('#signAndSend').on('click', () => {
-   console.log("sending")
    send()
-   console.log("sent")
 })
 
 const networkButtons = document.querySelectorAll('input[type="radio"]');
@@ -33,12 +29,10 @@ networkButtons.forEach((networkButton) => {
 
 
 $("#maxButton").on('click', () => {
-   console.log("maxbutton clicked")
    let amountInput = document.querySelector('#toAmount')
    // amountInput.value = 100
    const _network = $('input[name="netType"]:checked').val();
    const _visType = $('#txType-switch').prop('checked') ? 'private' : 'public';
-   console.log(_network, _visType)
    if (_visType == "public") {
       if (_network == "ethereum") {
          ethCHD.balanceOf(ethWallet.address).then((result) => amountInput.value = ethers.utils.formatEther(result));

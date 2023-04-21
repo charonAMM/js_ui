@@ -1,5 +1,4 @@
 let $ = require('jquery')
-console.log("bridgeModal.js loaded");
 const ethers = require('ethers');
 const { abi: chdABI } = require("../artifacts/charonAMM/contracts/CHD.sol/CHD.json")
 const { abi: charonABI } = require("../artifacts/charonAMM/contracts/Charon.sol/Charon.json")
@@ -28,7 +27,6 @@ function bridge() {
   const fromNetwork = fromNetworkSelect.value;
   const toNetwork = toNetworkSelect.value;
   const amount = document.getElementById("amount").value;
-  console.log(`Bridge ${amount} from ${fromNetwork} to ${toNetwork}`);
 
   if (fromNetwork === "ethereum") {
     if (toNetwork === "gnosis") {

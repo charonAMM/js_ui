@@ -39,7 +39,7 @@
             </div>
             <div class="row">
                 <div class="col-md-6">
-                    <h2 class="text-center my-4" style="font-weight: bold; font-size: 1rem; text-transform: uppercase;">My Balances</h2>
+                    <h2 class="my-4" style="font-size: 24px; font-weight: 700;">my balances</h2>
                     <div class="table-responsive">
                         <table class="table">
                             <thead class="text-center">
@@ -114,28 +114,26 @@
                     <div class="tab-content " id="pills-tabContent">
                         <div class="swap-container tab-pane fade show active" id="pills-swap" role="tabpanel"
                             aria-labelledby="pills-swap-tab">
-
-                            <div class="swap-contents">
+                            <div class="swap-contents" style="margin-top: 30px;">
                                 <div class="card swap-contents-card">
-                                    <div class="swap-head card-header">
-                                        swap
-                                    </div>
                                     <div class="card-body">
                                         <div class="card-input input-group">
+                                            <div class="display: flex; justify-content: flex-start;">
+                                                <button id="max-button" type="button">Max</button>
+                                            </div>
                                             <div class="input-card-top">
                                                 <input type="text" value="" placeholder="0" class="form-control"
                                                     id="from-amount" style="color: whitesmoke;">
                                                 <div>
                                                     <select class="btn dropdown-toggle" name="currency"
-                                                        id="from-currency" onchange="calculateConversion()"
+                                                        id="from-currency" onchange="calculateConversion()" ra
                                                         style="padding: 1px;border-radius: 1px;border-top-left-radius: 10px;border-top-right-radius: 10px;border-bottom-right-radius: 10px;border-bottom-left-radius: 10px;">
-                                                        <option value="ETH" selected=""
+                                                        <option value="ETH"
                                                             style="background-color:#212429">eth</option>
                                                         <option value="xDAI" style="background-color:#212429">xdai
                                                         </option>
                                                         <option value="MATIC" style="background-color:#212429">matic
                                                         </option>
-                                                        <!-- <option value="chd"   style = "background-color:#212429">chd</option> -->
                                                     </select>
                                                 </div>
                                             </div>
@@ -158,15 +156,16 @@
                                                 </div>
                                             </div>
                                             <div>
-                                                <div>estimated gas: <span id="gas-estimate"></span></div>
-                                                <div>slippage: <span id="slippage"></span></div>
+                                                <div style="padding-left:10px;">estimated gas: <span id="gas-estimate"></span></div>
+                                                <div style="padding-left:10px;">slippage: <span id="slippage"></span></div>
                                             </div>
                                         </div>
                                         <!-- <button type="button" class="connect-wallet-down" id="connectButton">
                                             connect wallet
                                         </button> -->
                                         <button type="button" class="swap-down" id="swapButton">
-                                            swap
+                                         <span id="swapText">swap</span>
+                                         <div class="loader" id="swapLoader"></div>
                                         </button>
                                     </div>
                                 </div>

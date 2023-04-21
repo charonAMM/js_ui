@@ -47,20 +47,12 @@ async function setPublicBalances() {
    const currentDate = new Date();
    const currentUnix = Math.floor(currentDate.getTime() / 1000);
    const endDateUnix = await ethCIT.endDate();
-   console.log("end date unix " + endDateUnix)
-   const endDateString = new Date(endDateUnix * 1000).toLocaleString();
-   console.log("curent date " + currentDate)
-   console.log("end date " + endDateString)
-
-   console.log("time left " + timeLeft(endDateUnix * 1000))
-
 
    if (endDateUnix <= currentUnix) {
       $('#timeLeft').text("0 day, 0 hours, 0 minutes,");
       $('#endFeeRoundButton').removeAttr('disabled');
       $('#bid').attr('disabled', true);
       $('#endFeeRoundButton').on('click', async () => {
-         console.log("end date" + endDateUnix)
          await ethCIT.startNewAuction().then((result) => console.log(result));
          window.alert("Auction has ended. New auction has started.")
          loadAndDisplay()
