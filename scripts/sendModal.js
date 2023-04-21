@@ -8,11 +8,8 @@ require('dotenv').config()
 const { Keypair } = require('../src/keypair')
 const { prepareTransaction } = require('../src/index')
 const Utxo = require('../src/utxo');
-const { toFixedHex } = require('../src/utils');
 const { BigNumber } = ethers
-let m
-console.log("sendModal.js loaded");
-let myKeypair, builtPoseidon;
+let m, myKeypair, builtPoseidon;
 ethProvider = new ethers.providers.JsonRpcProvider(process.env.NODE_URL_ETHEREUM);
 gnosisProvider = new ethers.providers.JsonRpcProvider(process.env.NODE_URL_GNOSIS);
 polygonProvider = new ethers.providers.JsonRpcProvider(process.env.NODE_URL_POLYGON);
@@ -45,28 +42,22 @@ function poseidon(inputs){
 readUTXOs()
    buildPoseidon().then(function (res) {
       builtPoseidon = res;
-      //myKeypair = new Keypair({ privKey: process.env.PRIVATE_KEY, myHashFunc: poseidon }) // contains private and public keys
-      console.log("ready to submit!!!")
    })
    function readUTXOs() {
    m = JSON.parse(fs.readFileSync('utxos.txt'));
-   console.log(m);
 }
 
 let newUTXOs = []
 let utxoAmount = BigNumber.from("0")
 let changeUtxos = []
-
 async function prepare2(_chain){
    let _to = $('#toAddy').val()
    let _amount = $('#toAmount').val()
-   let _withdrawal = false
-   let toKey = Keypair.fromString(_to,poseidon)
-
-   if(_withdrawal){
-      if(utxoAmount != amount){
+   let _withdrawal2 = $('#withdrawalCheckbox').val()
+   if(_withdrawal2 == "on"){
+      if(utxoAmount != _amount){
           changeUtxos.push(new Utxo({
-             amount: utxoAmount - _amount,
+             amount: BigNumber.from(utxoAmount).sub(_amount),
              myHashFunc: poseidon,
              keypair: myKeypair,
              chainID: _chain
@@ -74,6 +65,8 @@ async function prepare2(_chain){
       }
    }
    else{
+      test = 2;
+      let toKey = Keypair.fromString(_to,poseidon)
        changeUtxos.push(new Utxo({ amount: _amount,myHashFunc: poseidon, keypair:toKey, chainID: _chain }))
        changeUtxos. push(new Utxo({
         amount: BigNumber.from(utxoAmount).sub(_amount),
@@ -86,24 +79,22 @@ async function prepare2(_chain){
 }
 
 async function prepareSend(_cUTXOs, _chain){
-   let _amount = $('#toAmount').val()
-   if(ethers.utils.parseEther(m.ppVal.toString()) < _amount){
+   let _amount = parseInt($('#toAmount').val())
+   if(ethers.utils.parseEther(m.ppVal.toString()) < parseInt(_amount)){
       alert("not enough private balance on mumbai!!")
    }
    else{
-   newUTXOs = []
-   let myIndex;
-   let jj = 0;
-   let tUtxo
-      while (utxoAmount < _amount && jj < _cUTXOs.length){
-         myIndex = _cUTXOs[jj].index
-         tUtxo = new Utxo({amount:_cUTXOs[jj].amount, myHashFunc: poseidon, keypair: myKeypair, blinding:_cUTXOs[jj].blinding, index:parseInt(_cUTXOs[jj].index.hex), chainID : _cUTXOs[jj].chainID})
-         tUtxo._commitment = _cUTXOs[jj]._commitment
-         tUtxo._nullifier = _cUTXOs[jj]._nullifier
-         newUTXOs.push(tUtxo)
-         utxoAmount = utxoAmount.add(_cUTXOs[jj].amount)
-      }
-   await prepare2(_chain);
+      newUTXOs = []
+      let jj = 0;
+      let tUtxo
+         while (utxoAmount < _amount && jj < _cUTXOs.length){
+            tUtxo = new Utxo({amount:_cUTXOs[jj].amount, myHashFunc: poseidon, keypair: myKeypair, blinding:_cUTXOs[jj].blinding, index:parseInt(_cUTXOs[jj].index.hex), chainID : _cUTXOs[jj].chainID})
+            tUtxo._commitment = _cUTXOs[jj]._commitment
+            tUtxo._nullifier = _cUTXOs[jj]._nullifier
+            newUTXOs.push(tUtxo)
+            utxoAmount = utxoAmount.add(_cUTXOs[jj].amount)
+         }
+      await prepare2(_chain);
    }
 }
 
@@ -118,12 +109,10 @@ networkButtons.forEach((networkButton) => {
 
 
 $("#maxButton").on('click', () => {
-   console.log("maxbutton clicked")
    let amountInput = document.querySelector('#toAmount')
    // amountInput.value = 100
    const _network = $('input[name="netType"]:checked').val();
    const _visType = $('#txType-switch').prop('checked') ? 'private' : 'public';
-   console.log(_network, _visType)
    if (_visType == "public") {
       if (_network == "ethereum") {
          ethCHD.balanceOf(ethWallet.address).then((result) => amountInput.value = ethers.utils.formatEther(result));
@@ -151,14 +140,15 @@ async function send() {
    myKeypair = new Keypair({ privkey: process.env.PRIVATE_KEY, myHashFunc: poseidon }) // contains private and public keys
    await myKeypair.pubkey
    let _to = $('#toAddy').val()
-   let _amount = $('#toAmount').val()
+   let _amount = parseInt($('#toAmount').val())
    let _network = $('input[name="netType"]:checked').val();
    let _visType = $('#txType-switch').prop('checked') ? 'private' : 'public';
+   let _withdrawal = $('#withdrawalCheckbox').val()
+   let _adjTo = _to;
    if (_visType == "public") {
       if (_network == "ethereum") {
          ethCHD.transfer(_to, _amount).then((result) => console.log(result));;
          window.alert("Transaction sent on Ethereum network! public tx hash: " + result.hash + " (https://etherscan.io/tx/" + result.hash)
-         console.log("sent")
       }
       else if (_network == "gnosis") {
          gnoCHD.transfer(_to, _amount).then((result) => console.log(result));
@@ -170,54 +160,64 @@ async function send() {
       }
    }
    else {
+      if(_withdrawal != "on"){
+         _adjTo = 0;
+      }
       if (_network == "ethereum") {
-         console.log("private send eth")
                    //ADD checkbox if withdraw, add MAX button to autofill balance
          //get amount and address (can we just use an address?  Test that that person can then do something with it, if not, you need a registry?)
          await prepareSend(m.ethUTXOs, 5);
-         prepareTransaction({
+         if(newUTX0s.length > 0 || changeUTXOs > 0){
+            prepareTransaction({
                charon: ethCharon,
                inputs: newUTXOs,
                outputs: changeUtxos,
+               recipient: _adjTo,
                privateChainID: 5,
                myHasherFunc: poseidon,
                myHasherFunc2: poseidon2
             }).then(function(inputData){
                ethCharon.transact(inputData.args,inputData.extData).then((result) => console.log(result));
             })
+         }
          window.alert("Transaction sent on Ethereum network! private tx hash: xxx")
       }
       else if (_network == "gnosis") {
-         console.log("private send gno")
                    //ADD checkbox if withdraw, add MAX button to autofill balance
          //get amount and address (can we just use an address?  Test that that person can then do something with it, if not, you need a registry?)
          await prepareSend(m.gnoUTXOs, 10200);
-         prepareTransaction({
+         if(newUTX0s.length > 0 || changeUTXOs > 0){
+            prepareTransaction({
                charon: gnoCharon,
                inputs: newUTXOs,
                outputs: changeUtxos,
+               recipient: _adjTo,
                privateChainID: 10200,
                myHasherFunc: poseidon,
                myHasherFunc2: poseidon2
             }).then(function(inputData){
                gnoCharon.transact(inputData.args,inputData.extData).then((result) => console.log(result));
             })
+         }
          window.alert("Transaction sent on Gnosis network! private tx hash: xxx")
       }
       else if (_network == "polygon") {
           //ADD checkbox if withdraw, add MAX button to autofill balance
          //get amount and address (can we just use an address?  Test that that person can then do something with it, if not, you need a registry?)
          await prepareSend(m.polUTXOs,80001);
-         prepareTransaction({
-               charon: polCharon,
-               inputs: newUTXOs,
-               outputs: changeUtxos,
-               privateChainID: 80001,
-               myHasherFunc: poseidon,
-               myHasherFunc2: poseidon2
-            }).then(function(inputData){
-               polCharon.transact(inputData.args,inputData.extData).then((result) => console.log(result));
-            })
+         if(newUTX0s.length > 0 || changeUTXOs > 0){
+               prepareTransaction({
+                  charon: polCharon,
+                  inputs: newUTXOs,
+                  outputs: changeUtxos,
+                  recipient: _adjTo,
+                  privateChainID: 80001,
+                  myHasherFunc: poseidon,
+                  myHasherFunc2: poseidon2
+               }).then(function(inputData){
+                  polCharon.transact(inputData.args,inputData.extData).then((result) => console.log(result));
+               })
+            }
          //to add, if fee > 0, send to relayer network!! (not built yet)
          window.alert("Transaction sent on Polygon network! private tx hash: xxx")
       }
