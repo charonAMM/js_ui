@@ -16,7 +16,7 @@ async function prove(input, wasmBasePath, keyBasePath) {
   fs.writeFileSync('inputs.json', JSON.stringify(utils.stringifyBigInts(input)))
   await sleep(400)
   exec(`snarkjs groth16 fullprove inputs.json ${wasmBasePath}.wasm ${keyBasePath}.zkey proof.json public.json`);
-  await sleep(5000)
+  await sleep(6000)
   let proof = JSON.parse(fs.readFileSync('proof.json'));
   console.log(proof)
   // const { proof } = await groth16.fullProve(
