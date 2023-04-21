@@ -171,7 +171,6 @@ a{
   .form-check-label {
     font-size: 18px;
   }
-  
-
-  
-  
+  body {
+    font-family: 'Inter', sans-serif;
+  }

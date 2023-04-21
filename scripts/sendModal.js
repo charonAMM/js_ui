@@ -28,9 +28,7 @@ function poseidon2(a,b){
    }
 
 $('#signAndSend').on('click', () => {
-   console.log("sending")
    send()
-   console.log("sent")
 })
 
 function poseidon(inputs){

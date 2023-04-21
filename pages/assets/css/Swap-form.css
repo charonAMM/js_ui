@@ -102,6 +102,7 @@
 }
 
 .swap-down {
+  position:relative;
   width: 100% !important;
   height: 50px !important;
   background: rgb(23, 41, 65);
@@ -156,4 +157,62 @@
   font-weight: 600 !important;
   color: white;
   font-size: 20px;
+}
+
+#max-button {
+  font-size: 17px;
+  font-weight: bold;
+  padding-top: -20px;
+  margin-right:-40px;
+  margin-bottom: -10px;
+  color: rgb(42, 100, 181);
+  background-color: transparent;
+  border: none;
+}
+
+#max-button:hover {
+  color: rgba(34, 97, 173, 0.44);
+}
+
+.loader {
+  position: absolute;
+  top: 30%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  border: 2px solid rgba(255, 255, 255, 0.2);
+  border-top-color: #fff;
+  border-radius: 50%;
+  width: 18px;
+  height: 18px;
+  animation: spin 1s linear infinite;
+  display: none;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+.loader:before {
+  content: "";
+  position: absolute;
+  top: -5px;
+  left: -5px;
+  right: -5px;
+  bottom: -5px;
+  border: 2px solid rgba(255, 255, 255, 0.2);
+  border-radius: 50%;
+  z-index: -1;
+  animation: pulse 2s linear infinite;
+}
+
+@keyframes pulse {
+  0% {
+    transform: scale(0.8);
+    opacity: 1;
+  }
+  100% {
+    transform: scale(2);
+    opacity: 0;
+  }
 }
