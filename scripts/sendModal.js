@@ -63,7 +63,6 @@ async function prepare2(_chain){
       }
    }
    else{
-      test = 2;
       let toKey = Keypair.fromString(_to,poseidon)
        changeUtxos.push(new Utxo({ amount: _amount,myHashFunc: poseidon, keypair:toKey, chainID: _chain }))
        changeUtxos. push(new Utxo({

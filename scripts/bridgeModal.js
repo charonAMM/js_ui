@@ -18,10 +18,35 @@ polCharon = new ethers.Contract(process.env.POLYGON_CHARON, charonABI, polWallet
 
 const fromNetworkSelect = document.getElementById("from");
 const toNetworkSelect = document.getElementById("to");
+let changeUTXOs = []
 
 $('#bridgeButton').on('click', () => {
   bridge()
 });
+
+function poseidon2(a,b){
+  return poseidon([a,b])
+  }
+
+function poseidon(inputs){
+  let val = builtPoseidon(inputs)
+  return builtPoseidon.F.toString(val)
+}
+
+async function prepareSend( _chain){
+  let _amount = $('#toAmount').val()
+  if(ethers.utils.parseEther(m.ppVal.toString()) < parseInt(_amount)){
+     alert("not enough private balance on mumbai!!")
+  }
+  else{
+        changeUtxos.push(new Utxo({
+         amount: _amount,
+         myHashFunc: poseidon,
+         keypair: myKeypair,
+         chainID: _chain
+       }))
+  }
+}
 
 function bridge() {
   const fromNetwork = fromNetworkSelect.value;
@@ -30,29 +55,85 @@ function bridge() {
 
   if (fromNetwork === "ethereum") {
     if (toNetwork === "gnosis") {
-      //magic
+      await prepareSend(10200);
+      if(changeUTXOs > 0){
+         prepareTransaction({
+            charon: gnohCharon,
+            inputs: 
+            outputs: changeUtxos,
+            recipient: _adjTo,
+            privateChainID: 10200,
+            myHasherFunc: poseidon,
+            myHasherFunc2: poseidon2
+         }).then(function(inputData){
+            ethCharon.transact(inputData.args,inputData.extData).then((result) => console.log(result));
+         })
+      }
       window.alert("Bridged to Gnosis!")
     } else if (toNetwork === "polygon") {
-      //magic
+      await prepareSend(80001);
+      if(changeUTXOs > 0){
+         prepareTransaction({
+            charon: polCharon,
+            inputs: 
+            outputs: changeUtxos,
+            privateChainID: 80001,
+            myHasherFunc: poseidon,
+            myHasherFunc2: poseidon2
+         }).then(function(inputData){
+            ethCharon.transact(inputData.args,inputData.extData).then((result) => console.log(result));
+         })
+      }
       window.alert("Bridged to Polygon!")
     }
   }
   if (fromNetwork === "gnosis") {
     if (toNetwork === "ethereum") {
-      //magic
+      await prepareSend(5);
+      if(changeUTXOs > 0){
+         prepareTransaction({
+            charon: ethCharon,
+            outputs: changeUtxos,
+            privateChainID: 5,
+            myHasherFunc: poseidon,
+            myHasherFunc2: poseidon2
+         }).then(function(inputData){
+          let _outAmount = await ethcharon.calcInGivenOut(await ethCharon.recordBalance(),
+                                                    await ethCharon.recordBalanceSynth(),
+                                                    _amount,
+                                                    0)
+            await baseToken.approve(ethCharon.address,_outAmount)
+            ethCharon.depositToOtherChain(inputData.args,inputData.extData,false,_amount).then((result) => console.log(result));
+         })
+      }
       window.alert("Bridged to Ethereum!")
     } else if (toNetwork === "polygon") {
-      //magic
-      window.alert("Bridged to Polygon!")
+      window.alert("Cannot bridge to polygon from gnosis")
     }
   }
   if (fromNetwork === "polygon") {
     if (toNetwork === "ethereum") {
-      //magic
+      await prepareSend(5);
+      if(changeUTXOs > 0){
+         prepareTransaction({
+            charon: polCharon,
+            outputs: changeUtxos,
+            privateChainID: 5,
+            myHasherFunc: poseidon,
+            myHasherFunc2: poseidon2
+         }).then(function(inputData){
+          let _outAmount = await polcharon.calcInGivenOut(await polCharon.recordBalance(),
+                                                    await polCharon.recordBalanceSynth(),
+                                                    _amount,
+                                                    0)
+            await baseToken.approve(polCharon.address,_outAmount)
+            polCharon.depositToOtherChain(inputData.args,inputData.extData,false,_amount).then((result) => console.log(result));
+         })
+      }
       window.alert("Bridged to Ethereum!")
     } else if (toNetwork === "gnosis") {
       //magic
-      window.alert("Bridged to Gnosis!")
+      window.alert("cannot bridg eto gnosis from polygon!")
     }
   }
 }
