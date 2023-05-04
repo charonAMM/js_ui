@@ -72,7 +72,6 @@ function writeUTXOs(){
       "ppVal": ppVal,
       "peVal": peVal,
       "pgVal":pgVal
-
    }
    fs.writeFileSync('utxos.txt', JSON.stringify(sendVars));
 }
