@@ -73,6 +73,9 @@ const fromNetworkSelect = document.getElementById("from");
 const toNetworkSelect = document.getElementById("to");
 let changeUTXOs = [];
 const tokenSelect = document.getElementById("token");
+const button = document.getElementById("bridgeButton");
+const text = document.getElementById("bridgeText");
+const loader = document.getElementById("bridgeLoader");
 
 let myKeypair, builtPoseidon;
 const contents = fs.readFileSync("utxos.txt", "utf-8");
@@ -92,8 +95,15 @@ $("#bridgeButton").on("click", () => {
     window.alert("Please enter a valid amount");
     return;
   }
+  showLoadingAnimation();
   bridge();
 });
+
+function showLoadingAnimation() {
+  button.disabled = true;
+  text.style.display = "none";
+  loader.style.display = "block";
+}
 
 function poseidon(inputs) {
   let val = builtPoseidon(inputs);
@@ -205,6 +215,9 @@ async function bridge() {
             .then((result) => {
               console.log(result);
               window.alert("Bridged to Gnosis Chain!");
+              loader.style.display = "none";
+              text.style.display = "inline";
+              button.disabled = false;
             });
         });
       } else if (_toNetwork === "polygon") {
@@ -216,7 +229,7 @@ async function bridge() {
             new Utxo({
               amount: _amount,
               myHashFunc: poseidon,
-              chainID: 5,
+              chainID: 80001,
               keypair: myKeypair,
             }),
           ],
@@ -244,6 +257,9 @@ async function bridge() {
             .then((result) => {
               console.log(result);
               window.alert("Bridged to Polygon!");
+              loader.style.display = "none";
+              text.style.display = "inline";
+              button.disabled = false;
             });
         });
       }
@@ -286,10 +302,16 @@ async function bridge() {
             .then((result) => {
               console.log(result);
               window.alert("Bridged to Ethereum!");
+              loader.style.display = "none";
+              text.style.display = "inline";
+              button.disabled = false;
             });
         });
       } else if (_toNetwork === "polygon") {
         window.alert("Cannot bridge to polygon from gnosis");
+        loader.style.display = "none";
+        text.style.display = "inline";
+        button.disabled = false;
       }
     }
     if (_fromNetwork === "polygon") {
@@ -330,15 +352,24 @@ async function bridge() {
             .then((result) => {
               console.log(result);
               window.alert("Bridged to Ethereum!");
+              loader.style.display = "none";
+              text.style.display = "inline";
+              button.disabled = false;
             });
         });
         // }
       } else if (_toNetwork === "gnosis") {
         window.alert("cannot bridge to gnosis from polygon!");
+        loader.style.display = "none";
+        text.style.display = "inline";
+        button.disabled = false;
       }
     }
   } catch (err) {
     window.alert("Transaction failed, check console for more info.");
+    loader.style.display = "none";
+    text.style.display = "inline";
+    button.disabled = false;
     console.log(err);
   }
 }

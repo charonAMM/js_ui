@@ -52,7 +52,7 @@ function makeSendModal() {
 
 function makeBridgeModal() {
    // Enable @electron/remote module for the bridgeWindow's webContents
-   bridgeModal = new BrowserWindow({ width: 720, height: 370, webPreferences: { nodeIntegration: true, enableRemoteModule: true, contextIsolation: false } })
+   bridgeModal = new BrowserWindow({ width: 720, height: 390, webPreferences: { nodeIntegration: true, enableRemoteModule: true, contextIsolation: false } })
    bridgeModal.loadURL(url.format({
       pathname: path.join(__dirname, '../modals/bridgeModal.html'),
       protocol: 'file:',
