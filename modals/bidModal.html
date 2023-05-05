@@ -36,10 +36,13 @@
               <h2 class="text-center mb-3">Enter bid amount</h2>
               <form class="text-center" method="post">
                 <div class="mb-3">
-                  <input class="form-control" id="bidAmount" placeholder="0.00" type="number" step="0.01">
+                  <input class="form-control" id="bidAmount" placeholder="0.00" type="number" step="0.01" min="0">
                 </div>
                 <div class="mb-3">
-                  <button class="btn btn-primary d-block w-100" type="button" id="signAndBid">Bid</button>
+                  <button class="bridge-down" type="button" id="signAndBid">
+                    <span id="bidText">bid</span>
+                    <div class="loader" id="bidLoader"></div>
+                  </button>
                 </div>
                 <p class="text-muted"></p>
               </form>  
