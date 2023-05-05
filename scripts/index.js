@@ -129,18 +129,21 @@ function setData() {
   console.log("mk", myKeypair.address());
   myKeypair
     .address()
-    .then((result) =>
-      $("#pubKey").text("public key: " + result.substring(0, 40) + "...")
-    );
+    .then((result) => $("#pubKey").text(result.substring(0, 40) + "..."));
   const pubKeyElement = document.querySelector("#pubKey");
   pubKeyElement.addEventListener("click", () => {
     myKeypair.address().then((result) => navigator.clipboard.writeText(result));
-    const tooltip = new bootstrap.Tooltip(pubKeyElement);
+    const tooltip = new bootstrap.Tooltip(pubKeyElement, {
+      title: "copied!",
+      placement: "top",
+      trigger: "manual",
+    });
     tooltip.show();
     setTimeout(() => {
       tooltip.hide();
-    }, 2000);
+    }, 600);
   });
+
   pubKeyElement.addEventListener("mouseenter", () => {
     pubKeyElement.classList.add("text-primary");
     pubKeyElement.classList.remove("text-muted");
