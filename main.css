@@ -235,3 +235,18 @@ a{
       opacity: 0;
     }
   }
+
+  #max-btn {
+    font-size: 17px;
+    font-weight: bold;
+    padding-top: -20px;
+    margin-right:-40px;
+    margin-bottom: -10px;
+    color: rgb(42, 100, 181);
+    background-color: transparent;
+    border: none;
+  }
+  
+  #max-btn:hover {
+    color: rgba(34, 97, 173, 0.44);
+  }

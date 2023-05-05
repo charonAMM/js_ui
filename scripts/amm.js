@@ -12,7 +12,6 @@ const {
   abi: charonABI,
 } = require("../artifacts/charonAMM/contracts/Charon.sol/Charon.json");
 require("dotenv").config();
-let eVal, gVal, pVal;
 let ethBal, gnoBal, polBal;
 let chdEthBal, chdGnoBal, chdPolBal;
 const button = document.getElementById("swapButton");

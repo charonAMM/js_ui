@@ -86,6 +86,8 @@
                           id="amount"
                           class="form-control"
                           placeholder="0.00"
+                          aria-label="Amount"
+                          aria-describedby="max-btn"
                           step="0.01"
                           min="0"
                           required
@@ -94,6 +96,8 @@
                             border-bottom-right-radius: 0;
                           "
                         />
+                        <button type="button" class="btn"
+                        id="max-btn" style="position: absolute; top: 0; right: 0; margin-right: 150px;">Max</button>
                         <select
                           class="form-select"
                           name="token"
