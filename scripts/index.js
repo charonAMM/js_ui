@@ -18,6 +18,7 @@ require("dotenv").config();
 let filename = "bootstrap";
 let builtPoseidon;
 let eVal, gVal, pVal, peVal, pgVal, ppVal;
+let origEval, origGval, origPval;
 let ethSet = [0, 0]; //block, balnce initSet
 let gnoSet = [0, 0]; //block, balnce initSet
 let polSet = [0, 0]; //block, balnce initSet
@@ -113,6 +114,9 @@ function writeUTXOs() {
     ppVal: ppVal,
     peVal: peVal,
     pgVal: pgVal,
+    eVal: origEval,
+    gVal: origGval,
+    pVal: origPval,
   };
   fs.writeFileSync("utxos.txt", JSON.stringify(sendVars));
 }
@@ -291,24 +295,18 @@ function loadPrivateBalances() {
 }
 
 function setPublicBalances() {
-  ethCHD
-    .balanceOf(ethWallet.address)
-    .then(
-      (result) =>
-        (eVal = Math.round(ethers.utils.formatEther(result) * 100) / 100)
-    );
-  gnoCHD
-    .balanceOf(gnoWallet.address)
-    .then(
-      (result) =>
-        (gVal = Math.round(ethers.utils.formatEther(result) * 100) / 100)
-    );
-  polCHD
-    .balanceOf(polWallet.address)
-    .then(
-      (result) =>
-        (pVal = Math.round(ethers.utils.formatEther(result) * 100) / 100)
-    );
+  ethCHD.balanceOf(ethWallet.address).then((result) => {
+    origEval = ethers.utils.formatEther(result);
+    eVal = Math.round(origEval * 100) / 100;
+  });
+  gnoCHD.balanceOf(gnoWallet.address).then((result) => {
+    origGval = ethers.utils.formatEther(result);
+    gVal = Math.round(ethers.utils.formatEther(result) * 100) / 100;
+  });
+  polCHD.balanceOf(polWallet.address).then((result) => {
+    origPval = ethers.utils.formatEther(result);
+    pVal = Math.round(ethers.utils.formatEther(result) * 100) / 100;
+  });
   return new Promise((resolve) => {
     setTimeout(() => {
       resolve("resolved");

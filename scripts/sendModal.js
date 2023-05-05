@@ -50,6 +50,9 @@ const utxos = JSON.parse(contents);
 const ppVal = utxos.ppVal;
 const peVal = utxos.peVal;
 const pgVal = utxos.pgVal;
+const eVal = utxos.eVal;
+const gVal = utxos.gVal;
+const pVal = utxos.pVal;
 
 function poseidon2(a, b) {
   return poseidon([a, b]);
@@ -154,23 +157,11 @@ $("#maxButton").on("click", () => {
   const _visType = $("#txType-switch").prop("checked") ? "private" : "public";
   if (_visType == "public") {
     if (_network == "ethereum") {
-      ethCHD
-        .balanceOf(ethWallet.address)
-        .then(
-          (result) => (amountInput.value = ethers.utils.formatEther(result))
-        );
+      amountInput.value = eVal;
     } else if (_network == "gnosis") {
-      gnoCHD
-        .balanceOf(gnoWallet.address)
-        .then(
-          (result) => (amountInput.value = ethers.utils.formatEther(result))
-        );
+      amountInput.value = gVal;
     } else if (_network == "polygon") {
-      polCHD
-        .balanceOf(polWallet.address)
-        .then(
-          (result) => (amountInput.value = ethers.utils.formatEther(result))
-        );
+      amountInput.value = pVal;
     }
   } else {
     if (_network == "ethereum") {
