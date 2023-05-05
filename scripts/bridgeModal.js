@@ -71,7 +71,6 @@ ethBaseToken = new ethers.Contract(ETHBaseToken, approveABI, ethWallet);
 
 const fromNetworkSelect = document.getElementById("from");
 const toNetworkSelect = document.getElementById("to");
-let changeUTXOs = [];
 const tokenSelect = document.getElementById("token");
 const button = document.getElementById("bridgeButton");
 const text = document.getElementById("bridgeText");
@@ -86,6 +85,22 @@ const ethUTXOs = utxos.ethUTXOs;
 const ppVal = utxos.ppVal;
 const peVal = utxos.peVal;
 const pgVal = utxos.pgVal;
+
+let ethBal, gnoBal, polBal;
+let chdEthBal, chdGnoBal, chdPolBal;
+
+loadBalances();
+async function loadBalances() {
+  //baseTokens
+  ethBal = await ethProvider.getBalance(ethWallet.address);
+  gnoBal = await gnosisProvider.getBalance(gnoWallet.address);
+  polBal = await polygonProvider.getBalance(polWallet.address);
+
+  //chdTokens
+  chdEthBal = await ethCHD.balanceOf(ethWallet.address);
+  chdGnoBal = await gnoCHD.balanceOf(gnoWallet.address);
+  chdPolBal = await polCHD.balanceOf(polWallet.address);
+}
 
 $("#bridgeButton").on("click", () => {
   if (
@@ -105,6 +120,34 @@ function showLoadingAnimation() {
   loader.style.display = "block";
 }
 
+const maxBtn = document.getElementById("max-btn");
+const amountInput = document.getElementById("amount");
+
+maxBtn.addEventListener("click", () => {
+  let balance = 0;
+  if (fromNetworkSelect.value === "ethereum") {
+    if (tokenSelect.value === "CHD") {
+      balance = chdEthBal;
+    } else {
+      amountInput.value = ethBal;
+    }
+  } else if (fromNetworkSelect.value === "gnosis") {
+    if (tokenSelect.value === "CHD") {
+      balance = chdGnoBal;
+    } else {
+      balance = gnoBal;
+    }
+  } else if (fromNetworkSelect.value === "polygon") {
+    if (tokenSelect.value === "CHD") {
+      balance = chdPolBal;
+    } else {
+      balance = polBal;
+    }
+  }
+
+  amountInput.value = ethers.utils.formatEther(balance.toString());
+});
+
 function poseidon(inputs) {
   let val = builtPoseidon(inputs);
   return builtPoseidon.F.toString(val);
@@ -118,12 +161,18 @@ function poseidon2(a, b) {
   return poseidon([a, b]);
 }
 
-let newUTX0s = [];
+let newUTXOs = [];
+let changeUTXOs = [];
 let utxoAmount = BigNumber.from(0);
-async function prepareSend(_cUTXOs) {
+
+async function prepareSend(_cUTXOs, _chain) {
   let _amount = $("#amount").val();
   let _fromNetwork = fromNetworkSelect.value;
   let _privAmount;
+
+  newUTXOs = [];
+  changeUTXOs = [];
+
   if (_fromNetwork === "ethereum") {
     _privAmount = peVal;
   } else if (_fromNetwork === "gnosis") {
@@ -131,36 +180,40 @@ async function prepareSend(_cUTXOs) {
   } else if (_fromNetwork === "polygon") {
     _privAmount = ppVal;
   }
-  if (_privAmount < _amount) {
-    alert(`not enough private balance on ${_fromNetwork}!!`);
+
+  if (_privAmount < parseInt(_amount)) {
+    alert(`Not enough private balance on ${_fromNetwork}!`);
+    return;
   } else {
-    newUTX0s = [];
-    let jj = 0;
-    let tUtxo;
-    while (utxoAmount < _amount && jj < _cUTXOs.length) {
-      tUtxo = new Utxo({
+    for (let jj = 0; jj < _cUTXOs.length; jj++) {
+      if (utxoAmount.gte(BigNumber.from(_amount))) {
+        break;
+      }
+      let tUtxo = new Utxo({
         amount: _cUTXOs[jj].amount,
         myHashFunc: poseidon,
         keypair: myKeypair,
         blinding: _cUTXOs[jj].blinding,
         index: parseInt(_cUTXOs[jj].index.hex),
         chainID: _cUTXOs[jj].chainID,
+        commitment: _cUTXOs[jj].commitment,
+        nullifier: _cUTXOs[jj].nullifier,
       });
-      tUtxo._commitment = _cUTXOs[jj].commitment;
-      tUtxo._nullifier = _cUTXOs[jj].nullifier;
-      newUTX0s.push(tUtxo);
+      newUTXOs.push(tUtxo);
+
       utxoAmount = utxoAmount.add(_cUTXOs[jj].amount);
-      jj++;
     }
 
-    changeUTXOs.push(
-      new Utxo({
-        amount: ethers.utils.parseEther(_amount),
-        myHashFunc: poseidon,
-        keypair: myKeypair,
-        chainID: _cUTXOs[0].chainID,
-      })
-    );
+    if (utxoAmount.gt(BigNumber.from(_amount))) {
+      changeUTXOs.push(
+        new Utxo({
+          amount: utxoAmount.sub(BigNumber.from(_amount)),
+          myHashFunc: poseidon,
+          keypair: myKeypair,
+          chainID: _chain,
+        })
+      );
+    }
   }
 }
 
@@ -316,18 +369,11 @@ async function bridge() {
     }
     if (_fromNetwork === "polygon") {
       if (_toNetwork === "ethereum") {
-        // await prepareSend(polUTXOs);
+        await prepareSend(polUTXOs, 5);
         prepareTransaction({
           charon: polCharon,
-          inputs: [],
-          outputs: [
-            new Utxo({
-              amount: _amount,
-              myHashFunc: poseidon,
-              chainID: 5,
-              keypair: myKeypair,
-            }),
-          ],
+          inputs: newUTXOs,
+          outputs: changeUTXOs,
           privateChainID: 5,
           myHasherFunc: poseidon,
           myHasherFunc2: poseidon2,
