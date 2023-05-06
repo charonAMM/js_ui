@@ -69,7 +69,7 @@ function loadAndDisplay() {
 
 function makeBidModal() {
    bidModal = new BrowserWindow({
-      width: 700, height: 300, webPreferences: { nodeIntegration: true, enableRemoteModule: true, contextIsolation: false }
+      width: 700, height: 350, webPreferences: { nodeIntegration: true, enableRemoteModule: true, contextIsolation: false }
    })
 
    bidModal.loadURL(url.format({
