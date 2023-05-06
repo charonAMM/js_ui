@@ -25,6 +25,7 @@ let polSet = [0, 0]; //block, balnce initSet
 let polUTXOs = []; //beSure to add in save mode
 let ethUTXOs = [];
 let gnoUTXOs = [];
+let myKeypair;
 
 ethProvider = new ethers.providers.JsonRpcProvider(
   process.env.NODE_URL_ETHEREUM
@@ -66,7 +67,7 @@ function poseidon(inputs) {
 function makeSendModal() {
   sendModal = new BrowserWindow({
     width: 700,
-    height: 600,
+    height: 620,
     webPreferences: {
       nodeIntegration: true,
       enableRemoteModule: true,
@@ -121,12 +122,15 @@ function writeUTXOs() {
   fs.writeFileSync("utxos.txt", JSON.stringify(sendVars));
 }
 
-function setData() {
-  let myKeypair = new Keypair({
-    privkey: process.env.PRIVATE_KEY,
-    myHashFunc: poseidon,
-  });
-  console.log("mk", myKeypair.address());
+document.body.classList.add("loading");
+window.addEventListener("load", function () {
+  setTimeout(function () {
+    document.body.classList.remove("loading");
+    document.body.classList.add("loaded");
+  }, 3900);
+});
+
+function showPubKey() {
   myKeypair
     .address()
     .then((result) => $("#pubKey").text(result.substring(0, 40) + "..."));
@@ -154,6 +158,16 @@ function setData() {
     pubKeyElement.classList.add("text-muted");
     pubKeyElement.style.cursor = "auto";
   });
+}
+
+function setData() {
+  myKeypair = new Keypair({
+    privkey: process.env.PRIVATE_KEY,
+    myHashFunc: poseidon,
+  });
+  showPubKey();
+
+  console.log("mk", myKeypair.address());
 
   let eventFilter = ethCharon.filters.NewCommitment();
   ethCharon.queryFilter(eventFilter, 0, "latest").then(function (evtData) {

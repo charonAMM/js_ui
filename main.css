@@ -250,3 +250,40 @@ a{
   #max-btn:hover {
     color: rgba(34, 97, 173, 0.44);
   }
+
+/* Loading screen */
+#loading {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: #fff;
+  z-index: 9999;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+#loading .spinner-border {
+  width: 3rem;
+  height: 3rem;
+}
+
+#loading p {
+  margin-top: 1rem;
+  font-size: 1.5rem;
+  font-weight: bold;
+  text-align: center;
+}
+
+body.loaded #loading {
+  display: none;
+}
+
+.wrapper {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
