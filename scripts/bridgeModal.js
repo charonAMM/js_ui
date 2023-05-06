@@ -105,7 +105,7 @@ async function loadBalances() {
 $("#bridgeButton").on("click", () => {
   if (
     document.getElementById("amount").value == 0 ||
-    isNaN(document.getElementById("amount").value)
+    isNaN(document.getElementById("amount").value) || document.getElementById("amount").value < 0 
   ) {
     window.alert("Please enter a valid amount");
     return;

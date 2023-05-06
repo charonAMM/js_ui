@@ -37,17 +37,22 @@
     </header>
 
     <!-- Main -->
-    <main>
-      <div class="container">
+    <main >
+      <div class="container" style="display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;">
         <div class="row">
           <div class="col-md-6 col-xl-4">
-            <div class="card mb-5">
+            <div class="card mb-5" style="width: 100%; max-width: 800px; min-width:500px; ">
               <div class="card-body">
                 <form class="text-center" method="post">
                   <div class="row mb-3">
                     <div class="d-flex justify-content-between">
                       <div class="col-sm-6">
-                        <label for="from" style="margin-left:10px;">From:</label>
+                        <label for="from" style="margin-left: 10px"
+                          >From:</label
+                        >
                         <select class="form-select" name="from" id="from">
                           <option value="ethereum" selected>Ethereum</option>
                           <option value="gnosis">Gnosis</option>
@@ -64,7 +69,7 @@
                       </button>
 
                       <div class="col-sm-6">
-                        <label for="to" style="margin-left:10px;">To:</label>
+                        <label for="to" style="margin-left: 10px">To:</label>
                         <select class="form-select" name="to" id="to">
                           <option value="ethereum" disabled>Ethereum</option>
                           <option value="gnosis">Gnosis</option>
@@ -75,51 +80,56 @@
                   </div>
                   <div class="row mb-3">
                     <div class="col-sm-12">
-                      <label for="amount" style="margin-left:10px;">Amount:</label>
-                      <div class="input-group" style="display: flex;
-                      flex-wrap: nowrap;
-                      align-items: stretch;
-                      width: 112%;">
-                        <input
-                          type="number"
-                          name="amount"
-                          id="amount"
-                          class="form-control"
-                          placeholder="0.00"
-                          aria-label="Amount"
-                          aria-describedby="max-btn"
-                          step="0.01"
-                          min="0"
-                          required
-                          style="
-                            border-top-right-radius: 0 !important;
-                            border-bottom-right-radius: 0;
-                          "
-                        />
-                        <button type="button" class="btn"
-                        id="max-btn" style="position: absolute; top: 0; right: 0; margin-right: 190px;">Max</button>
-                        <select
-                          class="form-select"
-                          name="token"
-                          id="token"
-                          style="
-                            border-top-left-radius: 0 !important;
-                            border-bottom-left-radius: 0;
-                            margin-left: -1px;
-                            max-width: 150px;
-                          "
-                        >
-                          <option value="ETH">ETH</option>
-                          <option value="CHD">CHD</option>
-                        </select>
+                      <label for="amount" style="margin-left: 10px"
+                        >Amount:</label
+                      >
+                      <div
+                        class="input-group"
+                        style="
+                          display: flex;
+                          flex-wrap: nowrap;
+                          align-items: stretch;
+                          width: 112%;
+                        "
+                      >
+                        <div class="input-group" style="position: relative">
+                          <input
+                            name="amount"
+                            id="amount"
+                            class="form-control"
+                            placeholder="0.00"
+                            aria-label="Amount"
+                            aria-describedby="max-btn"
+                            step="0.01"
+                            min="0"
+                            required
+                            style="
+                              border-top-right-radius: 0 !important;
+                              border-bottom-right-radius: 0;
+                            "
+                          />
+                          <button type="button" class="btn" id="max-btn">
+                            Max
+                          </button>
+                          <select
+                            class="form-select"
+                            name="token"
+                            id="token"
+                            style="
+                              border-top-left-radius: 0 !important;
+                              border-bottom-left-radius: 0;
+                              margin-left: -1px;
+                              max-width: 150px;
+                            "
+                          >
+                            <option value="ETH">ETH</option>
+                            <option value="CHD">CHD</option>
+                          </select>
+                        </div>
                       </div>
                     </div>
                   </div>
-                  <button
-                    type="button"
-                    class="bridge-down"
-                    id="bridgeButton"
-                  >
+                  <button type="button" class="bridge-down" id="bridgeButton">
                     <span id="bridgeText">bridge</span>
                     <div class="loader" id="bridgeLoader"></div>
                   </button>
