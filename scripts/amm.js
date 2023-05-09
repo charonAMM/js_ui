@@ -127,139 +127,39 @@ async function swap() {
 
   try {
     if (fromCurrency === "ETH") {
-      const ethBalance = await ethProvider.getBalance(ethWallet.address);
-      if (
-        ethers.utils.formatEther(ethBalance) <
-        ethers.utils.formatEther(fromAmount)
-      ) {
-        alert("You don't have enough ETH to make this swap");
-        enableSwapButton();
-        return;
-      }
-      await ethBaseToken.approve(ethCharon.address, fromAmount);
-      ethCharon
-        .swap(false, fromAmount, 0, ethers.utils.parseEther("999999"), {
-          gasLimit,
-        })
-        .then((result) => {
-          console.log(result);
-          window.alert(
-            "Transaction on Ethereum sent with hash: " + result.hash
-          );
-          enableSwapButton();
-        });
+      await swapToken(fromAmount, ethBaseToken, ethCharon, ethBal, "ETH", "Ethereum", gasLimit);
     } else if (fromCurrency === "xDAI") {
-      const xDAIBalance = await gnosisProvider.getBalance(gnoWallet.address);
-      if (
-        ethers.utils.formatEther(xDAIBalance) <
-        ethers.utils.formatEther(fromAmount)
-      ) {
-        alert("You don't have enough xDAI to make this swap");
-        enableSwapButton();
-        return;
-      }
-      await gnosisBaseToken.approve(gnoCharon.address, fromAmount);
-      gnoCharon
-        .swap(false, fromAmount, 0, ethers.utils.parseEther("999999"), {
-          gasLimit,
-        })
-        .then((result) => {
-          console.log(result);
-          window.alert(
-            "Transaction on Gnosis Chain sent with hash: " + result.hash
-          );
-          enableSwapButton();
-        });
+      await swapToken(fromAmount, gnosisBaseToken, gnoCharon, gnoBal, "xDAI", "Gnosis Chain", gasLimit);
     } else if (fromCurrency === "MATIC") {
-      const MATICBalance = await polygonProvider.getBalance(polWallet.address);
-      if (
-        parseFloat(ethers.utils.formatEther(MATICBalance)) <
-        parseFloat(ethers.utils.formatEther(fromAmount))
-      ) {
-        alert("You don't have enough MATIC to make this swap");
-        enableSwapButton();
-        return;
-      }
-      await polygonBaseToken.approve(polCharon.address, fromAmount);
-      polCharon
-        .swap(false, fromAmount, 0, ethers.utils.parseEther("999999"), {
-          gasLimit,
-        })
-        .then((result) => {
-          console.log(result);
-          window.alert("Transaction on Polygon sent with hash: " + result.hash);
-          enableSwapButton();
-        });
-    } else if (toCurrency == "ETH") {
-      const chdBalance = await ethCHD.balanceOf(ethWallet.address);
-      if (
-        ethers.utils.formatEther(chdBalance) <
-        ethers.utils.formatEther(fromAmount)
-      ) {
-        alert("You don't have enough CHD to make this swap");
-        enableSwapButton();
-        return;
-      }
-      await ethCHD.approve(ethCharon.address, fromAmount, { gasLimit });
-      ethCharon
-        .swap(true, fromAmount, 0, ethers.utils.parseEther("999999"), {
-          gasLimit,
-        })
-        .then((result) => {
-          console.log(result);
-          window.alert(
-            "Transaction on Ethereum sent with hash: " + result.hash
-          );
-          enableSwapButton();
-        });
-    } else if (toCurrency == "xDAI") {
-      const chdBalance = await gnoCHD.balanceOf(gnoWallet.address);
-      if (
-        ethers.utils.formatEther(chdBalance) <
-        ethers.utils.formatEther(fromAmount)
-      ) {
-        alert("You don't have enough CHD to make this swap");
-        enableSwapButton();
-        return;
-      }
-      await gnoCHD.approve(gnoCharon.address, fromAmount);
-      gnoCharon
-        .swap(true, fromAmount, 0, ethers.utils.parseEther("999999"), {
-          gasLimit,
-        })
-        .then((result) => {
-          console.log(result);
-          window.alert(
-            "Transaction on Gnosis Chain sent with hash: " + result.hash
-          );
-          enableSwapButton();
-        });
-    } else if (toCurrency == "MATIC") {
-      const chdBalance = await polCHD.balanceOf(polWallet.address);
-      if (
-        ethers.utils.formatEther(chdBalance) <
-        ethers.utils.formatEther(fromAmount)
-      ) {
-        alert("You don't have enough CHD to make this swap");
-        enableSwapButton();
-        return;
-      }
-      await polCHD.approve(polCharon.address, fromAmount);
-      polCharon
-        .swap(true, fromAmount, 0, ethers.utils.parseEther("999999"), {
-          gasLimit,
-        })
-        .then((result) => {
-          console.log(result);
-          window.alert("Transaction on Polygon sent with hash: " + result.hash);
-          enableSwapButton();
-        });
+      await swapToken(fromAmount, polygonBaseToken, polCharon, polBal, "MATIC", "Polygon", gasLimit);
+    } else if (toCurrency === "ETH") {
+      await swapToken(fromAmount, ethCHD, ethCharon, chdEthBal, "CHD", "Ethereum", gasLimit);
+    } else if (toCurrency === "xDAI") {
+      await swapToken(fromAmount, gnoCHD, gnoCharon, chdGnoBal, "CHD", "Gnosis Chain", gasLimit);
+    } else if (toCurrency === "MATIC") {
+      await swapToken(fromAmount, polCHD, polCharon, chdPolBal, "CHD", "Polygon", gasLimit);
     }
   } catch (err) {
     window.alert("Transaction failed, check console for more info");
     console.log(err);
     enableSwapButton();
   }
+}
+
+async function swapToken(fromAmount, baseToken, charon, balance, tokenSymbol, networkName, gasLimit) {
+  if (parseInt(ethers.utils.formatEther(balance)) < parseInt(ethers.utils.formatEther(fromAmount))) {
+    alert(`You don't have enough ${tokenSymbol} to make this swap on ${networkName}`);
+    enableSwapButton();
+    return;
+  }
+  await baseToken.approve(charon.address, fromAmount, { gasLimit });
+  charon.swap(tokenSymbol === "CHD", fromAmount, 0, ethers.utils.parseEther("999999"), {
+    gasLimit,
+  }).then((result) => {
+    console.log(result);
+    window.alert(`Transaction on ${networkName} sent with hash: ${result.hash}`);
+    enableSwapButton();
+  });
 }
 
 const maxButton = document.getElementById("max-button");
