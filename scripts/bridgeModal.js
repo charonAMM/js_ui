@@ -76,12 +76,9 @@ const button = document.getElementById("bridgeButton");
 const text = document.getElementById("bridgeText");
 const loader = document.getElementById("bridgeLoader");
 
-let myKeypair, builtPoseidon;
+let builtPoseidon;
 const contents = fs.readFileSync("utxos.txt", "utf-8");
 const utxos = JSON.parse(contents);
-const polUTXOs = utxos.polUTXOs;
-const gnoUTXOs = utxos.gnoUTXOs;
-const ethUTXOs = utxos.ethUTXOs;
 const ppVal = utxos.ppVal;
 const peVal = utxos.peVal;
 const pgVal = utxos.pgVal;
@@ -105,7 +102,8 @@ async function loadBalances() {
 $("#bridgeButton").on("click", () => {
   if (
     document.getElementById("amount").value == 0 ||
-    isNaN(document.getElementById("amount").value) || document.getElementById("amount").value < 0 
+    isNaN(document.getElementById("amount").value) ||
+    document.getElementById("amount").value < 0
   ) {
     window.alert("Please enter a valid amount");
     return;
@@ -144,7 +142,6 @@ maxBtn.addEventListener("click", () => {
       balance = polBal;
     }
   }
-
   amountInput.value = ethers.utils.formatEther(balance.toString());
 });
 
@@ -161,263 +158,157 @@ function poseidon2(a, b) {
   return poseidon([a, b]);
 }
 
-let newUTXOs = [];
-let changeUTXOs = [];
-let utxoAmount = BigNumber.from(0);
-
-async function prepareSend(_cUTXOs, _chain) {
-  let _amount = $("#amount").val();
-  let _fromNetwork = fromNetworkSelect.value;
+async function checkBalance(_fromNetwork, _depositAmount) {
   let _privAmount;
-
-  newUTXOs = [];
-  changeUTXOs = [];
-
-  if (_fromNetwork === "ethereum") {
-    _privAmount = peVal;
-  } else if (_fromNetwork === "gnosis") {
-    _privAmount = pgVal;
-  } else if (_fromNetwork === "polygon") {
-    _privAmount = ppVal;
+  switch (_fromNetwork) {
+    case "ethereum":
+      _privAmount = parseInt(ethers.utils.parseEther(peVal.toString()));
+      break;
+    case "gnosis":
+      _privAmount = parseInt(ethers.utils.parseEther(pgVal.toString()));
+      break;
+    case "polygon":
+      _privAmount = parseInt(ethers.utils.parseEther(ppVal.toString()));
+      break;
   }
-
-  if (_privAmount < parseInt(_amount)) {
+  if (_privAmount < parseInt(_depositAmount)) {
     alert(`Not enough private balance on ${_fromNetwork}!`);
     return;
-  } else {
-    for (let jj = 0; jj < _cUTXOs.length; jj++) {
-      if (utxoAmount.gte(BigNumber.from(_amount))) {
-        break;
-      }
-      let tUtxo = new Utxo({
-        amount: _cUTXOs[jj].amount,
-        myHashFunc: poseidon,
-        keypair: myKeypair,
-        blinding: _cUTXOs[jj].blinding,
-        index: parseInt(_cUTXOs[jj].index.hex),
-        chainID: _cUTXOs[jj].chainID,
-        commitment: _cUTXOs[jj].commitment,
-        nullifier: _cUTXOs[jj].nullifier,
-      });
-      newUTXOs.push(tUtxo);
-
-      utxoAmount = utxoAmount.add(_cUTXOs[jj].amount);
-    }
-
-    if (utxoAmount.gt(BigNumber.from(_amount))) {
-      changeUTXOs.push(
-        new Utxo({
-          amount: utxoAmount.sub(BigNumber.from(_amount)),
-          myHashFunc: poseidon,
-          keypair: myKeypair,
-          chainID: _chain,
-        })
-      );
-    }
   }
 }
 
 async function bridge() {
-  myKeypair = new Keypair({
-    privkey: process.env.PRIVATE_KEY,
-    myHashFunc: poseidon,
-  }); // contains private and public keys
-  builtPoseidon = await buildPoseidon();
-  const _fromNetwork = fromNetworkSelect.value;
-  const _toNetwork = toNetworkSelect.value;
-  const _amount = ethers.utils.parseEther(
+  const _privkey = process.env.PRIVATE_KEY;
+  const _depositAmount = ethers.utils.parseEther(
     document.getElementById("amount").value
   );
-  const _isChd = tokenSelect.value === "CHD" ? true : false;
+  const _fromNetwork = fromNetworkSelect.value;
+  const _toNetwork = toNetworkSelect.value;
+  const _token = tokenSelect.value;
+  let _amount;
+  const _myKeypair = new Keypair({
+    _privkey,
+    myHashFunc: poseidon,
+  });
+  const _charon = getCharon(_fromNetwork);
+  const _targetChainID = getChainID(_toNetwork);
+  const _isChd = _token === "CHD";
+
   try {
-    if (_fromNetwork === "ethereum") {
-      if (_toNetwork === "gnosis") {
-        // await prepareSend(ethUTXOs);
-        prepareTransaction({
-          charon: ethCharon,
-          inputs: [],
-          outputs: [
-            new Utxo({
-              amount: _amount,
-              myHashFunc: poseidon,
-              chainID: 10200,
-              keypair: myKeypair,
-            }),
-          ],
-          privateChainID: 10200,
-          myHasherFunc: poseidon,
-          myHasherFunc2: poseidon2,
-        }).then(async function (inputData) {
-          let _outAmount = await ethCharon.calcInGivenOut(
-            await ethCharon.recordBalance(),
-            await ethCharon.recordBalanceSynth(),
-            _amount,
-            0
-          );
-          _isChd
-            ? await ethCHD.approve(ethCharon.address, _outAmount)
-            : await ethBaseToken.approve(ethCharon.address, _outAmount);
-          ethCharon
-            .depositToOtherChain(
-              inputData.args,
-              inputData.extData,
-              _isChd,
-              ethers.utils.parseEther("999999"),
-              { gasLimit }
-            )
-            .then((result) => {
-              console.log(result);
-              window.alert("Bridged to Gnosis Chain!");
-              loader.style.display = "none";
-              text.style.display = "inline";
-              button.disabled = false;
-            });
-        });
-      } else if (_toNetwork === "polygon") {
-        // await prepareSend(ethUTXOs);
-        await prepareTransaction({
-          charon: polCharon,
-          inputs: [],
-          outputs: [
-            new Utxo({
-              amount: _amount,
-              myHashFunc: poseidon,
-              chainID: 80001,
-              keypair: myKeypair,
-            }),
-          ],
-          privateChainID: 80001,
-          myHasherFunc: poseidon,
-          myHasherFunc2: poseidon2,
-        }).then(async function (inputData) {
-          let _outAmount = await ethCharon.calcInGivenOut(
-            await ethCharon.recordBalance(),
-            await ethCharon.recordBalanceSynth(),
-            _amount,
-            0
-          );
-          _isChd
-            ? await ethCHD.approve(ethCharon.address, _outAmount)
-            : await ethBaseToken.approve(ethCharon.address, _outAmount);
-          ethCharon
-            .depositToOtherChain(
-              inputData.args,
-              inputData.extData,
-              _isChd,
-              ethers.utils.parseEther("999999"),
-              { gasLimit }
-            )
-            .then((result) => {
-              console.log(result);
-              window.alert("Bridged to Polygon!");
-              loader.style.display = "none";
-              text.style.display = "inline";
-              button.disabled = false;
-            });
-        });
-      }
+    if (!_isChd) {
+      _amount = await _charon.calcInGivenOut(
+        await _charon.recordBalance(),
+        await _charon.recordBalanceSynth(),
+        _depositAmount,
+        0
+      );
     }
-    if (_fromNetwork === "gnosis") {
-      if (_toNetwork === "ethereum") {
-        // await prepareSend(gnoUTXOs);
-        prepareTransaction({
-          charon: gnoCharon,
-          inputs: [],
-          outputs: [
-            new Utxo({
-              amount: _amount,
-              myHashFunc: poseidon,
-              chainID: 5,
-              keypair: myKeypair,
-            }),
-          ],
-          privateChainID: 5,
-          myHasherFunc: poseidon,
-          myHasherFunc2: poseidon2,
-        }).then(async function (inputData) {
-          let _outAmount = await gnoCharon.calcInGivenOut(
-            await gnoCharon.recordBalance(),
-            await gnoCharon.recordBalanceSynth(),
-            _amount,
-            0
+
+    await checkBalance(_fromNetwork, _depositAmount);
+
+    const _utxo = new Utxo({
+      amount: _depositAmount,
+      myHashFunc: poseidon,
+      chainID: _targetChainID,
+      keypair: _myKeypair,
+    });
+
+    const _approveToken = _isChd
+      ? getCHDToken(_fromNetwork)
+      : getBaseToken(_fromNetwork);
+
+    await _approveToken.approve(
+      _charon.address,
+      _isChd ? _depositAmount : _amount
+    );
+
+    prepareTransaction({
+      charon: _charon,
+      inputs: [],
+      outputs: [_utxo],
+      privateChainID: _targetChainID,
+      myHasherFunc: poseidon,
+      myHasherFunc2: poseidon2,
+    }).then(async function (inputData) {
+      _charon
+        .depositToOtherChain(
+          inputData.args,
+          inputData.extData,
+          _isChd,
+          ethers.utils.parseEther("999999"),
+          { gasLimit }
+        )
+        .then((result) => {
+          console.log(result);
+          window.alert(
+            `Transaction on ${_fromNetwork} sent with hash: ${result.hash}`
           );
-          _isChd
-            ? await gnoCHD.approve(gnoCharon.address, _outAmount)
-            : await gnoBaseToken.approve(gnoCharon.address, _outAmount);
-          gnoCharon
-            .depositToOtherChain(
-              inputData.args,
-              inputData.extData,
-              _isChd,
-              ethers.utils.parseEther("999999"),
-              { gasLimit }
-            )
-            .then((result) => {
-              console.log(result);
-              window.alert("Bridged to Ethereum!");
-              loader.style.display = "none";
-              text.style.display = "inline";
-              button.disabled = false;
-            });
+          enableBridgeButton();
         });
-      } else if (_toNetwork === "polygon") {
-        window.alert("Cannot bridge to polygon from gnosis");
-        loader.style.display = "none";
-        text.style.display = "inline";
-        button.disabled = false;
-      }
-    }
-    if (_fromNetwork === "polygon") {
-      if (_toNetwork === "ethereum") {
-        await prepareSend(polUTXOs, 5);
-        prepareTransaction({
-          charon: polCharon,
-          inputs: newUTXOs,
-          outputs: changeUTXOs,
-          privateChainID: 5,
-          myHasherFunc: poseidon,
-          myHasherFunc2: poseidon2,
-        }).then(async function (inputData) {
-          let _outAmount = await polCharon.calcInGivenOut(
-            await polCharon.recordBalance(),
-            await polCharon.recordBalanceSynth(),
-            _amount,
-            0
-          );
-          _isChd
-            ? await polCHD.approve(polCharon.address, _outAmount)
-            : await polBaseToken.approve(polCharon.address, _outAmount);
-          polCharon
-            .depositToOtherChain(
-              inputData.args,
-              inputData.extData,
-              _isChd,
-              ethers.utils.parseEther("999999"),
-              { gasLimit }
-            )
-            .then((result) => {
-              console.log(result);
-              window.alert("Bridged to Ethereum!");
-              loader.style.display = "none";
-              text.style.display = "inline";
-              button.disabled = false;
-            });
-        });
-        // }
-      } else if (_toNetwork === "gnosis") {
-        window.alert("cannot bridge to gnosis from polygon!");
-        loader.style.display = "none";
-        text.style.display = "inline";
-        button.disabled = false;
-      }
-    }
+    });
   } catch (err) {
     window.alert("Transaction failed, check console for more info.");
-    loader.style.display = "none";
-    text.style.display = "inline";
-    button.disabled = false;
+    enableBridgeButton();
     console.log(err);
   }
+}
+
+function getBaseToken(_chain) {
+  switch (_chain) {
+    case "ethereum":
+      return ethBaseToken;
+    case "gnosis":
+      return gnoBaseToken;
+    case "polygon":
+      return polBaseToken;
+    default:
+      return null;
+  }
+}
+
+function getCHDToken(_chain) {
+  switch (_chain) {
+    case "ethereum":
+      return ethCHD;
+    case "gnosis":
+      return gnoCHD;
+    case "polygon":
+      return polCHD;
+    default:
+      return null;
+  }
+}
+
+function getCharon(chain) {
+  switch (chain) {
+    case "ethereum":
+      return ethCharon;
+    case "gnosis":
+      return gnoCharon;
+    case "polygon":
+      return polCharon;
+    default:
+      return null;
+  }
+}
+
+function getChainID(chain) {
+  switch (chain) {
+    case "ethereum":
+      return 5;
+    case "gnosis":
+      return 10200;
+    case "polygon":
+      return 80001;
+    default:
+      return null;
+  }
+}
+
+function enableBridgeButton() {
+  loader.style.display = "none";
+  text.style.display = "inline";
+  button.disabled = false;
 }
 
 function updateToNetworkOptions() {

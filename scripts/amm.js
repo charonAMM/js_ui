@@ -133,9 +133,7 @@ async function swap() {
         ethers.utils.formatEther(fromAmount)
       ) {
         alert("You don't have enough ETH to make this swap");
-        loader.style.display = "none";
-        text.style.display = "inline";
-        button.disabled = false;
+        enableSwapButton();
         return;
       }
       await ethBaseToken.approve(ethCharon.address, fromAmount);
@@ -148,9 +146,7 @@ async function swap() {
           window.alert(
             "Transaction on Ethereum sent with hash: " + result.hash
           );
-          loader.style.display = "none";
-          text.style.display = "inline";
-          button.disabled = false;
+          enableSwapButton();
         });
     } else if (fromCurrency === "xDAI") {
       const xDAIBalance = await gnosisProvider.getBalance(gnoWallet.address);
@@ -159,9 +155,7 @@ async function swap() {
         ethers.utils.formatEther(fromAmount)
       ) {
         alert("You don't have enough xDAI to make this swap");
-        loader.style.display = "none";
-        text.style.display = "inline";
-        button.disabled = false;
+        enableSwapButton();
         return;
       }
       await gnosisBaseToken.approve(gnoCharon.address, fromAmount);
@@ -174,9 +168,7 @@ async function swap() {
           window.alert(
             "Transaction on Gnosis Chain sent with hash: " + result.hash
           );
-          loader.style.display = "none";
-          text.style.display = "inline";
-          button.disabled = false;
+          enableSwapButton();
         });
     } else if (fromCurrency === "MATIC") {
       const MATICBalance = await polygonProvider.getBalance(polWallet.address);
@@ -185,9 +177,7 @@ async function swap() {
         parseFloat(ethers.utils.formatEther(fromAmount))
       ) {
         alert("You don't have enough MATIC to make this swap");
-        loader.style.display = "none";
-        text.style.display = "inline";
-        button.disabled = false;
+        enableSwapButton();
         return;
       }
       await polygonBaseToken.approve(polCharon.address, fromAmount);
@@ -198,9 +188,7 @@ async function swap() {
         .then((result) => {
           console.log(result);
           window.alert("Transaction on Polygon sent with hash: " + result.hash);
-          loader.style.display = "none";
-          text.style.display = "inline";
-          button.disabled = false;
+          enableSwapButton();
         });
     } else if (toCurrency == "ETH") {
       const chdBalance = await ethCHD.balanceOf(ethWallet.address);
@@ -209,9 +197,7 @@ async function swap() {
         ethers.utils.formatEther(fromAmount)
       ) {
         alert("You don't have enough CHD to make this swap");
-        loader.style.display = "none";
-        text.style.display = "inline";
-        button.disabled = false;
+        enableSwapButton();
         return;
       }
       await ethCHD.approve(ethCharon.address, fromAmount, { gasLimit });
@@ -224,9 +210,7 @@ async function swap() {
           window.alert(
             "Transaction on Ethereum sent with hash: " + result.hash
           );
-          loader.style.display = "none";
-          text.style.display = "inline";
-          button.disabled = false;
+          enableSwapButton();
         });
     } else if (toCurrency == "xDAI") {
       const chdBalance = await gnoCHD.balanceOf(gnoWallet.address);
@@ -235,9 +219,7 @@ async function swap() {
         ethers.utils.formatEther(fromAmount)
       ) {
         alert("You don't have enough CHD to make this swap");
-        loader.style.display = "none";
-        text.style.display = "inline";
-        button.disabled = false;
+        enableSwapButton();
         return;
       }
       await gnoCHD.approve(gnoCharon.address, fromAmount);
@@ -250,9 +232,7 @@ async function swap() {
           window.alert(
             "Transaction on Gnosis Chain sent with hash: " + result.hash
           );
-          loader.style.display = "none";
-          text.style.display = "inline";
-          button.disabled = false;
+          enableSwapButton();
         });
     } else if (toCurrency == "MATIC") {
       const chdBalance = await polCHD.balanceOf(polWallet.address);
@@ -261,9 +241,7 @@ async function swap() {
         ethers.utils.formatEther(fromAmount)
       ) {
         alert("You don't have enough CHD to make this swap");
-        loader.style.display = "none";
-        text.style.display = "inline";
-        button.disabled = false;
+        enableSwapButton();
         return;
       }
       await polCHD.approve(polCharon.address, fromAmount);
@@ -274,17 +252,13 @@ async function swap() {
         .then((result) => {
           console.log(result);
           window.alert("Transaction on Polygon sent with hash: " + result.hash);
-          loader.style.display = "none";
-          text.style.display = "inline";
-          button.disabled = false;
+          enableSwapButton();
         });
     }
   } catch (err) {
     window.alert("Transaction failed, check console for more info");
     console.log(err);
-    loader.style.display = "none";
-    text.style.display = "inline";
-    button.disabled = false;
+    enableSwapButton();
   }
 }
 
@@ -326,6 +300,12 @@ function showLoadingAnimation() {
   button.disabled = true;
   text.style.display = "none";
   loader.style.display = "block";
+}
+
+function enableSwapButton() {
+  loader.style.display = "none";
+  text.style.display = "inline";
+  button.disabled = false;
 }
 
 const fromAmountBox = document.getElementById("from-amount");
