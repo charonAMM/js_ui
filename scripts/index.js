@@ -127,14 +127,6 @@ async function writeUTXOs() {
   fs.writeFileSync("utxos.txt", JSON.stringify(sendVars));
 }
 
-document.body.classList.add("loading");
-window.addEventListener("load", function () {
-  setTimeout(function () {
-    document.body.classList.remove("loading");
-    document.body.classList.add("loaded");
-  }, 3900);
-});
-
 function showPubKey() {
   myKeypair.address().then((result) => {
     $("#pubKey").text(result.substring(0, 40) + "...");
@@ -308,6 +300,7 @@ async function setData() {
   return new Promise((resolve) => {
     setTimeout(() => {
       resolve("resolved");
+      // document.body.classList.add("loaded");
     }, 2000);
   });
 }
