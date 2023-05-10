@@ -165,11 +165,11 @@ $("#maxButton").on("click", () => {
     }
   } else {
     if (_network == "ethereum") {
-      amountInput.value = peVal;
+      amountInput.value = ethers.utils.formatEther(peVal.toString());
     } else if (_network == "gnosis") {
-      amountInput.value = pgVal;
+      amountInput.value = ethers.utils.formatEther(pgVal.toString());
     } else if (_network == "polygon") {
-      amountInput.value = ppVal;
+      amountInput.value = ethers.utils.formatEther(ppVal.toString());
     }
   }
 });
