@@ -25,6 +25,8 @@ let polSet = [0, 0]; //block, balnce initSet
 let polUTXOs = []; //beSure to add in save mode
 let ethUTXOs = [];
 let gnoUTXOs = [];
+let myKeypair;
+let myPubkey = "0x000000";
 
 ethProvider = new ethers.providers.JsonRpcProvider(
   process.env.NODE_URL_ETHEREUM
@@ -66,7 +68,7 @@ function poseidon(inputs) {
 function makeSendModal() {
   sendModal = new BrowserWindow({
     width: 700,
-    height: 600,
+    height: 620,
     webPreferences: {
       nodeIntegration: true,
       enableRemoteModule: true,
@@ -103,7 +105,7 @@ function makeBridgeModal() {
   // bridgeModal.webContents.openDevTools()
 }
 
-function writeUTXOs() {
+async function writeUTXOs() {
   try {
     fs.unlinkSync("utxos.txt");
   } catch {}
@@ -111,25 +113,25 @@ function writeUTXOs() {
     polUTXOs: polUTXOs,
     gnoUTXOs: gnoUTXOs,
     ethUTXOs: ethUTXOs,
-    ppVal: ppVal,
-    peVal: peVal,
-    pgVal: pgVal,
+    ppVal: polSet[1],
+    peVal: ethSet[1],
+    pgVal: gnoSet[1],
+    lastBlockEth: ethSet[0],
+    lastBlockGno: gnoSet[0],
+    lastBlockPol: polSet[0],
     eVal: origEval,
     gVal: origGval,
     pVal: origPval,
+    publicKey: myPubkey,
   };
   fs.writeFileSync("utxos.txt", JSON.stringify(sendVars));
 }
 
-function setData() {
-  let myKeypair = new Keypair({
-    privkey: process.env.PRIVATE_KEY,
-    myHashFunc: poseidon,
+function showPubKey() {
+  myKeypair.address().then((result) => {
+    $("#pubKey").text(result.substring(0, 40) + "...");
+    myPubkey = result;
   });
-  console.log("mk", myKeypair.address());
-  myKeypair
-    .address()
-    .then((result) => $("#pubKey").text(result.substring(0, 40) + "..."));
   const pubKeyElement = document.querySelector("#pubKey");
   pubKeyElement.addEventListener("click", () => {
     myKeypair.address().then((result) => navigator.clipboard.writeText(result));
@@ -154,113 +156,151 @@ function setData() {
     pubKeyElement.classList.add("text-muted");
     pubKeyElement.style.cursor = "auto";
   });
+}
+
+async function setData() {
+  myKeypair = new Keypair({
+    privkey: process.env.PRIVATE_KEY,
+    myHashFunc: poseidon,
+  });
+  await showPubKey();
+
+  let contents;
+  let ethStartBlock, gnoStartBlock, polStartBlock;
+
+  if (fs.existsSync("utxos.txt")) {
+    const file = fs.readFileSync("utxos.txt", "utf-8");
+    contents = JSON.parse(file);
+    if (contents.publicKey == myPubkey) {
+      ethStartBlock = contents.lastBlockEth;
+      gnoStartBlock = contents.lastBlockGno;
+      polStartBlock = contents.lastBlockPol;
+      ethSet[1] = contents.peVal;
+      gnoSet[1] = contents.pgVal;
+      polSet[1] = contents.ppVal;
+      ethUTXOs = contents.ethUTXOs;
+      gnoUTXOs = contents.gnoUTXOs;
+      polUTXOs = contents.polUTXOs;
+    }
+  } else {
+    ethStartBlock = 0;
+    gnoStartBlock = 0;
+    polStartBlock = 0;
+  }
 
   let eventFilter = ethCharon.filters.NewCommitment();
-  ethCharon.queryFilter(eventFilter, 0, "latest").then(function (evtData) {
-    let eUtxo, myNullifier;
-    let jjj = 0;
-    let eUtxos = [];
-    for (let i = 0; i < evtData.length; i++) {
-      try {
-        eUtxo = Utxo.decrypt(
-          myKeypair,
-          evtData[i].args._encryptedOutput,
-          evtData[i].args._index
-        );
-        eUtxo.chainID = 5;
-        if (
-          eUtxo.amount > 0 &&
-          toFixedHex(evtData[i].args._commitment) ==
-            toFixedHex(eUtxo.getCommitment(poseidon))
-        ) {
-          eUtxos.push(eUtxo);
-          myNullifier = toFixedHex(eUtxo.getNullifier(poseidon));
-          ethCharon.isSpent(myNullifier).then(function (result) {
-            if (!result) {
-              ethSet[1] = ethSet[1] + parseInt(eUtxos[jjj].amount);
-              ethUTXOs.push(eUtxos[jjj]);
-              jjj++;
-            } else {
-              jjj++;
-            }
-          });
-        }
-      } catch {}
-    }
-  });
+  ethCharon
+    .queryFilter(eventFilter, ethStartBlock, "latest")
+    .then(function (evtData) {
+      let eUtxo, myNullifier;
+      let jjj = 0;
+      let eUtxos = [];
+      for (let i = 0; i < evtData.length; i++) {
+        try {
+          eUtxo = Utxo.decrypt(
+            myKeypair,
+            evtData[i].args._encryptedOutput,
+            evtData[i].args._index
+          );
+          eUtxo.chainID = 5;
+          if (
+            eUtxo.amount > 0 &&
+            toFixedHex(evtData[i].args._commitment) ==
+              toFixedHex(eUtxo.getCommitment(poseidon))
+          ) {
+            eUtxos.push(eUtxo);
+            myNullifier = toFixedHex(eUtxo.getNullifier(poseidon));
+            ethCharon.isSpent(myNullifier).then(function (result) {
+              if (!result) {
+                ethSet[1] = ethSet[1] + parseInt(eUtxos[jjj].amount);
+                ethUTXOs.push(eUtxos[jjj]);
+                jjj++;
+              } else {
+                jjj++;
+              }
+            });
+          }
+        } catch {}
+      }
+    });
   gEventFilter = gnoCharon.filters.NewCommitment();
-  gnoCharon.queryFilter(gEventFilter, 0, "latest").then(function (evtData2) {
-    let gUtxo, mygNullifier;
-    let jj = 0;
-    let gUtxos = [];
-    for (let iii = 0; iii < evtData2.length; iii++) {
-      try {
-        gUtxo = Utxo.decrypt(
-          myKeypair,
-          evtData2[iii].args._encryptedOutput,
-          evtData2[iii].args._index
-        );
-        gUtxo.chainID = 10200;
-        if (
-          gUtxo.amount > 0 &&
-          toFixedHex(evtData2[iii].args._commitment) ==
-            toFixedHex(gUtxo.getCommitment(poseidon))
-        ) {
-          gUtxos.push(gUtxo);
-          mygNullifier = toFixedHex(gUtxo.getNullifier(poseidon));
-          gnoCharon.isSpent(mygNullifier).then(function (result) {
-            if (!result) {
-              gnoSet[1] = gnoSet[1] + parseInt(gUtxos[jj].amount);
-              gnoUTXOs.push(gUtxos[jj]);
-              jj++;
-            } else {
-              jj++;
-            }
-          });
-        }
-      } catch {}
-    }
-  });
+  gnoCharon
+    .queryFilter(gEventFilter, gnoStartBlock, "latest")
+    .then(function (evtData2) {
+      let gUtxo, mygNullifier;
+      let jj = 0;
+      let gUtxos = [];
+      for (let iii = 0; iii < evtData2.length; iii++) {
+        try {
+          gUtxo = Utxo.decrypt(
+            myKeypair,
+            evtData2[iii].args._encryptedOutput,
+            evtData2[iii].args._index
+          );
+          gUtxo.chainID = 10200;
+          if (
+            gUtxo.amount > 0 &&
+            toFixedHex(evtData2[iii].args._commitment) ==
+              toFixedHex(gUtxo.getCommitment(poseidon))
+          ) {
+            gUtxos.push(gUtxo);
+            mygNullifier = toFixedHex(gUtxo.getNullifier(poseidon));
+            gnoCharon.isSpent(mygNullifier).then(function (result) {
+              if (!result) {
+                gnoSet[1] = gnoSet[1] + parseInt(gUtxos[jj].amount);
+                gnoUTXOs.push(gUtxos[jj]);
+                jj++;
+              } else {
+                jj++;
+              }
+            });
+          }
+        } catch {}
+      }
+    });
   peventFilter = polCharon.filters.NewCommitment();
-  polCharon.queryFilter(peventFilter, 0, "latest").then(function (evtData3) {
-    let mypNullifier, pUtxo;
-    let j = 0;
-    let pUtxos = [];
-    for (let ii = 0; ii < evtData3.length; ii++) {
-      try {
-        pUtxo = Utxo.decrypt(
-          myKeypair,
-          evtData3[ii].args._encryptedOutput,
-          evtData3[ii].args._index
-        );
-        pUtxo.chainID = 80001;
-        if (
-          pUtxo.amount > 0 &&
-          toFixedHex(evtData3[ii].args._commitment) ==
-            toFixedHex(pUtxo.getCommitment(poseidon))
-        ) {
-          pUtxos.push(pUtxo);
-          mypNullifier = toFixedHex(pUtxo.getNullifier(poseidon));
-          polCharon.isSpent(mypNullifier).then(function (result) {
-            if (!result) {
-              polSet[1] = polSet[1] + parseInt(pUtxos[j].amount);
-              polUTXOs.push(pUtxos[j]);
-              j++;
-            } else {
-              j++;
-            }
-          });
-        }
-      } catch {}
-    }
-  });
+  polCharon
+    .queryFilter(peventFilter, polStartBlock, "latest")
+    .then(async function (evtData3) {
+      let mypNullifier, pUtxo;
+      let j = 0;
+      let pUtxos = [];
+      for (let ii = 0; ii < evtData3.length; ii++) {
+        try {
+          pUtxo = Utxo.decrypt(
+            myKeypair,
+            evtData3[ii].args._encryptedOutput,
+            evtData3[ii].args._index
+          );
+          pUtxo.chainID = 80001;
+          if (
+            pUtxo.amount > 0 &&
+            toFixedHex(evtData3[ii].args._commitment) ==
+              toFixedHex(pUtxo.getCommitment(poseidon))
+          ) {
+            pUtxos.push(pUtxo);
+            mypNullifier = toFixedHex(pUtxo.getNullifier(poseidon));
+            polCharon.isSpent(mypNullifier).then(function (result) {
+              if (!result) {
+                polSet[1] = polSet[1] + parseInt(pUtxos[j].amount);
+                polUTXOs.push(pUtxos[j]);
+                j++;
+              } else {
+                j++;
+              }
+            });
+          }
+        } catch {}
+      }
+    });
   //for testing, turn back on
-  // ethProvider.getBlockNumber().then((result) => ethSet[0] = result);
-  // polygonProvider.getBlockNumber().then((result) => polSet[0] = result);
-  // gnosisProvider.getBlockNumber().then((result) => gnoSet[0] = result);
+  ethProvider.getBlockNumber().then((result) => (ethSet[0] = result));
+  polygonProvider.getBlockNumber().then((result) => (polSet[0] = result));
+  gnosisProvider.getBlockNumber().then((result) => (gnoSet[0] = result));
   return new Promise((resolve) => {
     setTimeout(() => {
       resolve("resolved");
+      // document.body.classList.add("loaded");
     }, 2000);
   });
 }
@@ -286,6 +326,7 @@ function loadPrivateBalances() {
   $("#totalBal").text(
     Math.round((eVal + gVal + pVal + peVal + pgVal + ppVal) * 100) / 100
   );
+
   writeUTXOs();
   //update baseblock and balance in local file
   fs.writeFile(filename, "", (err) => {

@@ -1,63 +1,95 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta http-equiv="X-UA-Compatible" content="IE=edge">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Charon - A privacy preserving cross-chain AMM</title>
-  <link rel="icon" href="../public/Charon_mono.png">
-  <link rel="stylesheet" href="../main.css">
-  <link rel="stylesheet" href="../pages/assets/bootstrap/css/bootstrap.min.css">
-  <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Inter:300italic,400italic,600italic,700italic,800italic,400,300,600,700,800&amp;display=swap">
-  <link rel="stylesheet" href="../pages/assets/css/Login-Form-Basic-icons.css">
-  <link rel="stylesheet" href="../pages/assets/css/Studious-selectbox.css">
-</head>
-<body>
-  <!-- Header -->
-  <header>
-    <div class="container">
-      <div class="row">
-        <div class="col-md-12">
-          <nav class="navbar navbar-expand-lg navbar-light">
-            <p style="font-size: 22px; color: white; font-weight: bold;">charon</p>
-          </nav>
-        </div>
-      </div>
-    </div>
-  </header>
-
-  <!-- Main -->
-  <main>
-    <div class="container">
-      <div class="row">
-        <div class="col-md-6 col-xl-4">
-          <div class="card mb-5">
-            <div class="card-body">
-              <h2 class="text-center mb-3">Enter bid amount</h2>
-              <form class="text-center" method="post">
-                <div class="mb-3">
-                  <input class="form-control" id="bidAmount" placeholder="0.00" type="number" step="0.01" min="0">
-                </div>
-                <div class="mb-3">
-                  <button class="bridge-down" type="button" id="signAndBid">
-                    <span id="bidText">bid</span>
-                    <div class="loader" id="bidLoader"></div>
-                  </button>
-                </div>
-                <p class="text-muted"></p>
-              </form>  
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Charon - A privacy preserving cross-chain AMM</title>
+    <link rel="icon" href="../public/Charon_mono.png" />
+    <link rel="stylesheet" href="../main.css" />
+    <link
+      rel="stylesheet"
+      href="../pages/assets/bootstrap/css/bootstrap.min.css"
+    />
+    <link
+      rel="stylesheet"
+      href="https://fonts.googleapis.com/css?family=Inter:300italic,400italic,600italic,700italic,800italic,400,300,600,700,800&amp;display=swap"
+    />
+    <link
+      rel="stylesheet"
+      href="../pages/assets/css/Login-Form-Basic-icons.css"
+    />
+    <link rel="stylesheet" href="../pages/assets/css/Studious-selectbox.css" />
+  </head>
+  <body>
+    <!-- Header -->
+    <header>
+      <div class="container">
+        <div class="row">
+          <div class="col-md-12">
+            <nav class="navbar navbar-expand-lg navbar-light">
+              <p style="font-size: 22px; color: white; font-weight: bold">
+                charon
+              </p>
+            </nav>
+            <div class="col-md-6 d-flex align-items-center justify-content-end">
+              <p
+                class="text-muted"
+                style="color: white; position: absolute; top: 15px; right: 50px"
+              >
+                Balance: <span id="ethBalance"></span> ETH
+              </p>
             </div>
           </div>
         </div>
       </div>
-    </div>
-  </main>
+    </header>
 
-  <!-- Scripts -->
-  <script src="../pages/assets/bootstrap/js/bootstrap.min.js"></script>
-  <script src="../pages/assets/js/bs-init.js"></script>
-  <script src="../pages/assets/js/bold-and-dark.js"></script>
-  <script src="../pages/assets/js/Studious-selectbox-selectbox.js"></script>
-  <script src="../scripts/bidModal.js"></script>
-</body>
+    <!-- Main -->
+    <main>
+      <div
+        class="container"
+        style="display: flex; justify-content: center; align-items: center"
+      >
+        <div class="row">
+          <div class="col-md-6 col-xl-4">
+            <div class="card mb-5" style="width: 100%; min-width: 400px">
+              <div class="card-body">
+                <h2 class="text-center mb-3">Enter bid amount</h2>
+                <form class="text-center" method="post">
+                  <div class="mb-3">
+                    <div class="input-group">
+                      <input
+                        class="form-control"
+                        id="bidAmount"
+                        placeholder="0.00"
+                        type="number"
+                        step="0.01"
+                        min="0"
+                      />
+                      <span class="input-group-text">ETH</span>
+                    </div>
+                  </div>
+                  <div class="mb-3">
+                    <button class="bridge-down" type="button" id="signAndBid">
+                      <span id="bidText">bid</span>
+                      <div class="loader" id="bidLoader"></div>
+                    </button>
+                  </div>
+                  <p class="text-muted"></p>
+                </form>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </main>
+
+    <!-- Scripts -->
+    <script src="../pages/assets/bootstrap/js/bootstrap.min.js"></script>
+    <script src="../pages/assets/js/bs-init.js"></script>
+    <script src="../pages/assets/js/bold-and-dark.js"></script>
+    <script src="../pages/assets/js/Studious-selectbox-selectbox.js"></script>
+    <script src="../scripts/bidModal.js"></script>
+  </body>
 </html>

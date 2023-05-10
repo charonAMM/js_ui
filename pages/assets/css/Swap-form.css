@@ -53,6 +53,10 @@
   background: rgb(25, 27, 31) !important;
 }
 
+.swap-contents-card{
+  padding-top: 30px;
+}
+
 .card-input input {
   background: rgb(33, 36, 41) !important;
   font-weight: 500;
@@ -162,9 +166,9 @@
 #max-button {
   font-size: 17px;
   font-weight: bold;
-  padding-top: -20px;
-  margin-right:-40px;
-  margin-bottom: -10px;
+  position: absolute;
+  right:10px;
+  top: -30px;
   color: rgb(42, 100, 181);
   background-color: transparent;
   border: none;
