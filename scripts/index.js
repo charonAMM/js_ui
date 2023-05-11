@@ -301,6 +301,8 @@ async function setData() {
     setTimeout(() => {
       resolve("resolved");
       // document.body.classList.add("loaded");
+      $('#send').removeAttr('disabled');
+      $('#bridge').removeAttr('disabled');
     }, 2000);
   });
 }
