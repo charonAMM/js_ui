@@ -127,17 +127,65 @@ async function swap() {
 
   try {
     if (fromCurrency === "ETH") {
-      await swapToken(fromAmount, ethBaseToken, ethCharon, ethBal, "ETH", "Ethereum", gasLimit);
+      await swapToken(
+        fromAmount,
+        ethBaseToken,
+        ethCharon,
+        ethBal,
+        "ETH",
+        "Ethereum",
+        gasLimit
+      );
     } else if (fromCurrency === "xDAI") {
-      await swapToken(fromAmount, gnosisBaseToken, gnoCharon, gnoBal, "xDAI", "Gnosis Chain", gasLimit);
+      await swapToken(
+        fromAmount,
+        gnosisBaseToken,
+        gnoCharon,
+        gnoBal,
+        "xDAI",
+        "Gnosis Chain",
+        gasLimit
+      );
     } else if (fromCurrency === "MATIC") {
-      await swapToken(fromAmount, polygonBaseToken, polCharon, polBal, "MATIC", "Polygon", gasLimit);
+      await swapToken(
+        fromAmount,
+        polygonBaseToken,
+        polCharon,
+        polBal,
+        "MATIC",
+        "Polygon",
+        gasLimit
+      );
     } else if (toCurrency === "ETH") {
-      await swapToken(fromAmount, ethCHD, ethCharon, chdEthBal, "CHD", "Ethereum", gasLimit);
+      await swapToken(
+        fromAmount,
+        ethCHD,
+        ethCharon,
+        chdEthBal,
+        "CHD",
+        "Ethereum",
+        gasLimit
+      );
     } else if (toCurrency === "xDAI") {
-      await swapToken(fromAmount, gnoCHD, gnoCharon, chdGnoBal, "CHD", "Gnosis Chain", gasLimit);
+      await swapToken(
+        fromAmount,
+        gnoCHD,
+        gnoCharon,
+        chdGnoBal,
+        "CHD",
+        "Gnosis Chain",
+        gasLimit
+      );
     } else if (toCurrency === "MATIC") {
-      await swapToken(fromAmount, polCHD, polCharon, chdPolBal, "CHD", "Polygon", gasLimit);
+      await swapToken(
+        fromAmount,
+        polCHD,
+        polCharon,
+        chdPolBal,
+        "CHD",
+        "Polygon",
+        gasLimit
+      );
     }
   } catch (err) {
     window.alert("Transaction failed, check console for more info");
@@ -146,20 +194,43 @@ async function swap() {
   }
 }
 
-async function swapToken(fromAmount, baseToken, charon, balance, tokenSymbol, networkName, gasLimit) {
-  if (parseInt(ethers.utils.formatEther(balance)) < parseInt(ethers.utils.formatEther(fromAmount))) {
-    alert(`You don't have enough ${tokenSymbol} to make this swap on ${networkName}`);
+async function swapToken(
+  fromAmount,
+  baseToken,
+  charon,
+  balance,
+  tokenSymbol,
+  networkName,
+  gasLimit
+) {
+  if (
+    parseInt(ethers.utils.formatEther(balance)) <
+    parseInt(ethers.utils.formatEther(fromAmount))
+  ) {
+    alert(
+      `You don't have enough ${tokenSymbol} to make this swap on ${networkName}`
+    );
     enableSwapButton();
     return;
   }
   await baseToken.approve(charon.address, fromAmount, { gasLimit });
-  charon.swap(tokenSymbol === "CHD", fromAmount, 0, ethers.utils.parseEther("999999"), {
-    gasLimit,
-  }).then((result) => {
-    console.log(result);
-    window.alert(`Transaction on ${networkName} sent with hash: ${result.hash}`);
-    enableSwapButton();
-  });
+  charon
+    .swap(
+      tokenSymbol === "CHD",
+      fromAmount,
+      0,
+      ethers.utils.parseEther("999999"),
+      {
+        gasLimit,
+      }
+    )
+    .then((result) => {
+      console.log(result);
+      window.alert(
+        `Transaction on ${networkName} sent with hash: ${result.hash}`
+      );
+      enableSwapButton();
+    });
 }
 
 const maxButton = document.getElementById("max-button");
@@ -211,6 +282,52 @@ function enableSwapButton() {
 const fromAmountBox = document.getElementById("from-amount");
 fromAmountBox.addEventListener("input", () => calculateConversion());
 
+async function calculateConversionDetails(charon, inputValue, isSynthIn) {
+  const spotPrice = isSynthIn
+    ? await charon.calcSpotPrice(
+        await charon.recordBalance(),
+        await charon.recordBalanceSynth(),
+        0
+      )
+    : await charon.calcSpotPrice(
+        await charon.recordBalanceSynth(),
+        await charon.recordBalance(),
+        0
+      );
+  const expectedOut = spotPrice * inputValue;
+  const exitFee = inputValue * ethers.utils.formatEther(await charon.fee());
+  const adjustedIn = inputValue - exitFee;
+  const minAmountOut = isSynthIn
+    ? await charon.calcSingleOutGivenIn(
+        await charon.recordBalance(),
+        await charon.recordBalanceSynth(),
+        ethers.utils.parseEther(adjustedIn.toString()),
+        0,
+        false
+      )
+    : await charon.calcOutGivenIn(
+        await charon.recordBalance(),
+        await charon.recordBalanceSynth(),
+        ethers.utils.parseEther(adjustedIn.toString()),
+        0
+      );
+  const slippage = (minAmountOut - expectedOut) / expectedOut;
+  let gasEstimate;
+  try {
+    gasEstimate = await charon.estimateGas.swap(
+      isSynthIn,
+      ethers.utils.parseEther(inputValue),
+      0,
+      ethers.utils.parseEther("999999"),
+      { gasLimit: 100000 }
+    );
+    $("#gas-estimate").text(gasEstimate);
+  } catch (e) {
+    $("#gas-estimate").text("n/a");
+  }
+  return { spotPrice, slippage };
+}
+
 async function calculateConversion() {
   const inputValue = fromAmountBox.value;
   const toAmountBox = document.getElementById("to-amount");
@@ -218,202 +335,68 @@ async function calculateConversion() {
     toAmountBox.value = "";
     return;
   }
-  if (inputValue !== 0 || !isNaN(inputValue)) {
-    toAmountBox.value = "...";
-    const fromCurrencyDropdown = document.getElementById("from-currency");
-    const toCurrencyDropdown = document.getElementById("to-currency");
-    let spotPrice;
-    let slippage;
-    let gasEstimate;
-    $("#slippage").text("...");
-    $("#slippage").css("color", "white");
-    $("#gas-estimate").text("...");
-    if (fromCurrencyDropdown.value == "ETH") {
-      spotPrice = await ethCharon.calcSpotPrice(
-        await ethCharon.recordBalanceSynth(), // tokenBalanceIn
-        await ethCharon.recordBalance(), // uint256 _tokenBalanceOut
-        0
-      );
-      const expectedOut = spotPrice * inputValue;
-      const exitFee =
-        inputValue * ethers.utils.formatEther(await ethCharon.fee());
-      const adjustedIn = inputValue - exitFee;
-      const minAmountOut = await ethCharon.calcOutGivenIn(
-        await ethCharon.recordBalance(), // uint256 _tokenBalanceIn
-        await ethCharon.recordBalanceSynth(), // tokenBalanceOut
-        ethers.utils.parseEther(adjustedIn.toString()), //adjustedIn
-        0 //swapFee
-      );
-      slippage = (minAmountOut - expectedOut) / expectedOut;
-      try {
-        gasEstimate = await ethCharon.estimateGas.swap(
-          false, // bool _isSynthIn
-          ethers.utils.parseEther(inputValue), // uint256 _tokenAmountIn
-          minAmountOut, // uint256 _minAmountOut
-          spotPrice, // uint256 _spotPrice
-          { gasLimit: 10000000 }
-        );
-        $("#gas-estimate").text(gasEstimate);
-      } catch (e) {
-        $("#gas-estimate").text("n/a");
-      }
-    } else if (fromCurrencyDropdown.value == "xDAI") {
-      spotPrice = await gnoCharon.calcSpotPrice(
-        await gnoCharon.recordBalanceSynth(), // tokenBalanceIn
-        await gnoCharon.recordBalance(), // uint256 _tokenBalanceOut
-        0
-      );
-      const expectedOut = spotPrice * inputValue;
-      const exitFee =
-        inputValue * ethers.utils.formatEther(await gnoCharon.fee());
-      const adjustedIn = inputValue - exitFee;
-      const minAmountOut = await gnoCharon.calcOutGivenIn(
-        await gnoCharon.recordBalance(), // uint256 _tokenBalanceIn
-        await gnoCharon.recordBalanceSynth(), // tokenBalanceOut
-        ethers.utils.parseEther(adjustedIn.toString()), //adjustedIn
-        0 //swapFee
-      );
-      slippage = (minAmountOut - expectedOut) / expectedOut;
-      try {
-        gasEstimate = await gnoCharon.estimateGas.swap(
-          false, // bool _isSynthIn
-          ethers.utils.parseEther(inputValue), // uint256 _tokenAmountIn
-          minAmountOut, // uint256 _minAmountOut
-          spotPrice, // uint256 _spotPrice
-          { gasLimit: ethers.BigNumber.from("100000000000") }
-        );
-        $("#gas-estimate").text(gasEstimate);
-      } catch (e) {
-        $("#gas-estimate").text("n/a");
-      }
-    } else if (fromCurrencyDropdown.value == "MATIC") {
-      spotPrice = await polCharon.calcSpotPrice(
-        await polCharon.recordBalanceSynth(), // tokenBalanceIn
-        await polCharon.recordBalance(), // uint256 _tokenBalanceOut
-        0
-      );
-      const expectedOut = spotPrice * inputValue;
-      const exitFee =
-        inputValue * ethers.utils.formatEther(await polCharon.fee());
-      const adjustedIn = inputValue - exitFee;
-      const minAmountOut = await polCharon.calcOutGivenIn(
-        await polCharon.recordBalance(), // uint256 _tokenBalanceIn
-        await polCharon.recordBalanceSynth(), // tokenBalanceOut
-        ethers.utils.parseEther(adjustedIn.toString()), //adjustedIn
-        0 //swapFee
-      );
-      slippage = (minAmountOut - expectedOut) / expectedOut;
-      try {
-        gasEstimate = await polCharon.estimateGas.swap(
-          false, // bool _isSynthIn
-          ethers.utils.parseEther(inputValue), // uint256 _tokenAmountIn
-          minAmountOut, // uint256 _minAmountOut
-          spotPrice // uint256 _spotPrice
-        );
-        $("#gas-estimate").text(gasEstimate);
-      } catch (e) {
-        $("#gas-estimate").text("n/a");
-      }
-    } else if (toCurrencyDropdown.value == "ETH") {
-      spotPrice = await ethCharon.calcSpotPrice(
-        await ethCharon.recordBalance(), // tokenBalanceIn
-        await ethCharon.recordBalanceSynth(), // uint256 _tokenBalanceOut
-        0
-      );
-      const expectedOut = spotPrice * inputValue;
-      const exitFee =
-        inputValue * ethers.utils.formatEther(await ethCharon.fee());
-      const adjustedIn = inputValue - exitFee;
-      const minAmountOut = await ethCharon.calcSingleOutGivenIn(
-        await ethCharon.recordBalance(), // uint256 _tokenBalanceOut
-        await ethCharon.recordBalanceSynth(), // tokenBalanceIn
-        ethers.utils.parseEther(adjustedIn.toString()), //adjustedIn
-        0, //swapFee
-        false //isPool
-      );
-      slippage = (minAmountOut - expectedOut) / expectedOut;
-      try {
-        gasEstimate = await ethCharon.estimateGas.swap(
-          true, // bool _isSynthIn
-          ethers.utils.parseEther(inputValue), // uint256 _tokenAmountIn
-          minAmountOut, // uint256 _minAmountOut
-          spotPrice // uint256 _spotPrice
-        );
-        $("#gas-estimate").text(gasEstimate);
-      } catch (e) {
-        $("#gas-estimate").text("n/a");
-      }
-    } else if (toCurrencyDropdown.value == "xDAI") {
-      spotPrice = await gnoCharon.calcSpotPrice(
-        await gnoCharon.recordBalance(), // tokenBalanceIn
-        await gnoCharon.recordBalanceSynth(), // uint256 _tokenBalanceOut
 
-        0
-      );
-      const expectedOut = spotPrice * inputValue;
-      const exitFee =
-        inputValue * ethers.utils.formatEther(await gnoCharon.fee());
-      const adjustedIn = inputValue - exitFee;
-      const minAmountOut = await gnoCharon.calcSingleOutGivenIn(
-        await gnoCharon.recordBalance(), // uint256 _tokenBalanceOut
-        await gnoCharon.recordBalanceSynth(), // tokenBalanceIn
-        ethers.utils.parseEther(adjustedIn.toString()), //adjustedIn
-        0, //swapFee
-        false //isPool
-      );
-      slippage = (minAmountOut - expectedOut) / expectedOut;
-      try {
-        gasEstimate = await gnoCharon.estimateGas.swap(
-          true, // bool _isSynthIn
-          ethers.utils.parseEther(inputValue), // uint256 _tokenAmountIn
-          minAmountOut, // uint256 _minAmountOut
-          spotPrice // uint256 _spotPrice
-        );
-        $("#gas-estimate").text(gasEstimate);
-      } catch (e) {
-        $("#gas-estimate").text("n/a");
-      }
-    } else if (toCurrencyDropdown.value == "MATIC") {
-      spotPrice = await polCharon.calcSpotPrice(
-        await polCharon.recordBalance(), // tokenBalanceIn
-        await polCharon.recordBalanceSynth(), // uint256 _tokenBalanceOut
-        0
-      );
-      const expectedOut = spotPrice * inputValue;
-      const exitFee =
-        inputValue * ethers.utils.formatEther(await polCharon.fee());
-      const adjustedIn = inputValue - exitFee;
-      const minAmountOut = await polCharon.calcSingleOutGivenIn(
-        await polCharon.recordBalance(), // uint256 tokenBalanceOut
-        await polCharon.recordBalanceSynth(), // tokenBalanceIn
-        ethers.utils.parseEther(adjustedIn.toString()), //adjustedIn
-        0, //swapFee
-        false //isPool
-      );
-      slippage = (minAmountOut - expectedOut) / expectedOut;
-      try {
-        gasEstimate = await polCharon.estimateGas.swap(
-          true, // bool _isSynthIn
-          ethers.utils.parseEther(inputValue), // uint256 _tokenAmountIn
-          minAmountOut, // uint256 _minAmountOut
-          spotPrice // uint256 _spotPrice
-        );
-        $("#gas-estimate").text(gasEstimate);
-      } catch (e) {
-        $("#gas-estimate").text("n/a");
-      }
-    }
-    const expectedOut = spotPrice * inputValue;
-    const outputAmount = ethers.utils.formatEther(expectedOut.toString());
-    toAmountBox.value = outputAmount;
-    const slippageValue = (slippage * 100).toFixed(2);
-    const slippageElement = $("#slippage");
-    slippageElement.text(slippageValue + "%");
-    if (slippage < 0) {
-      slippageElement.css("color", "#DC143C");
-    } else if (slippage > 0) {
-      slippageElement.css("color", "#00FF7F");
-    }
+  toAmountBox.value = "...";
+  const fromCurrencyDropdown = document.getElementById("from-currency");
+  const toCurrencyDropdown = document.getElementById("to-currency");
+  let spotPrice;
+  let slippage;
+
+  $("#slippage").text("...");
+  $("#slippage").css("color", "white");
+  $("#gas-estimate").text("...");
+
+  if (toCurrencyDropdown.value == "ETH") {
+    ({ spotPrice, slippage } = await calculateConversionDetails(
+      ethCharon,
+      inputValue,
+      true
+    ));
+  } else if (toCurrencyDropdown.value == "xDAI") {
+    ({ spotPrice, slippage } = await calculateConversionDetails(
+      gnoCharon,
+      inputValue,
+      true
+    ));
+  } else if (toCurrencyDropdown.value == "MATIC") {
+    ({ spotPrice, slippage } = await calculateConversionDetails(
+      polCharon,
+      inputValue,
+      true
+    ));
+  } else if (fromCurrencyDropdown.value == "ETH") {
+    ({ spotPrice, slippage } = await calculateConversionDetails(
+      ethCharon,
+      inputValue,
+      false
+    ));
+  } else if (fromCurrencyDropdown.value == "xDAI") {
+    ({ spotPrice, slippage } = await calculateConversionDetails(
+      gnoCharon,
+      inputValue,
+      false
+    ));
+  } else if (fromCurrencyDropdown.value == "MATIC") {
+    ({ spotPrice, slippage } = await calculateConversionDetails(
+      polCharon,
+      inputValue,
+      false
+    ));
+  }
+  const expectedOut =
+    parseFloat(ethers.utils.formatEther(spotPrice.toString())) *
+    parseFloat(inputValue);
+  toAmountBox.value = expectedOut;
+
+  const slippageValue = (slippage * 100).toFixed(2);
+  const slippageElement = $("#slippage");
+  slippageElement.text(slippageValue + "%");
+  if (slippage <= -0.05) {
+    slippageElement.css("color", "#DC143C");
+  } else if (slippage <= -0.01) {
+    slippageElement.css("color", "#FF8C00");
+  } else {
+    slippageElement.css("color", "#00FF7F");
   }
 }
 
