@@ -1,5 +1,5 @@
-let $ = require("jquery");
-let fs = require("fs");
+const $ = require("jquery");
+const fs = require("fs");
 const { BrowserWindow } = require("@electron/remote");
 const { Keypair } = require("../src/keypair");
 const url = require("url");
@@ -15,7 +15,23 @@ const {
 const { buildPoseidon } = require("circomlibjs");
 const { toFixedHex } = require("../src/utils.js");
 require("dotenv").config();
-let filename = "bootstrap";
+const {
+  ethCHD,
+  gnoCHD,
+  polCHD,
+  ethCharon,
+  gnoCharon,
+  polCharon,
+} = require("../src/tokens");
+const {
+  ethProvider,
+  gnosisProvider,
+  polygonProvider,
+  ethWallet,
+  gnoWallet,
+  polWallet,
+} = require("../src/providers");
+const filename = "bootstrap";
 let builtPoseidon;
 let eVal, gVal, pVal, peVal, pgVal, ppVal;
 let origEval, origGval, origPval;
@@ -28,37 +44,7 @@ let gnoUTXOs = [];
 let myKeypair;
 let myPubkey = "0x000000";
 
-ethProvider = new ethers.providers.JsonRpcProvider(
-  process.env.NODE_URL_ETHEREUM
-);
-gnosisProvider = new ethers.providers.JsonRpcProvider(
-  process.env.NODE_URL_GNOSIS
-);
-polygonProvider = new ethers.providers.JsonRpcProvider(
-  process.env.NODE_URL_POLYGON
-);
-ethWallet = new ethers.Wallet(process.env.PRIVATE_KEY, ethProvider);
-gnoWallet = new ethers.Wallet(process.env.PRIVATE_KEY, gnosisProvider);
-polWallet = new ethers.Wallet(process.env.PRIVATE_KEY, polygonProvider);
 $("#myAddress").text(ethWallet.address);
-ethCHD = new ethers.Contract(process.env.ETHEREUM_CHD, chdABI, ethWallet);
-gnoCHD = new ethers.Contract(process.env.GNOSIS_CHD, chdABI, gnoWallet);
-polCHD = new ethers.Contract(process.env.POLYGON_CHD, chdABI, polWallet);
-ethCharon = new ethers.Contract(
-  process.env.ETHEREUM_CHARON,
-  charonABI,
-  ethWallet
-);
-gnoCharon = new ethers.Contract(
-  process.env.GNOSIS_CHARON,
-  charonABI,
-  gnoWallet
-);
-polCharon = new ethers.Contract(
-  process.env.POLYGON_CHARON,
-  charonABI,
-  polWallet
-);
 
 function poseidon(inputs) {
   let val = builtPoseidon(inputs);
@@ -130,6 +116,7 @@ async function writeUTXOs() {
 function showPubKey() {
   myKeypair.address().then((result) => {
     $("#pubKey").text(result.substring(0, 40) + "...");
+    $("#pubKey").attr("title", result);
     myPubkey = result;
   });
   const pubKeyElement = document.querySelector("#pubKey");
@@ -301,8 +288,8 @@ async function setData() {
     setTimeout(() => {
       resolve("resolved");
       // document.body.classList.add("loaded");
-      $('#send').removeAttr('disabled');
-      $('#bridge').removeAttr('disabled');
+      $("#send").removeAttr("disabled");
+      $("#bridge").removeAttr("disabled");
     }, 2000);
   });
 }

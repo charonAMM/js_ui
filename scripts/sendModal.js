@@ -1,4 +1,4 @@
-let $ = require("jquery");
+const $ = require("jquery");
 const ethers = require("ethers");
 const {
   abi: chdABI,
@@ -14,36 +14,14 @@ const { prepareTransaction } = require("../src/index");
 const Utxo = require("../src/utxo");
 const { BigNumber } = ethers;
 let m, myKeypair, builtPoseidon;
-ethProvider = new ethers.providers.JsonRpcProvider(
-  process.env.NODE_URL_ETHEREUM
-);
-gnosisProvider = new ethers.providers.JsonRpcProvider(
-  process.env.NODE_URL_GNOSIS
-);
-polygonProvider = new ethers.providers.JsonRpcProvider(
-  process.env.NODE_URL_POLYGON
-);
-ethWallet = new ethers.Wallet(process.env.PRIVATE_KEY, ethProvider);
-gnoWallet = new ethers.Wallet(process.env.PRIVATE_KEY, gnosisProvider);
-polWallet = new ethers.Wallet(process.env.PRIVATE_KEY, polygonProvider);
-ethCHD = new ethers.Contract(process.env.ETHEREUM_CHD, chdABI, ethWallet);
-gnoCHD = new ethers.Contract(process.env.GNOSIS_CHD, chdABI, gnoWallet);
-polCHD = new ethers.Contract(process.env.POLYGON_CHD, chdABI, polWallet);
-ethCharon = new ethers.Contract(
-  process.env.ETHEREUM_CHARON,
-  charonABI,
-  ethWallet
-);
-gnoCharon = new ethers.Contract(
-  process.env.GNOSIS_CHARON,
-  charonABI,
-  gnoWallet
-);
-polCharon = new ethers.Contract(
-  process.env.POLYGON_CHARON,
-  charonABI,
-  polWallet
-);
+const {
+  ethCHD,
+  gnoCHD,
+  polCHD,
+  ethCharon,
+  gnoCharon,
+  polCharon,
+} = require("../src/tokens");
 
 const contents = fs.readFileSync("utxos.txt", "utf-8");
 const utxos = JSON.parse(contents);
@@ -185,6 +163,14 @@ async function send() {
   let _visType = $("#txType-switch").prop("checked") ? "private" : "public";
   let _withdrawal = $("#withdrawalCheckbox").val();
   let _adjTo = _to;
+  if (_to.trim() === "") {
+    window.alert("Please enter a valid address");
+    return;
+  }
+  if (_amount.trim() === "") {
+    window.alert("Please enter a valid amount");
+    return;
+  }
   if (_visType == "public") {
     if (_network == "ethereum") {
       ethCHD.transfer(_to, _amount).then((result) => console.log(result));
@@ -231,7 +217,7 @@ async function send() {
         }).then(function (inputData) {
           ethCharon
             .transact(inputData.args, inputData.extData)
-            .then((result) => console.log(result) );
+            .then((result) => console.log(result));
         });
       }
       window.alert(

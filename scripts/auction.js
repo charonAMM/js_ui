@@ -1,5 +1,5 @@
-let $ = require("jquery");
-let fs = require("fs");
+const $ = require("jquery");
+const fs = require("fs");
 const electron = require("electron");
 const { BrowserWindow } = require("@electron/remote");
 const url = require("url");
@@ -9,15 +9,11 @@ const {
   abi: citABI,
 } = require("../artifacts/incentiveToken/contracts/Auction.sol/Auction.json");
 require("dotenv").config();
-// //Check if file exists
-// Connect a wallet to mainnet
-ethProvider = new ethers.providers.JsonRpcProvider(
-  process.env.NODE_URL_ETHEREUM
-);
-
-ethWallet = new ethers.Wallet(process.env.PRIVATE_KEY, ethProvider);
+const {
+  ethWallet,
+} = require("../src/providers");
 $("#myAddress").text(ethWallet.address);
-ethCIT = new ethers.Contract(process.env.ETHEREUM_CIT, citABI, ethWallet);
+const ethCIT = new ethers.Contract(process.env.ETHEREUM_CIT, citABI, ethWallet);
 
 $("#bid").on("click", () => {
   makeBidModal();
@@ -92,7 +88,7 @@ function loadAndDisplay() {
 }
 
 function makeBidModal() {
-  bidModal = new BrowserWindow({
+  const bidModal = new BrowserWindow({
     width: 700,
     height: 350,
     webPreferences: {

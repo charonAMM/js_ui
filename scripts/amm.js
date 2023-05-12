@@ -1,5 +1,5 @@
-let $ = require("jquery");
-let fs = require("fs");
+const $ = require("jquery");
+const fs = require("fs");
 const electron = require("electron");
 const BrowserWindow = electron.BrowserWindow;
 const url = require("url");
@@ -14,57 +14,29 @@ const {
 require("dotenv").config();
 let ethBal, gnoBal, polBal;
 let chdEthBal, chdGnoBal, chdPolBal;
+const {
+  ethCHD,
+  gnoCHD,
+  polCHD,
+  ethCharon,
+  gnoCharon,
+  polCharon,
+  polygonBaseToken,
+  gnosisBaseToken,
+  ethBaseToken,
+} = require("../src/tokens");
+const {
+  ethProvider,
+  gnosisProvider,
+  polygonProvider,
+  ethWallet,
+  gnoWallet,
+  polWallet,
+} = require("../src/providers");
 const button = document.getElementById("swapButton");
 const text = document.getElementById("swapText");
 const loader = document.getElementById("swapLoader");
-// //Check if file exists
-// Connect a wallet to mainnet
-
-ethProvider = new ethers.providers.JsonRpcProvider(
-  process.env.NODE_URL_ETHEREUM
-);
-gnosisProvider = new ethers.providers.JsonRpcProvider(
-  process.env.NODE_URL_GNOSIS
-);
-polygonProvider = new ethers.providers.JsonRpcProvider(
-  process.env.NODE_URL_POLYGON
-);
-
-ethWallet = new ethers.Wallet(process.env.PRIVATE_KEY, ethProvider);
-gnoWallet = new ethers.Wallet(process.env.PRIVATE_KEY, gnosisProvider);
-polWallet = new ethers.Wallet(process.env.PRIVATE_KEY, polygonProvider);
 $("#myAddress").text(ethWallet.address);
-ethCHD = new ethers.Contract(process.env.ETHEREUM_CHD, chdABI, ethWallet);
-gnoCHD = new ethers.Contract(process.env.GNOSIS_CHD, chdABI, gnoWallet);
-polCHD = new ethers.Contract(process.env.POLYGON_CHD, chdABI, polWallet);
-
-ethCharon = new ethers.Contract(
-  process.env.ETHEREUM_CHARON,
-  charonABI,
-  ethWallet
-);
-gnoCharon = new ethers.Contract(
-  process.env.GNOSIS_CHARON,
-  charonABI,
-  gnoWallet
-);
-polCharon = new ethers.Contract(
-  process.env.POLYGON_CHARON,
-  charonABI,
-  polWallet
-);
-
-EthBaseToken = process.env.ETHEREUM_BASETOKEN;
-GnoBaseToken = process.env.GNOSIS_BASETOKEN;
-PolBaseToken = process.env.POLYGON_BASETOKEN;
-tokenABI = [
-  "function approve(address spender, uint256 amount) public returns (bool)",
-  "function balanceOf(address) view returns (uint)",
-];
-
-polygonBaseToken = new ethers.Contract(PolBaseToken, tokenABI, polWallet);
-gnosisBaseToken = new ethers.Contract(GnoBaseToken, tokenABI, gnoWallet);
-ethBaseToken = new ethers.Contract(EthBaseToken, tokenABI, ethWallet);
 
 async function setPublicBalances() {
   //chdTokens
