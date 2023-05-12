@@ -88,10 +88,10 @@ let chdEthBal, chdGnoBal, chdPolBal;
 
 loadBalances();
 async function loadBalances() {
-  //baseTokens
-  ethBal = await ethProvider.getBalance(ethWallet.address);
-  gnoBal = await gnosisProvider.getBalance(gnoWallet.address);
-  polBal = await polygonProvider.getBalance(polWallet.address);
+  // //baseTokens
+  ethBal = await ethBaseToken.balanceOf(ethWallet.address);
+  gnoBal = await gnosisBaseToken.balanceOf(gnoWallet.address);
+  polBal = await polygonBaseToken.balanceOf(polWallet.address);
 
   //chdTokens
   chdEthBal = await ethCHD.balanceOf(ethWallet.address);

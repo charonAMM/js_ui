@@ -10,19 +10,28 @@ ethProvider = new ethers.providers.JsonRpcProvider(
 );
 ethWallet = new ethers.Wallet(process.env.PRIVATE_KEY, ethProvider);
 ethCIT = new ethers.Contract(process.env.ETHEREUM_CIT, citABI, ethWallet);
-let ethBalance;
+let ethBalanceVal;
 const button = document.getElementById("signAndBid");
 const text = document.getElementById("bidText");
 const loader = document.getElementById("bidLoader");
 
+EthBaseToken = process.env.ETHEREUM_BASETOKEN;
+tokenABI = [
+  "function approve(address spender, uint256 amount) public returns (bool)",
+  "function balanceOf(address) view returns (uint)"
+];
+ethBaseToken = new ethers.Contract(EthBaseToken, tokenABI, ethWallet);
+
 $("#ethBalance").text("...");
-ethWallet.getBalance().then((result) => {
-  ethBalance = ethers.utils.formatEther(result);
-  $("#ethBalance").text(ethBalance);
+console.log(ethWallet.address);
+ethBaseToken.balanceOf(ethWallet.address).then((result) => {
+  ethBalanceVal = ethers.utils.formatEther(result)
+  $("#ethBalance").text(parseFloat(ethBalanceVal).toFixed(3));
 });
 $("#signAndBid").on("click", async () => {
-  const bidAmount = $("#bidAmount").val();
-  const currentTopBid = ethers.utils.formatEther(await ethCIT.currentTopBid());
+  const bidAmount = parseFloat($("#bidAmount").val());
+  const ethBalance = parseFloat(ethBalanceVal);
+  const currentTopBid = parseFloat(ethers.utils.formatEther(await ethCIT.currentTopBid()));
 
   try {
     if (
@@ -45,11 +54,16 @@ $("#signAndBid").on("click", async () => {
         return;
       }
       showLoadingAnimation();
+      await ethBaseToken.approve(
+        ethCIT.address,
+        ethers.utils.parseEther(bidAmount.toString()),
+        { gasLimit: 300000 }
+      );
       ethCIT
-        .bid(ethers.utils.parseEther(bidAmount), { gasLimit: 300000 })
+        .bid(ethers.utils.parseEther(bidAmount.toString()), { gasLimit: 300000 })
         .then((result) => {
           console.log(result);
-          window.alert("Bid successful. Your bid: " + bidAmount + " ETH");
+          window.alert("Transaction sent with hash: " + result.hash);
           loader.style.display = "none";
           text.style.display = "inline";
           button.disabled = false;
