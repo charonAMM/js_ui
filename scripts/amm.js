@@ -1,16 +1,5 @@
 const $ = require("jquery");
-const fs = require("fs");
-const electron = require("electron");
-const BrowserWindow = electron.BrowserWindow;
-const url = require("url");
-const path = require("path");
 const ethers = require("ethers");
-const {
-  abi: chdABI,
-} = require("../artifacts/charonAMM/contracts/CHD.sol/CHD.json");
-const {
-  abi: charonABI,
-} = require("../artifacts/charonAMM/contracts/Charon.sol/Charon.json");
 require("dotenv").config();
 let ethBal, gnoBal, polBal;
 let chdEthBal, chdGnoBal, chdPolBal;
@@ -316,13 +305,11 @@ async function calculateConversion() {
     toAmountBox.value = "";
     return;
   }
-
   toAmountBox.value = "...";
   const fromCurrencyDropdown = document.getElementById("from-currency");
   const toCurrencyDropdown = document.getElementById("to-currency");
   let spotPrice;
   let slippage;
-
   $("#slippage").text("...");
   $("#slippage").css("color", "white");
   $("#gas-estimate").text("...");

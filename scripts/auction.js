@@ -58,7 +58,6 @@ async function setPublicBalances() {
       try {
         $("#endFeeRoundButton").attr("disabled", true);
         const walletBalance = await ethWallet.getBalance();
-        console.log(ethers.utils.formatEther(walletBalance));
         await ethCIT
           .startNewAuction({
             gasLimit: 300000,

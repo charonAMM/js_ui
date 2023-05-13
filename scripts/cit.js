@@ -1,9 +1,4 @@
 const $ = require("jquery");
-const fs = require("fs");
-const electron = require("electron");
-const BrowserWindow = electron.BrowserWindow;
-const url = require("url");
-const path = require("path");
 const ethers = require("ethers");
 const {
   abi: citABI,

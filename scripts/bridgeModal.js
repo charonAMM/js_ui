@@ -35,6 +35,8 @@ const {
   gnosisBaseToken,
   ethBaseToken,
 } = require("../src/tokens");
+const isTestnet = process.env.IS_TESTNET === "true";
+const { ethWallet, gnoWallet, polWallet } = require("../src/providers");
 
 const fromNetworkSelect = document.getElementById("from");
 const toNetworkSelect = document.getElementById("to");
@@ -94,7 +96,7 @@ maxBtn.addEventListener("click", () => {
     if (tokenSelect.value === "CHD") {
       balance = chdEthBal;
     } else {
-      amountInput.value = ethBal;
+      balance = ethBal;
     }
   } else if (fromNetworkSelect.value === "gnosis") {
     if (tokenSelect.value === "CHD") {
@@ -125,23 +127,39 @@ function poseidon2(a, b) {
   return poseidon([a, b]);
 }
 
-async function checkBalance(_fromNetwork, _depositAmount) {
-  let _privAmount;
-  switch (_fromNetwork) {
-    case "ethereum":
-      _privAmount = parseInt(ethers.utils.parseEther(peVal.toString()));
-      break;
-    case "gnosis":
-      _privAmount = parseInt(ethers.utils.parseEther(pgVal.toString()));
-      break;
-    case "polygon":
-      _privAmount = parseInt(ethers.utils.parseEther(ppVal.toString()));
-      break;
+async function checkBalance(_fromNetwork, _depositAmount, _isChd) {
+  let _amount;
+  if (_isChd) {
+    switch (_fromNetwork) {
+      case "ethereum":
+        _amount = chdEthBal;
+        break;
+      case "gnosis":
+        _amount = chdGnoBal;
+        break;
+      case "polygon":
+        _amount = chdPolBal;
+        break;
+    }
+  } else {
+    switch (_fromNetwork) {
+      case "ethereum":
+        _amount = ethBal;
+        break;
+      case "gnosis":
+        _amount = gnoBal;
+        break;
+      case "polygon":
+        _amount = polBal;
+        break;
+    }
   }
-  if (_privAmount < parseInt(_depositAmount)) {
-    alert(`Not enough private balance on ${_fromNetwork}!`);
-    return;
+  if (parseFloat(_amount) < parseFloat(_depositAmount)) {
+    alert(`Not enough balance on ${_fromNetwork}!`);
+    enableBridgeButton();
+    return false;
   }
+  return true;
 }
 
 async function bridge() {
@@ -171,7 +189,7 @@ async function bridge() {
       );
     }
 
-    await checkBalance(_fromNetwork, _depositAmount);
+    if (!(await checkBalance(_fromNetwork, _depositAmount, _isChd))) return;
 
     const _utxo = new Utxo({
       amount: _depositAmount,
@@ -260,15 +278,28 @@ function getCharon(chain) {
 }
 
 function getChainID(chain) {
-  switch (chain) {
-    case "ethereum":
-      return 5;
-    case "gnosis":
-      return 10200;
-    case "polygon":
-      return 80001;
-    default:
-      return null;
+  if (isTestnet) {
+    switch (chain) {
+      case "ethereum":
+        return 5;
+      case "gnosis":
+        return 10200;
+      case "polygon":
+        return 80001;
+      default:
+        return null;
+    }
+  } else {
+    switch (chain) {
+      case "ethereum":
+        return 1;
+      case "gnosis":
+        return 100;
+      case "polygon":
+        return 137;
+      default:
+        return null;
+    }
   }
 }
 

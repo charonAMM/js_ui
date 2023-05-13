@@ -6,12 +6,6 @@ const url = require("url");
 const path = require("path");
 const ethers = require("ethers");
 const Utxo = require("../src/utxo");
-const {
-  abi: chdABI,
-} = require("../artifacts/charonAMM/contracts/CHD.sol/CHD.json");
-const {
-  abi: charonABI,
-} = require("../artifacts/charonAMM/contracts/Charon.sol/Charon.json");
 const { buildPoseidon } = require("circomlibjs");
 const { toFixedHex } = require("../src/utils.js");
 require("dotenv").config();
@@ -32,6 +26,7 @@ const {
   polWallet,
 } = require("../src/providers");
 const filename = "bootstrap";
+const isTestnet = process.env.IS_TESTNET === 'true';
 let builtPoseidon;
 let eVal, gVal, pVal, peVal, pgVal, ppVal;
 let origEval, origGval, origPval;
@@ -189,7 +184,7 @@ async function setData() {
             evtData[i].args._encryptedOutput,
             evtData[i].args._index
           );
-          eUtxo.chainID = 5;
+          eUtxo.chainID = getChainID('ethereum');
           if (
             eUtxo.amount > 0 &&
             toFixedHex(evtData[i].args._commitment) ==
@@ -224,7 +219,7 @@ async function setData() {
             evtData2[iii].args._encryptedOutput,
             evtData2[iii].args._index
           );
-          gUtxo.chainID = 10200;
+          gUtxo.chainID = getChainID('gnosis');
           if (
             gUtxo.amount > 0 &&
             toFixedHex(evtData2[iii].args._commitment) ==
@@ -259,7 +254,7 @@ async function setData() {
             evtData3[ii].args._encryptedOutput,
             evtData3[ii].args._index
           );
-          pUtxo.chainID = 80001;
+          pUtxo.chainID = getChainID('polygon');
           if (
             pUtxo.amount > 0 &&
             toFixedHex(evtData3[ii].args._commitment) ==
@@ -292,6 +287,32 @@ async function setData() {
       $("#bridge").removeAttr("disabled");
     }, 2000);
   });
+}
+
+function getChainID(chain) {
+  if (isTestnet) {
+    switch (chain) {
+      case "ethereum":
+        return 5;
+      case "gnosis":
+        return 10200;
+      case "polygon":
+        return 80001;
+      default:
+        return null;
+    }
+  } else {
+    switch (chain) {
+      case "ethereum":
+        return 1;
+      case "gnosis":
+        return 100;
+      case "polygon":
+        return 137;
+      default:
+        return null;
+    }
+  }
 }
 
 $("#send").on("click", () => {
