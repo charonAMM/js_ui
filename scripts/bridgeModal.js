@@ -178,6 +178,7 @@ async function bridge() {
   const _charon = getCharon(_fromNetwork);
   const _targetChainID = getChainID(_toNetwork);
   const _isChd = _token === "CHD";
+  if (!(await checkBalance(_fromNetwork, _depositAmount, _isChd))) return;
 
   try {
     if (!_isChd) {
@@ -189,7 +190,6 @@ async function bridge() {
       );
     }
 
-    if (!(await checkBalance(_fromNetwork, _depositAmount, _isChd))) return;
 
     const _utxo = new Utxo({
       amount: _depositAmount,
