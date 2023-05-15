@@ -182,7 +182,7 @@ async function bridge() {
 
   try {
     if (!_isChd) {
-      _amount = await _charon.calcInGivenOut(
+      _amount = await _charon.calcOutGivenIn(
         await _charon.recordBalance(),
         await _charon.recordBalanceSynth(),
         _depositAmount,
@@ -190,9 +190,8 @@ async function bridge() {
       );
     }
 
-
     const _utxo = new Utxo({
-      amount: _depositAmount,
+      amount: _isChd ? _depositAmount : _amount,
       myHashFunc: poseidon,
       chainID: _targetChainID,
       keypair: _myKeypair,

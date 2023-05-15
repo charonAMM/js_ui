@@ -28,17 +28,17 @@ const polCharon = new ethers.Contract(
   polWallet
 );
 
-const EthBaseToken = process.env.ETHEREUM_BASETOKEN;
-const GnoBaseToken = process.env.GNOSIS_BASETOKEN;
-const PolBaseToken = process.env.POLYGON_BASETOKEN;
+const ETHBASETOKEN = process.env.ETHEREUM_BASETOKEN;
+const GNOBASETOKEN = process.env.GNOSIS_BASETOKEN;
+const POLBASETOKEN = process.env.POLYGON_BASETOKEN;
 const tokenABI = [
   "function approve(address spender, uint256 amount) public returns (bool)",
   "function balanceOf(address) view returns (uint)",
 ];
 
-const polygonBaseToken = new ethers.Contract(PolBaseToken, tokenABI, polWallet);
-const gnosisBaseToken = new ethers.Contract(GnoBaseToken, tokenABI, gnoWallet);
-const ethBaseToken = new ethers.Contract(EthBaseToken, tokenABI, ethWallet);
+const polygonBaseToken = new ethers.Contract(POLBASETOKEN, tokenABI, polWallet);
+const gnosisBaseToken = new ethers.Contract(GNOBASETOKEN, tokenABI, gnoWallet);
+const ethBaseToken = new ethers.Contract(ETHBASETOKEN, tokenABI, ethWallet);
 
 module.exports = {
   ethCHD,
