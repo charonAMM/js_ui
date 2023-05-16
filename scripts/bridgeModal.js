@@ -308,52 +308,45 @@ function enableBridgeButton() {
   button.disabled = false;
 }
 
+function updateOptionStatus(select1, select2) {
+  for (let i = 0; i < select1.options.length; i++) {
+    const option = select1.options[i];
+    option.disabled = (option.value === select2.value);
+    if (option.disabled && select1.value === option.value) {
+      select2.selectedIndex = (i + 1) % select2.options.length;
+    }
+  }
+}
+
+function updateTokenOptions(network) {
+  let tokens;
+  switch (network) {
+    case 'ethereum':
+      tokens = ['ETH', 'CHD'];
+      break;
+    case 'gnosis':
+      tokens = ['GNO', 'CHD'];
+      break;
+    case 'polygon':
+      tokens = ['MATIC', 'CHD'];
+      break;
+    default:
+      tokens = [];
+  }
+
+  tokenSelect.innerHTML = tokens.map(token => `<option value="${token}">${token}</option>`).join('');
+}
+
 function updateToNetworkOptions() {
   fromNetworkSelect[2].disabled = false;
   toNetworkSelect[0].disabled = false;
-  for (let i = 0; i < toNetworkSelect.options.length; i++) {
-    const option = toNetworkSelect.options[i];
-    if (option.value === fromNetworkSelect.value) {
-      option.disabled = true;
-      if (toNetworkSelect.value === option.value) {
-        fromNetworkSelect.selectedIndex = i + 1;
-      }
-    } else {
-      option.disabled = false;
-    }
-  }
 
-  for (let i = 0; i < fromNetworkSelect.options.length; i++) {
-    const option = fromNetworkSelect.options[i];
-    if (option.value === toNetworkSelect.value) {
-      option.disabled = true;
-      if (fromNetworkSelect.value === option.value) {
-        toNetworkSelect.selectedIndex = i + 1;
-      }
-    } else {
-      option.disabled = false;
-    }
-  }
+  updateOptionStatus(toNetworkSelect, fromNetworkSelect);
+  updateOptionStatus(fromNetworkSelect, toNetworkSelect);
 
-  if (fromNetworkSelect.value === "ethereum") {
-    tokenSelect.innerHTML = `
-      <option value="ETH">ETH</option>
-      <option value="CHD">CHD</option>
-    `;
-  }
-  if (fromNetworkSelect.value === "gnosis") {
-    tokenSelect.innerHTML = `
-    <option value="GNO">GNO</option>
-    <option value="CHD">CHD</option>
-  `;
-  }
-  if (fromNetworkSelect.value === "polygon") {
-    tokenSelect.innerHTML = `
-    <option value="MATIC">MATIC</option>
-    <option value="CHD">CHD</option>
-  `;
-  }
+  updateTokenOptions(fromNetworkSelect.value);
 }
+
 
 async function prepareTransaction({
   charon,
