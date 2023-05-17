@@ -1,21 +1,32 @@
-let $ = require("jquery");
-let fs = require("fs");
+const $ = require("jquery");
+const fs = require("fs");
 const { BrowserWindow } = require("@electron/remote");
 const { Keypair } = require("../src/keypair");
 const url = require("url");
 const path = require("path");
 const ethers = require("ethers");
 const Utxo = require("../src/utxo");
-const {
-  abi: chdABI,
-} = require("../artifacts/charonAMM/contracts/CHD.sol/CHD.json");
-const {
-  abi: charonABI,
-} = require("../artifacts/charonAMM/contracts/Charon.sol/Charon.json");
 const { buildPoseidon } = require("circomlibjs");
 const { toFixedHex } = require("../src/utils.js");
 require("dotenv").config();
-let filename = "bootstrap";
+const {
+  ethCHD,
+  gnoCHD,
+  polCHD,
+  ethCharon,
+  gnoCharon,
+  polCharon,
+} = require("../src/tokens");
+const {
+  ethProvider,
+  gnosisProvider,
+  polygonProvider,
+  ethWallet,
+  gnoWallet,
+  polWallet,
+} = require("../src/providers");
+const filename = "bootstrap";
+const isTestnet = process.env.IS_TESTNET === 'true';
 let builtPoseidon;
 let eVal, gVal, pVal, peVal, pgVal, ppVal;
 let origEval, origGval, origPval;
@@ -28,37 +39,7 @@ let gnoUTXOs = [];
 let myKeypair;
 let myPubkey = "0x000000";
 
-ethProvider = new ethers.providers.JsonRpcProvider(
-  process.env.NODE_URL_ETHEREUM
-);
-gnosisProvider = new ethers.providers.JsonRpcProvider(
-  process.env.NODE_URL_GNOSIS
-);
-polygonProvider = new ethers.providers.JsonRpcProvider(
-  process.env.NODE_URL_POLYGON
-);
-ethWallet = new ethers.Wallet(process.env.PRIVATE_KEY, ethProvider);
-gnoWallet = new ethers.Wallet(process.env.PRIVATE_KEY, gnosisProvider);
-polWallet = new ethers.Wallet(process.env.PRIVATE_KEY, polygonProvider);
 $("#myAddress").text(ethWallet.address);
-ethCHD = new ethers.Contract(process.env.ETHEREUM_CHD, chdABI, ethWallet);
-gnoCHD = new ethers.Contract(process.env.GNOSIS_CHD, chdABI, gnoWallet);
-polCHD = new ethers.Contract(process.env.POLYGON_CHD, chdABI, polWallet);
-ethCharon = new ethers.Contract(
-  process.env.ETHEREUM_CHARON,
-  charonABI,
-  ethWallet
-);
-gnoCharon = new ethers.Contract(
-  process.env.GNOSIS_CHARON,
-  charonABI,
-  gnoWallet
-);
-polCharon = new ethers.Contract(
-  process.env.POLYGON_CHARON,
-  charonABI,
-  polWallet
-);
 
 function poseidon(inputs) {
   let val = builtPoseidon(inputs);
@@ -130,6 +111,7 @@ async function writeUTXOs() {
 function showPubKey() {
   myKeypair.address().then((result) => {
     $("#pubKey").text(result.substring(0, 40) + "...");
+    $("#pubKey").attr("title", result);
     myPubkey = result;
   });
   const pubKeyElement = document.querySelector("#pubKey");
@@ -202,7 +184,7 @@ async function setData() {
             evtData[i].args._encryptedOutput,
             evtData[i].args._index
           );
-          eUtxo.chainID = 5;
+          eUtxo.chainID = getChainID('ethereum');
           if (
             eUtxo.amount > 0 &&
             toFixedHex(evtData[i].args._commitment) ==
@@ -237,7 +219,7 @@ async function setData() {
             evtData2[iii].args._encryptedOutput,
             evtData2[iii].args._index
           );
-          gUtxo.chainID = 10200;
+          gUtxo.chainID = getChainID('gnosis');
           if (
             gUtxo.amount > 0 &&
             toFixedHex(evtData2[iii].args._commitment) ==
@@ -272,7 +254,7 @@ async function setData() {
             evtData3[ii].args._encryptedOutput,
             evtData3[ii].args._index
           );
-          pUtxo.chainID = 80001;
+          pUtxo.chainID = getChainID('polygon');
           if (
             pUtxo.amount > 0 &&
             toFixedHex(evtData3[ii].args._commitment) ==
@@ -301,8 +283,36 @@ async function setData() {
     setTimeout(() => {
       resolve("resolved");
       // document.body.classList.add("loaded");
+      $("#send").removeAttr("disabled");
+      $("#bridge").removeAttr("disabled");
     }, 2000);
   });
+}
+
+function getChainID(chain) {
+  if (isTestnet) {
+    switch (chain) {
+      case "ethereum":
+        return 5;
+      case "gnosis":
+        return 10200;
+      case "polygon":
+        return 80001;
+      default:
+        return null;
+    }
+  } else {
+    switch (chain) {
+      case "ethereum":
+        return 1;
+      case "gnosis":
+        return 100;
+      case "polygon":
+        return 137;
+      default:
+        return null;
+    }
+  }
 }
 
 $("#send").on("click", () => {

@@ -1,4 +1,4 @@
-let $ = require("jquery");
+const $ = require("jquery");
 const ethers = require("ethers");
 const { BigNumber } = ethers;
 const {
@@ -24,50 +24,19 @@ const { prove } = require("../src/prover.js");
 const MERKLE_TREE_HEIGHT = 23;
 require("dotenv").config();
 const gasLimit = 3000000;
-
-ethProvider = new ethers.providers.JsonRpcProvider(
-  process.env.NODE_URL_ETHEREUM
-);
-gnosisProvider = new ethers.providers.JsonRpcProvider(
-  process.env.NODE_URL_GNOSIS
-);
-polygonProvider = new ethers.providers.JsonRpcProvider(
-  process.env.NODE_URL_POLYGON
-);
-
-ethWallet = new ethers.Wallet(process.env.PRIVATE_KEY, ethProvider);
-gnoWallet = new ethers.Wallet(process.env.PRIVATE_KEY, gnosisProvider);
-polWallet = new ethers.Wallet(process.env.PRIVATE_KEY, polygonProvider);
-
-ethCharon = new ethers.Contract(
-  process.env.ETHEREUM_CHARON,
-  charonABI,
-  ethWallet
-);
-gnoCharon = new ethers.Contract(
-  process.env.GNOSIS_CHARON,
-  charonABI,
-  gnoWallet
-);
-polCharon = new ethers.Contract(
-  process.env.POLYGON_CHARON,
-  charonABI,
-  polWallet
-);
-ethCHD = new ethers.Contract(process.env.ETHEREUM_CHD, chdABI, ethWallet);
-gnoCHD = new ethers.Contract(process.env.GNOSIS_CHD, chdABI, gnoWallet);
-polCHD = new ethers.Contract(process.env.POLYGON_CHD, chdABI, polWallet);
-
-ETHBaseToken = process.env.ETHEREUM_BASETOKEN;
-GNOBaseToken = process.env.GNOSIS_BASETOKEN;
-POLBaseToken = process.env.POLYGON_BASETOKEN;
-approveABI = [
-  "function approve(address spender, uint256 amount) public returns (bool)",
-];
-
-polBaseToken = new ethers.Contract(POLBaseToken, approveABI, polWallet);
-gnoBaseToken = new ethers.Contract(GNOBaseToken, approveABI, gnoWallet);
-ethBaseToken = new ethers.Contract(ETHBaseToken, approveABI, ethWallet);
+const {
+  ethCHD,
+  gnoCHD,
+  polCHD,
+  ethCharon,
+  gnoCharon,
+  polCharon,
+  polygonBaseToken,
+  gnosisBaseToken,
+  ethBaseToken,
+} = require("../src/tokens");
+const isTestnet = process.env.IS_TESTNET === "true";
+const { ethWallet, gnoWallet, polWallet } = require("../src/providers");
 
 const fromNetworkSelect = document.getElementById("from");
 const toNetworkSelect = document.getElementById("to");
@@ -88,10 +57,10 @@ let chdEthBal, chdGnoBal, chdPolBal;
 
 loadBalances();
 async function loadBalances() {
-  //baseTokens
-  ethBal = await ethProvider.getBalance(ethWallet.address);
-  gnoBal = await gnosisProvider.getBalance(gnoWallet.address);
-  polBal = await polygonProvider.getBalance(polWallet.address);
+  // //baseTokens
+  ethBal = await ethBaseToken.balanceOf(ethWallet.address);
+  gnoBal = await gnosisBaseToken.balanceOf(gnoWallet.address);
+  polBal = await polygonBaseToken.balanceOf(polWallet.address);
 
   //chdTokens
   chdEthBal = await ethCHD.balanceOf(ethWallet.address);
@@ -127,7 +96,7 @@ maxBtn.addEventListener("click", () => {
     if (tokenSelect.value === "CHD") {
       balance = chdEthBal;
     } else {
-      amountInput.value = ethBal;
+      balance = ethBal;
     }
   } else if (fromNetworkSelect.value === "gnosis") {
     if (tokenSelect.value === "CHD") {
@@ -158,23 +127,39 @@ function poseidon2(a, b) {
   return poseidon([a, b]);
 }
 
-async function checkBalance(_fromNetwork, _depositAmount) {
-  let _privAmount;
-  switch (_fromNetwork) {
-    case "ethereum":
-      _privAmount = parseInt(ethers.utils.parseEther(peVal.toString()));
-      break;
-    case "gnosis":
-      _privAmount = parseInt(ethers.utils.parseEther(pgVal.toString()));
-      break;
-    case "polygon":
-      _privAmount = parseInt(ethers.utils.parseEther(ppVal.toString()));
-      break;
+async function checkBalance(_fromNetwork, _depositAmount, _isChd) {
+  let _amount;
+  if (_isChd) {
+    switch (_fromNetwork) {
+      case "ethereum":
+        _amount = chdEthBal;
+        break;
+      case "gnosis":
+        _amount = chdGnoBal;
+        break;
+      case "polygon":
+        _amount = chdPolBal;
+        break;
+    }
+  } else {
+    switch (_fromNetwork) {
+      case "ethereum":
+        _amount = ethBal;
+        break;
+      case "gnosis":
+        _amount = gnoBal;
+        break;
+      case "polygon":
+        _amount = polBal;
+        break;
+    }
   }
-  if (_privAmount < parseInt(_depositAmount)) {
-    alert(`Not enough private balance on ${_fromNetwork}!`);
-    return;
+  if (parseFloat(_amount) < parseFloat(_depositAmount)) {
+    alert(`Not enough balance on ${_fromNetwork}!`);
+    enableBridgeButton();
+    return false;
   }
+  return true;
 }
 
 async function bridge() {
@@ -193,10 +178,11 @@ async function bridge() {
   const _charon = getCharon(_fromNetwork);
   const _targetChainID = getChainID(_toNetwork);
   const _isChd = _token === "CHD";
+  if (!(await checkBalance(_fromNetwork, _depositAmount, _isChd))) return;
 
   try {
     if (!_isChd) {
-      _amount = await _charon.calcInGivenOut(
+      _amount = await _charon.calcOutGivenIn(
         await _charon.recordBalance(),
         await _charon.recordBalanceSynth(),
         _depositAmount,
@@ -204,10 +190,8 @@ async function bridge() {
       );
     }
 
-    await checkBalance(_fromNetwork, _depositAmount);
-
     const _utxo = new Utxo({
-      amount: _depositAmount,
+      amount: _isChd ? _depositAmount : _amount,
       myHashFunc: poseidon,
       chainID: _targetChainID,
       keypair: _myKeypair,
@@ -258,9 +242,9 @@ function getBaseToken(_chain) {
     case "ethereum":
       return ethBaseToken;
     case "gnosis":
-      return gnoBaseToken;
+      return gnosisBaseToken;
     case "polygon":
-      return polBaseToken;
+      return polygonBaseToken;
     default:
       return null;
   }
@@ -293,15 +277,28 @@ function getCharon(chain) {
 }
 
 function getChainID(chain) {
-  switch (chain) {
-    case "ethereum":
-      return 5;
-    case "gnosis":
-      return 10200;
-    case "polygon":
-      return 80001;
-    default:
-      return null;
+  if (isTestnet) {
+    switch (chain) {
+      case "ethereum":
+        return 5;
+      case "gnosis":
+        return 10200;
+      case "polygon":
+        return 80001;
+      default:
+        return null;
+    }
+  } else {
+    switch (chain) {
+      case "ethereum":
+        return 1;
+      case "gnosis":
+        return 100;
+      case "polygon":
+        return 137;
+      default:
+        return null;
+    }
   }
 }
 
@@ -311,52 +308,45 @@ function enableBridgeButton() {
   button.disabled = false;
 }
 
+function updateOptionStatus(select1, select2) {
+  for (let i = 0; i < select1.options.length; i++) {
+    const option = select1.options[i];
+    option.disabled = (option.value === select2.value);
+    if (option.disabled && select1.value === option.value) {
+      select2.selectedIndex = (i + 1) % select2.options.length;
+    }
+  }
+}
+
+function updateTokenOptions(network) {
+  let tokens;
+  switch (network) {
+    case 'ethereum':
+      tokens = ['ETH', 'CHD'];
+      break;
+    case 'gnosis':
+      tokens = ['GNO', 'CHD'];
+      break;
+    case 'polygon':
+      tokens = ['MATIC', 'CHD'];
+      break;
+    default:
+      tokens = [];
+  }
+
+  tokenSelect.innerHTML = tokens.map(token => `<option value="${token}">${token}</option>`).join('');
+}
+
 function updateToNetworkOptions() {
   fromNetworkSelect[2].disabled = false;
   toNetworkSelect[0].disabled = false;
-  for (let i = 0; i < toNetworkSelect.options.length; i++) {
-    const option = toNetworkSelect.options[i];
-    if (option.value === fromNetworkSelect.value) {
-      option.disabled = true;
-      if (toNetworkSelect.value === option.value) {
-        fromNetworkSelect.selectedIndex = i + 1;
-      }
-    } else {
-      option.disabled = false;
-    }
-  }
 
-  for (let i = 0; i < fromNetworkSelect.options.length; i++) {
-    const option = fromNetworkSelect.options[i];
-    if (option.value === toNetworkSelect.value) {
-      option.disabled = true;
-      if (fromNetworkSelect.value === option.value) {
-        toNetworkSelect.selectedIndex = i + 1;
-      }
-    } else {
-      option.disabled = false;
-    }
-  }
+  updateOptionStatus(toNetworkSelect, fromNetworkSelect);
+  updateOptionStatus(fromNetworkSelect, toNetworkSelect);
 
-  if (fromNetworkSelect.value === "ethereum") {
-    tokenSelect.innerHTML = `
-      <option value="ETH">ETH</option>
-      <option value="CHD">CHD</option>
-    `;
-  }
-  if (fromNetworkSelect.value === "gnosis") {
-    tokenSelect.innerHTML = `
-    <option value="GNO">GNO</option>
-    <option value="CHD">CHD</option>
-  `;
-  }
-  if (fromNetworkSelect.value === "polygon") {
-    tokenSelect.innerHTML = `
-    <option value="MATIC">MATIC</option>
-    <option value="CHD">CHD</option>
-  `;
-  }
+  updateTokenOptions(fromNetworkSelect.value);
 }
+
 
 async function prepareTransaction({
   charon,
