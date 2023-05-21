@@ -11,22 +11,16 @@ let m, myKeypair, builtPoseidon;
 const {
   sepoliaCHD,
   sepoliaCharon,
-  sepoliaBaseToken,
   chiadoCHD,
   chiadoCharon,
-  chiadoBaseToken,
   mumbaiCHD,
   mumbaiCharon,
-  mumbaiBaseToken,
   gnosisCHD,
   gnosisCharon,
-  gnosisBaseToken,
   polygonCHD,
   polygonCharon,
-  polygonBaseToken,
   optimismCHD,
   optimismCharon,
-  optimismBaseToken,
 } = require("../src/tokens");
 
 const contents = fs.readFileSync("utxos.txt", "utf-8");
@@ -290,7 +284,7 @@ async function send() {
       //ADD checkbox if withdraw, add MAX button to autofill balance
       //get amount and address (can we just use an address?  Test that that person can then do something with it, if not, you need a registry?)
       await prepareSend(m.sepoliaUTXOs, getChainID(_network));
-      if (newUTX0s.length > 0 || changeUTXOs > 0) {
+      if (newUTXOs.length > 0 || changeUtxos > 0) {
         prepareTransaction({
           charon: sepoliaCharon,
           inputs: newUTXOs,
@@ -313,7 +307,7 @@ async function send() {
       //ADD checkbox if withdraw, add MAX button to autofill balance
       //get amount and address (can we just use an address?  Test that that person can then do something with it, if not, you need a registry?)
       await prepareSend(m.mumbaiUTXOs, getChainID(_network));
-      if (newUTX0s.length > 0 || changeUTXOs > 0) {
+      if (newUTXOs.length > 0 || changeUtxos > 0) {
         prepareTransaction({
           charon: mumbaiCharon,
           inputs: newUTXOs,
@@ -336,7 +330,7 @@ async function send() {
       //ADD checkbox if withdraw, add MAX button to autofill balance
       //get amount and address (can we just use an address?  Test that that person can then do something with it, if not, you need a registry?)
       await prepareSend(m.chiadoUTXOs, getChainID(_network));
-      if (newUTX0s.length > 0 || changeUTXOs > 0) {
+      if (newUTXOs.length > 0 || changeUtxos > 0) {
         prepareTransaction({
           charon: chiadoCharon,
           inputs: newUTXOs,
@@ -360,9 +354,9 @@ async function send() {
       //ADD checkbox if withdraw, add MAX button to autofill balance
       //get amount and address (can we just use an address?  Test that that person can then do something with it, if not, you need a registry?)
       await prepareSend(m.gnoUTXOs, getChainID(_network));
-      if (newUTX0s.length > 0 || changeUTXOs > 0) {
+      if (newUTXOs.length > 0 || changeUtxos > 0) {
         prepareTransaction({
-          charon: gnoCharon,
+          charon: gnosisCharon,
           inputs: newUTXOs,
           outputs: changeUtxos,
           recipient: _adjTo,
@@ -370,7 +364,7 @@ async function send() {
           myHasherFunc: poseidon,
           myHasherFunc2: poseidon2,
         }).then(function (inputData) {
-          gnoCharon
+          gnosisCharon
             .transact(inputData.args, inputData.extData)
             .then((result) =>
               window.alert(
@@ -383,9 +377,9 @@ async function send() {
       //ADD checkbox if withdraw, add MAX button to autofill balance
       //get amount and address (can we just use an address?  Test that that person can then do something with it, if not, you need a registry?)
       await prepareSend(m.polUTXOs, getChainID(_network));
-      if (newUTX0s.length > 0 || changeUTXOs > 0) {
+      if (newUTXOs.length > 0 || changeUtxos > 0) {
         prepareTransaction({
-          charon: polCharon,
+          charon: polygonCharon,
           inputs: newUTXOs,
           outputs: changeUtxos,
           recipient: _adjTo,
@@ -393,7 +387,7 @@ async function send() {
           myHasherFunc: poseidon,
           myHasherFunc2: poseidon2,
         }).then(function (inputData) {
-          polCharon
+          polygonCharon
             .transact(inputData.args, inputData.extData)
             .then((result) =>
               window.alert(
@@ -408,9 +402,9 @@ async function send() {
       //ADD checkbox if withdraw, add MAX button to autofill balance
       //get amount and address (can we just use an address?  Test that that person can then do something with it, if not, you need a registry?)
       await prepareSend(m.optUTXOs, getChainID(_network));
-      if (newUTX0s.length > 0 || changeUTXOs > 0) {
+      if (newUTXOs.length > 0 || changeUtxos > 0) {
         prepareTransaction({
-          charon: optCharon,
+          charon: optimismCharon,
           inputs: newUTXOs,
           outputs: changeUtxos,
           recipient: _adjTo,
@@ -418,7 +412,7 @@ async function send() {
           myHasherFunc: poseidon,
           myHasherFunc2: poseidon2,
         }).then(function (inputData) {
-          optCharon
+          optimismCharon
             .transact(inputData.args, inputData.extData)
             .then((result) =>
               window.alert(
