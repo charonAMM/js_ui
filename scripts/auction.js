@@ -1,6 +1,4 @@
 const $ = require("jquery");
-const fs = require("fs");
-const electron = require("electron");
 const { BrowserWindow } = require("@electron/remote");
 const url = require("url");
 const path = require("path");
@@ -10,10 +8,18 @@ const {
 } = require("../artifacts/incentiveToken/contracts/Auction.sol/Auction.json");
 require("dotenv").config();
 const {
-  ethWallet,
+  sepoliaWallet,
+  gnosisWallet,
 } = require("../src/providers");
-$("#myAddress").text(ethWallet.address);
-const ethCIT = new ethers.Contract(process.env.ETHEREUM_CIT, citABI, ethWallet);
+const isTestnet = process.env.IS_TESTNET === "true";
+
+$("#myAddress").text(isTestnet ? sepoliaWallet.address : gnosisWallet.address);
+let CIT;
+if (isTestnet) {
+  CIT = new ethers.Contract(process.env.SEPOLIA_CIT, citABI, sepoliaWallet);
+} else {
+  CIT = new ethers.Contract(process.env.GNOSIS_CIT, citABI, gnosisWallet);
+}
 
 $("#bid").on("click", () => {
   makeBidModal();
@@ -38,8 +44,8 @@ function timeLeft(timestamp) {
 }
 
 async function setPublicBalances() {
-  await ethCIT.topBidder().then((result) => $("#topBidder").text(result));
-  await ethCIT
+  await CIT.topBidder().then((result) => $("#topBidder").text(result));
+  await CIT
     .currentTopBid()
     .then((result) =>
       $("#topBid").text(
@@ -49,7 +55,7 @@ async function setPublicBalances() {
 
   const currentDate = new Date();
   const currentUnix = Math.floor(currentDate.getTime() / 1000);
-  const endDateUnix = await ethCIT.endDate();
+  const endDateUnix = await CIT.endDate();
 
   if (endDateUnix <= currentUnix) {
     $("#timeLeft").text("0 day, 0 hours, 0 minutes,");
@@ -57,8 +63,7 @@ async function setPublicBalances() {
     $("#endFeeRoundButton").on("click", async () => {
       try {
         $("#endFeeRoundButton").attr("disabled", true);
-        const walletBalance = await ethWallet.getBalance();
-        await ethCIT
+        await CIT
           .startNewAuction({
             gasLimit: 300000,
           })
@@ -76,7 +81,7 @@ async function setPublicBalances() {
       }
     });
   } else {
-    await ethCIT
+    await CIT
       .endDate()
       .then((result) => $("#timeLeft").text(timeLeft(result * 1000)));
     $("#bid").removeAttr("disabled");

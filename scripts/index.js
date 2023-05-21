@@ -10,36 +10,54 @@ const { buildPoseidon } = require("circomlibjs");
 const { toFixedHex } = require("../src/utils.js");
 require("dotenv").config();
 const {
-  ethCHD,
-  gnoCHD,
-  polCHD,
-  ethCharon,
-  gnoCharon,
-  polCharon,
+  sepoliaCHD,
+  sepoliaCharon,
+  chiadoCHD,
+  chiadoCharon,
+  mumbaiCHD,
+  mumbaiCharon,
+  gnosisCHD,
+  gnosisCharon,
+  polygonCHD,
+  polygonCharon,
+  optimismCHD,
+  optimismCharon,
 } = require("../src/tokens");
 const {
-  ethProvider,
+  sepoliaWallet,
+  gnosisWallet,
+  sepoliaProvider,
+  mumbaiProvider,
+  chiadoProvider,
   gnosisProvider,
   polygonProvider,
-  ethWallet,
-  gnoWallet,
-  polWallet,
+  optimismProvider,
 } = require("../src/providers");
 const filename = "bootstrap";
 const isTestnet = process.env.IS_TESTNET === 'true';
 let builtPoseidon;
-let eVal, gVal, pVal, peVal, pgVal, ppVal;
-let origEval, origGval, origPval;
-let ethSet = [0, 0]; //block, balnce initSet
+let psVal, pmVal, pcVal, pgVal, ppVal, poVal;
+let sVal, mVal, cVal, gVal, pVal, oVal;
+let origSval, origMval, origCval, origGval, origPval, origOval;
+let sepSet = [0, 0]; //block, balnce initSet
+let mumSet = [0, 0]; //block, balnce initSet
+let chiSet = [0, 0]; //block, balnce initSet
 let gnoSet = [0, 0]; //block, balnce initSet
 let polSet = [0, 0]; //block, balnce initSet
+let optSet = [0, 0]; //block, balnce initSet
 let polUTXOs = []; //beSure to add in save mode
-let ethUTXOs = [];
+let sepUTXOs = [];
+let mumUTXOs = [];
+let chiUTXOs = [];
 let gnoUTXOs = [];
+let optUTXOs = [];
 let myKeypair;
 let myPubkey = "0x000000";
+let myAddress;
 
-$("#myAddress").text(ethWallet.address);
+isTestnet ? myAddress = sepoliaWallet.address : myAddress = gnosisWallet.address;
+
+$("#myAddress").text(myAddress);
 
 function poseidon(inputs) {
   let val = builtPoseidon(inputs);
@@ -89,20 +107,31 @@ function makeBridgeModal() {
 async function writeUTXOs() {
   try {
     fs.unlinkSync("utxos.txt");
-  } catch {}
+  } catch { }
   const sendVars = {
+    sepoliaUTXOs: sepUTXOs,
+    chiadoUTXOs: chiUTXOs,
+    mumbaiUTXOs: mumUTXOs,
+    optimismUTXOs: optUTXOs,
     polUTXOs: polUTXOs,
     gnoUTXOs: gnoUTXOs,
-    ethUTXOs: ethUTXOs,
+    psVal: sepSet[1],
+    pcVal: chiSet[1],
+    pmVal: mumSet[1],
     ppVal: polSet[1],
-    peVal: ethSet[1],
     pgVal: gnoSet[1],
-    lastBlockEth: ethSet[0],
     lastBlockGno: gnoSet[0],
     lastBlockPol: polSet[0],
-    eVal: origEval,
+    lastBlockSep: sepSet[0],
+    lastBlockChi: chiSet[0],
+    lastBlockMum: mumSet[0],
+    lastBlockOpt: optSet[0],
+    sVal: origSval,
+    mVal: origMval,
+    cVal: origCval,
     gVal: origGval,
     pVal: origPval,
+    oVal: origOval,
     publicKey: myPubkey,
   };
   fs.writeFileSync("utxos.txt", JSON.stringify(sendVars));
@@ -140,178 +169,164 @@ function showPubKey() {
   });
 }
 
-async function setData() {
+async function setKeypair() {
   myKeypair = new Keypair({
     privkey: process.env.PRIVATE_KEY,
     myHashFunc: poseidon,
   });
   await showPubKey();
+}
 
-  let contents;
-  let ethStartBlock, gnoStartBlock, polStartBlock;
+function readFileContents(file) {
+  if (fs.existsSync(file)) {
+    const fileContents = fs.readFileSync(file, "utf-8");
+    return JSON.parse(fileContents);
+  }
+  return null;
+}
 
-  if (fs.existsSync("utxos.txt")) {
-    const file = fs.readFileSync("utxos.txt", "utf-8");
-    contents = JSON.parse(file);
-    if (contents.publicKey == myPubkey) {
-      ethStartBlock = contents.lastBlockEth;
-      gnoStartBlock = contents.lastBlockGno;
-      polStartBlock = contents.lastBlockPol;
-      ethSet[1] = contents.peVal;
-      gnoSet[1] = contents.pgVal;
-      polSet[1] = contents.ppVal;
-      ethUTXOs = contents.ethUTXOs;
-      gnoUTXOs = contents.gnoUTXOs;
-      polUTXOs = contents.polUTXOs;
+function initializeStartBlocks(contents, isTestnet) {
+  let startBlocks = {};
+  if (contents && contents.publicKey == myPubkey) {
+    if (isTestnet) {
+      startBlocks = {
+        sepolia: contents.lastBlockSep,
+        mumbai: contents.lastBlockMum,
+        chiado: contents.lastBlockChi,
+      };
+    } else {
+      startBlocks = {
+        gnosis: contents.lastBlockGno,
+        polygon: contents.lastBlockPol,
+        optimism: contents.lastBlockOpt,
+      };
     }
   } else {
-    ethStartBlock = 0;
-    gnoStartBlock = 0;
-    polStartBlock = 0;
+    startBlocks = isTestnet
+      ? { sepolia: 0, mumbai: 0, chiado: 0 }
+      : { gnosis: 0, polygon: 0, optimism: 0 };
+  }
+  return startBlocks;
+}
+
+async function handleChain(chainCharon, network,chainStartBlock, chainSet, chainUTXOs, keypair) {
+  let eventFilter = chainCharon.filters.NewCommitment();
+  // const eventData = await chainCharon.queryFilter(eventFilter, chainStartBlock, "latest");
+  chainCharon.queryFilter(eventFilter, chainStartBlock, "latest")
+  .then(async function(eventData) {
+    let myNullifier, xUtxo;
+    let j = 0;
+    let xUtxos = [];
+    for (let i = 0; i> eventData.length; i++) {
+      try {
+        xUtxo = Utxo.decrypt(
+          myKeypair,
+          eventData[i].args._encryptedOutput,
+          eventData[i].args._index
+        );
+        xUtxo.chainID = getChainID(network);
+        if (
+          xUtxo.amount > 0 &&
+          toFixedHex(eventData[i].args._commitment) ==
+          toFixedHex(xUtxo.getCommitment(poseidon))
+        ) {
+          xUtxos.push(xUtxo);
+          myNullifier = toFixedHex(xUtxo.getNullifier(poseidon));
+          chainCharon.isSpent(myNullifier).then(function(result) {
+            if (!result) {
+              chainSet[1] = chainSet[1] + parseInt(xUtxo[j].amount);
+              chainUTXOs.push(xUtxo);
+              j++;
+            } else {
+              j++;
+            }
+          });
+        }
+      } catch (err) {
+        console.log(err);
+      }
+    }
+  });
+  // console.log("event data: ", eventData)
+  // for (let i = 0; i < eventData.length; i++) {
+  //   console.log("inloop")
+  //   try {
+  //     const utxo = Utxo.decrypt(
+  //       keypair,
+  //       eventData[i].args._encryptedOutput,
+  //       eventData[i].args._index
+  //     );
+  //     utxo.chainID = getChainID(network);
+  //     if (
+  //       utxo.amount > 0 &&
+  //       toFixedHex(eventData[i].args._commitment) ==
+  //       toFixedHex(utxo.getCommitment(poseidon))
+  //     ) {
+  //       const nullifier = toFixedHex(utxo.getNullifier(poseidon));
+  //       if (!(await chainCharon.isSpent(nullifier))) {
+  //         chainSet[1] += parseInt(utxo.amount);
+  //         chainUTXOs.push(utxo);
+  //       }
+  //     }
+  //   } catch { }
+  // }
+}
+
+async function setData() {
+  await setKeypair();
+  const contents = readFileContents("utxos.txt");
+  const startBlocks = initializeStartBlocks(contents, isTestnet);
+  console.log("startBlocks: ", startBlocks)
+
+  if (isTestnet) {
+    await Promise.all([
+      handleChain(sepoliaCharon,"sepolia", startBlocks.sepolia, sepSet, sepUTXOs, myKeypair),
+      handleChain(mumbaiCharon,"mumbai", startBlocks.mumbai, mumSet, mumUTXOs, myKeypair),
+      handleChain(chiadoCharon,"chiado", startBlocks.chiado, chiSet, chiUTXOs, myKeypair)
+    ]);
+  } else {
+    await Promise.all([
+      handleChain(gnosisCharon, "gnosis",startBlocks.gnosis, gnoSet, gnoUTXOs, myKeypair),
+      handleChain(polygonCharon,"polygon" ,startBlocks.polygon, polSet, polUTXOs, myKeypair),
+      handleChain(optimismCharon, "optimism",startBlocks.optimism, optSet, optUTXOs, myKeypair)
+    ]);
+  }
+  if (isTestnet) {
+    sepSet[0] = await sepoliaProvider.getBlockNumber();
+    mumSet[0] = await mumbaiProvider.getBlockNumber();
+    chiSet[0] = await chiadoProvider.getBlockNumber();
+  } else {
+    gnoSet[0] = await gnosisProvider.getBlockNumber();
+    polSet[0] = await polygonProvider.getBlockNumber();
+    optSet[0] = await optimismProvider.getBlockNumber();
   }
 
-  let eventFilter = ethCharon.filters.NewCommitment();
-  ethCharon
-    .queryFilter(eventFilter, ethStartBlock, "latest")
-    .then(function (evtData) {
-      let eUtxo, myNullifier;
-      let jjj = 0;
-      let eUtxos = [];
-      for (let i = 0; i < evtData.length; i++) {
-        try {
-          eUtxo = Utxo.decrypt(
-            myKeypair,
-            evtData[i].args._encryptedOutput,
-            evtData[i].args._index
-          );
-          eUtxo.chainID = getChainID('ethereum');
-          if (
-            eUtxo.amount > 0 &&
-            toFixedHex(evtData[i].args._commitment) ==
-              toFixedHex(eUtxo.getCommitment(poseidon))
-          ) {
-            eUtxos.push(eUtxo);
-            myNullifier = toFixedHex(eUtxo.getNullifier(poseidon));
-            ethCharon.isSpent(myNullifier).then(function (result) {
-              if (!result) {
-                ethSet[1] = ethSet[1] + parseInt(eUtxos[jjj].amount);
-                ethUTXOs.push(eUtxos[jjj]);
-                jjj++;
-              } else {
-                jjj++;
-              }
-            });
-          }
-        } catch {}
-      }
-    });
-  gEventFilter = gnoCharon.filters.NewCommitment();
-  gnoCharon
-    .queryFilter(gEventFilter, gnoStartBlock, "latest")
-    .then(function (evtData2) {
-      let gUtxo, mygNullifier;
-      let jj = 0;
-      let gUtxos = [];
-      for (let iii = 0; iii < evtData2.length; iii++) {
-        try {
-          gUtxo = Utxo.decrypt(
-            myKeypair,
-            evtData2[iii].args._encryptedOutput,
-            evtData2[iii].args._index
-          );
-          gUtxo.chainID = getChainID('gnosis');
-          if (
-            gUtxo.amount > 0 &&
-            toFixedHex(evtData2[iii].args._commitment) ==
-              toFixedHex(gUtxo.getCommitment(poseidon))
-          ) {
-            gUtxos.push(gUtxo);
-            mygNullifier = toFixedHex(gUtxo.getNullifier(poseidon));
-            gnoCharon.isSpent(mygNullifier).then(function (result) {
-              if (!result) {
-                gnoSet[1] = gnoSet[1] + parseInt(gUtxos[jj].amount);
-                gnoUTXOs.push(gUtxos[jj]);
-                jj++;
-              } else {
-                jj++;
-              }
-            });
-          }
-        } catch {}
-      }
-    });
-  peventFilter = polCharon.filters.NewCommitment();
-  polCharon
-    .queryFilter(peventFilter, polStartBlock, "latest")
-    .then(async function (evtData3) {
-      let mypNullifier, pUtxo;
-      let j = 0;
-      let pUtxos = [];
-      for (let ii = 0; ii < evtData3.length; ii++) {
-        try {
-          pUtxo = Utxo.decrypt(
-            myKeypair,
-            evtData3[ii].args._encryptedOutput,
-            evtData3[ii].args._index
-          );
-          pUtxo.chainID = getChainID('polygon');
-          if (
-            pUtxo.amount > 0 &&
-            toFixedHex(evtData3[ii].args._commitment) ==
-              toFixedHex(pUtxo.getCommitment(poseidon))
-          ) {
-            pUtxos.push(pUtxo);
-            mypNullifier = toFixedHex(pUtxo.getNullifier(poseidon));
-            polCharon.isSpent(mypNullifier).then(function (result) {
-              if (!result) {
-                polSet[1] = polSet[1] + parseInt(pUtxos[j].amount);
-                polUTXOs.push(pUtxos[j]);
-                j++;
-              } else {
-                j++;
-              }
-            });
-          }
-        } catch {}
-      }
-    });
-  //for testing, turn back on
-  ethProvider.getBlockNumber().then((result) => (ethSet[0] = result));
-  polygonProvider.getBlockNumber().then((result) => (polSet[0] = result));
-  gnosisProvider.getBlockNumber().then((result) => (gnoSet[0] = result));
-  return new Promise((resolve) => {
+  return new Promise ((resolve, reject) => {
     setTimeout(() => {
       resolve("resolved");
-      // document.body.classList.add("loaded");
       $("#send").removeAttr("disabled");
       $("#bridge").removeAttr("disabled");
     }, 2000);
-  });
-}
+  })
 
+  // fs.writeFileSync("utxos.txt", JSON.stringify(saveData, null, 2));
+}
 function getChainID(chain) {
-  if (isTestnet) {
-    switch (chain) {
-      case "ethereum":
-        return 5;
-      case "gnosis":
-        return 10200;
-      case "polygon":
-        return 80001;
-      default:
-        return null;
-    }
-  } else {
-    switch (chain) {
-      case "ethereum":
-        return 1;
-      case "gnosis":
-        return 100;
-      case "polygon":
-        return 137;
-      default:
-        return null;
-    }
+  switch (chain) {
+    case "sepolia":
+      return 5;
+    case "chiado":
+      return 10200;
+    case "mumbai":
+      return 80001;
+    case "gnosis":
+      return 100;
+    case "polygon":
+      return 137;
+    case "optimism":
+      return 10;
+    default:
+      return null;
   }
 }
 
@@ -324,18 +339,27 @@ $("#bridge").on("click", () => {
 });
 
 function loadPrivateBalances() {
-  peVal =
-    Math.round(ethers.utils.formatEther(ethSet[1].toString()) * 100) / 100;
-  pgVal =
-    Math.round(ethers.utils.formatEther(gnoSet[1].toString()) * 100) / 100;
-  ppVal =
-    Math.round(ethers.utils.formatEther(polSet[1].toString()) * 100) / 100;
-  $("#ethPCHD").text(peVal);
-  $("#gnoPCHD").text(pgVal);
-  $("#polPCHD").text(ppVal);
-  $("#totalBal").text(
-    Math.round((eVal + gVal + pVal + peVal + pgVal + ppVal) * 100) / 100
-  );
+  if (isTestnet) {
+    psVal = Math.round(ethers.utils.formatEther(sepSet[1].toString()) * 100) / 100;
+    pmVal = Math.round(ethers.utils.formatEther(mumSet[1].toString()) * 100) / 100;
+    pcVal = Math.round(ethers.utils.formatEther(chiSet[1].toString()) * 100) / 100;
+    $("#PCHD0").text(psVal);
+    $("#PCHD1").text(pmVal);
+    $("#PCHD2").text(pcVal);
+    $("#totalBal").text(
+      Math.round((sVal + mVal + cVal + psVal + pmVal + pcVal) * 100) / 100
+    )
+  } else {
+    pgVal = Math.round(ethers.utils.formatEther(gnoSet[1].toString()) * 100) / 100;
+    ppVal = Math.round(ethers.utils.formatEther(polSet[1].toString()) * 100) / 100;
+    poVal = Math.round(ethers.utils.formatEther(optSet[1].toString()) * 100) / 100;
+    $("#PCHD0").text(pgVal);
+    $("#PCHD1").text(ppVal);
+    $("#PCHD2").text(poVal);
+    $("#totalBal").text(
+      Math.round((gVal + pVal + oVal + pgVal + ppVal + poVal) * 100) / 100
+    )
+  }
 
   writeUTXOs();
   //update baseblock and balance in local file
@@ -349,18 +373,33 @@ function loadPrivateBalances() {
 }
 
 function setPublicBalances() {
-  ethCHD.balanceOf(ethWallet.address).then((result) => {
-    origEval = ethers.utils.formatEther(result);
-    eVal = Math.round(origEval * 100) / 100;
-  });
-  gnoCHD.balanceOf(gnoWallet.address).then((result) => {
-    origGval = ethers.utils.formatEther(result);
-    gVal = Math.round(ethers.utils.formatEther(result) * 100) / 100;
-  });
-  polCHD.balanceOf(polWallet.address).then((result) => {
-    origPval = ethers.utils.formatEther(result);
-    pVal = Math.round(ethers.utils.formatEther(result) * 100) / 100;
-  });
+  if (isTestnet) {
+    sepoliaCHD.balanceOf(myAddress).then((result) => {
+      origSval = ethers.utils.formatEther(result);
+      sVal = Math.round(ethers.utils.formatEther(result) * 100) / 100;
+    });
+    mumbaiCHD.balanceOf(myAddress).then((result) => {
+      origMval = ethers.utils.formatEther(result);
+      mVal = Math.round(ethers.utils.formatEther(result) * 100) / 100;
+    });
+    chiadoCHD.balanceOf(myAddress).then((result) => {
+      origCval = ethers.utils.formatEther(result);
+      cVal = Math.round(ethers.utils.formatEther(result) * 100) / 100;
+    });
+  } else {
+    gnosisCHD.balanceOf(myAddress).then((result) => {
+      origGval = ethers.utils.formatEther(result);
+      gVal = Math.round(ethers.utils.formatEther(result) * 100) / 100;
+    });
+    polygonCHD.balanceOf(myAddress).then((result) => {
+      origPval = ethers.utils.formatEther(result);
+      pVal = Math.round(ethers.utils.formatEther(result) * 100) / 100;
+    });
+    optimismCHD.balanceOf(myAddress).then((result) => {
+      origOval = ethers.utils.formatEther(result);
+      oVal = Math.round(ethers.utils.formatEther(result) * 100) / 100;
+    });
+  }
   return new Promise((resolve) => {
     setTimeout(() => {
       resolve("resolved");
@@ -369,12 +408,25 @@ function setPublicBalances() {
 }
 
 function loadPublicBalances() {
-  $("#ethCHD").text(eVal);
-  $("#gnoCHD").text(gVal);
-  $("#polCHD").text(pVal);
-  $("#totalBal").text(
-    Math.round((eVal + gVal + pVal + peVal + pgVal + ppVal) * 100) / 100
-  );
+  let totalBal = 0;
+  if (isTestnet) {
+    $("#network1").text("sepolia");
+    $("#network2").text("mumbai");
+    $("#network3").text("chiado");
+    $("#CHD0").text(sVal);
+    $("#CHD1").text(mVal);
+    $("#CHD2").text(cVal);
+    totalBal = sVal + mVal + cVal + psVal + pmVal + pcVal;
+  } else {
+    $("#network1").text("gnosis chain");
+    $("#network2").text("polygon");
+    $("#network3").text("optimism");
+    $("#CHD0").text(gVal);
+    $("#CHD1").text(pVal);
+    $("#CHD2").text(oVal);
+    totalBal = gVal + pVal + oVal + pgVal + ppVal + poVal;
+  }
+  $("#totalBal").text(Math.round(totalBal * 100) / 100);
 }
 
 function loadAndDisplayContacts() {

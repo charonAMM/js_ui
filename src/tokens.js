@@ -1,5 +1,5 @@
 const ethers = require("ethers");
-const { ethWallet, gnoWallet, polWallet } = require("./providers");
+const { sepoliaWallet, mumbaiWallet, chiadoWallet, gnosisWallet, polygonWallet, optimismWallet } = require("./providers");
 const {
   abi: chdABI,
 } = require("../artifacts/charonAMM/contracts/CHD.sol/CHD.json");
@@ -7,47 +7,104 @@ const {
   abi: charonABI,
 } = require("../artifacts/charonAMM/contracts/Charon.sol/Charon.json");
 require("dotenv").config();
+const isTestnet = process.env.IS_TESTNET === "true";
 
-const ethCHD = new ethers.Contract(process.env.ETHEREUM_CHD, chdABI, ethWallet);
-const gnoCHD = new ethers.Contract(process.env.GNOSIS_CHD, chdABI, gnoWallet);
-const polCHD = new ethers.Contract(process.env.POLYGON_CHD, chdABI, polWallet);
-
-const ethCharon = new ethers.Contract(
-  process.env.ETHEREUM_CHARON,
-  charonABI,
-  ethWallet
-);
-const gnoCharon = new ethers.Contract(
-  process.env.GNOSIS_CHARON,
-  charonABI,
-  gnoWallet
-);
-const polCharon = new ethers.Contract(
-  process.env.POLYGON_CHARON,
-  charonABI,
-  polWallet
-);
-
-const ETHBASETOKEN = process.env.ETHEREUM_BASETOKEN;
-const GNOBASETOKEN = process.env.GNOSIS_BASETOKEN;
-const POLBASETOKEN = process.env.POLYGON_BASETOKEN;
 const tokenABI = [
   "function approve(address spender, uint256 amount) public returns (bool)",
   "function balanceOf(address) view returns (uint)",
 ];
 
-const polygonBaseToken = new ethers.Contract(POLBASETOKEN, tokenABI, polWallet);
-const gnosisBaseToken = new ethers.Contract(GNOBASETOKEN, tokenABI, gnoWallet);
-const ethBaseToken = new ethers.Contract(ETHBASETOKEN, tokenABI, ethWallet);
+let sepoliaCHD, mumbaiCHD, chiadoCHD, sepoliaCharon, mumbaiCharon, chiadoCharon, sepoliaBaseToken, mumbaiBaseToken, chiadoBaseToken,
+  gnosisCHD, polygonCHD, optimismCHD, gnosisCharon, polygonCharon, optimismCharon, gnosisBaseToken, polygonBaseToken, optimismBaseToken;
 
+if (isTestnet) {
+  sepoliaCHD = new ethers.Contract(process.env.SEPOLIA_CHD, chdABI, sepoliaWallet);
+  mumbaiCHD = new ethers.Contract(process.env.MUMBAI_CHD, chdABI, mumbaiWallet);
+  chiadoCHD = new ethers.Contract(process.env.CHIADO_CHD, chdABI, chiadoWallet);
+
+  sepoliaCharon = new ethers.Contract(
+    process.env.SEPOLIA_CHARON,
+    charonABI,
+    sepoliaWallet
+  );
+  mumbaiCharon = new ethers.Contract(
+    process.env.MUMBAI_CHARON,
+    charonABI,
+    mumbaiWallet
+  );
+  chiadoCharon = new ethers.Contract(
+    process.env.CHIADO_CHARON,
+    charonABI,
+    chiadoWallet
+  );
+  sepoliaBaseToken = new ethers.Contract(
+    process.env.SEPOLIA_BASETOKEN,
+    tokenABI,
+    sepoliaWallet
+  );
+  mumbaiBaseToken = new ethers.Contract(
+    process.env.MUMBAI_BASETOKEN,
+    tokenABI,
+    mumbaiWallet
+  );
+  chiadoBaseToken = new ethers.Contract(
+    process.env.CHIADO_BASETOKEN,
+    tokenABI,
+    chiadoWallet
+  );
+} else {
+  gnosisCHD = new ethers.Contract(process.env.GNOSIS_CHD, chdABI, gnosisWallet);
+  polygonCHD = new ethers.Contract(process.env.POLYGON_CHD, chdABI, polygonWallet);
+  optimismCHD = new ethers.Contract(process.env.OPTIMISM_CHD, chdABI, optimismWallet);
+
+  gnosisCharon = new ethers.Contract(
+    process.env.GNOSIS_CHARON,
+    charonABI,
+    gnosisWallet
+  );
+  polygonCharon = new ethers.Contract(
+    process.env.POLYGON_CHARON,
+    charonABI,
+    polygonWallet
+  );
+  optimismCharon = new ethers.Contract(
+    process.env.OPTIMISM_CHARON,
+    charonABI,
+    optimismWallet
+  );
+  gnosisBaseToken = new ethers.Contract(
+    process.env.GNOSIS_BASETOKEN,
+    tokenABI,
+    gnosisWallet
+  );
+  polygonBaseToken = new ethers.Contract(
+    process.env.POLYGON_BASETOKEN,
+    tokenABI,
+    polygonWallet
+  );
+  optimismBaseToken = new ethers.Contract(
+    process.env.OPTIMISM_BASETOKEN,
+    tokenABI,
+    optimismWallet
+  );
+}
 module.exports = {
-  ethCHD,
-  gnoCHD,
-  polCHD,
-  ethCharon,
-  gnoCharon,
-  polCharon,
-  polygonBaseToken,
+  sepoliaCHD,
+  mumbaiCHD,
+  chiadoCHD,
+  sepoliaCharon,
+  mumbaiCharon,
+  chiadoCharon,
+  sepoliaBaseToken,
+  mumbaiBaseToken,
+  chiadoBaseToken,
+  gnosisCHD,
+  polygonCHD,
+  optimismCHD,
+  gnosisCharon,
+  polygonCharon,
+  optimismCharon,
   gnosisBaseToken,
-  ethBaseToken,
+  polygonBaseToken,
+  optimismBaseToken,
 };
