@@ -128,7 +128,7 @@ function setNetworkOptions() {
         dropdownMenu.appendChild(li);
 
         if (option === defaultOption) {
-            a.classList.add('disabled'); // add 'disabled' class to the selected option
+            a.classList.add('disabled'); 
             optionsMenu.textContent = option;
         }
     });
@@ -138,15 +138,13 @@ const dropdownMenu = document.querySelector('.dropdown-menu');
 const optionsMenu = document.querySelector('#optionsMenu');
 
 dropdownMenu.addEventListener('click', (event) => {
-    if (event.target.tagName !== 'A') return;  // Add this line to prevent event handling for non-<a> elements
+    if (event.target.tagName !== 'A') return;  // Add to prevent event handling for non-<a> elements
 
-    // Prevent default action if the clicked option is disabled
     if (event.target.classList.contains('disabled')) {
         event.preventDefault();
     } else {
         const selectedOption = event.target.textContent;
         optionsMenu.textContent = selectedOption;
-        // add 'disabled' class to the selected option and remove it from others
         const allOptions = dropdownMenu.querySelectorAll('.dropdown-item');
         allOptions.forEach(option => {
             if (option.textContent === selectedOption) {

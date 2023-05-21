@@ -60,11 +60,10 @@ const walletsConfig = [
 const selectElement = document.getElementById('from-currency');
 
 const values = isTestnet ? ['eth', 'matic', 'xdai'] : ['xdai', 'matic', 'op'];
-const texts = isTestnet ? ['ETH', 'MATIC', 'xDAI'] : ['xDAI', 'MATIC', 'OP'];
 
 for (let i = 0; i < selectElement.options.length; i++) {
   selectElement.options[i].value = values[i];
-  selectElement.options[i].text = texts[i];
+  selectElement.options[i].text = values[i];
 }
 
 const formatBalance = balance => Math.round(ethers.utils.formatEther(balance) * 100) / 100;
@@ -95,7 +94,6 @@ async function setPublicBalances() {
   }
 }
 
-
 function loadAndDisplay() {
   setPublicBalances();
   prepareSwitchButtonClick();
@@ -118,7 +116,7 @@ async function swap() {
         sepoliaCharon,
         sepoliaBal,
         "ETH",
-        "Ethereum",
+        "Sepolia",
         gasLimit
       );
     } else if (fromCurrency === "xdai") {
@@ -183,7 +181,7 @@ async function swap() {
         gasLimit
       );
     }
-    else if (toCurrency === "OP") {
+    else if (toCurrency === "op") {
       await swapToken(
         fromAmount,
         optimismCHD,
@@ -211,7 +209,7 @@ async function swapToken(
   gasLimit
 ) {
   if (
-    parseFloat(ethers.utils.formatEther(balance)) <
+    balance <
     parseFloat(ethers.utils.formatEther(fromAmount))
   ) {
     alert(

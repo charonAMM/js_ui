@@ -45,22 +45,16 @@ if (isTestnet) {
   sepCFC = new ethers.Contract(process.env.SEPOLIA_CFC, cfcABI, sepoliaWallet);
   mumCFC = new ethers.Contract(process.env.MUMBAI_CFC, cfcABI, mumbaiWallet);
   chiCFC = new ethers.Contract(process.env.CHIADO_CFC, cfcABI, chiadoWallet);
+  sepCFC.getFeePeriods().then((result) => $('#timeLeft1').text(timeLeft(result * 1000)));
+  mumCFC.getFeePeriods().then((result) => $('#timeLeft2').text(timeLeft(result * 1000)));
+  chiCFC.getFeePeriods().then((result) => $('#timeLeft3').text(timeLeft(result * 1000)));
 } else {
   gnoCFC = new ethers.Contract(process.env.GNOSIS_CFC, cfcABI, gnosisWallet);
   polCFC = new ethers.Contract(process.env.POLYGON_CFC, cfcABI, polygonWallet);
   optCFC = new ethers.Contract(process.env.OPTIMISM_CFC, cfcABI, optimismWallet);
-}
-setTimeLeft()
-function setTimeLeft() {
-  if (isTestnet) {
-    sepCFC.getFeePeriods().then((result) => $('#timeLeft1').text(timeLeft(result * 1000)));
-    mumCFC.getFeePeriods().then((result) => $('#timeLeft2').text(timeLeft(result * 1000)));
-    chiCFC.getFeePeriods().then((result) => $('#timeLeft3').text(timeLeft(result * 1000)));
-  } else {
-    gnoCFC.getFeePeriods().then((result) => $('#timeLeft1').text(timeLeft(result * 1000)));
-    polCFC.getFeePeriods().then((result) => $('#timeLeft2').text(timeLeft(result * 1000)));
-    optCFC.getFeePeriods().then((result) => $('#timeLeft3').text(timeLeft(result * 1000)));
-  }
+  gnoCFC.getFeePeriods().then((result) => $('#timeLeft1').text(timeLeft(result * 1000)));
+  polCFC.getFeePeriods().then((result) => $('#timeLeft2').text(timeLeft(result * 1000)));
+  optCFC.getFeePeriods().then((result) => $('#timeLeft3').text(timeLeft(result * 1000)));
 }
 
 function timeLeft(timestamp) {
@@ -75,10 +69,10 @@ function timeLeft(timestamp) {
     timeString += days + " day" + (days > 1 ? "s" : "") + ", ";
   }
   if (hours > 0) {
-    timeString += hours + " hour" + (hours > 1 ? "s" : "");
+    timeString += hours + " hr" + (hours > 1 ? "s" : "") + ", ";
   }
-  timeString += " left"
-  // timeString += minutes + " minute" + (minutes > 1 ? "s" : "");
+  // timeString += " left"
+  timeString += minutes + " mn" + (minutes > 1 ? "s" : "") + " left";
   return timeString;
 }
 function numberWithCommas(x) {
@@ -102,7 +96,6 @@ function setPublicBalances() {
 }
 
 function setFeesPaid(_feePeriods, _type) {
-  console.log("got to here", _type, _feePeriods);
   if (_feePeriods.length > 0) {
     if (_type == 1) {
       if (isTestnet) {

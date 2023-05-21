@@ -209,86 +209,60 @@ function initializeStartBlocks(contents, isTestnet) {
   return startBlocks;
 }
 
-async function handleChain(chainCharon, network,chainStartBlock, chainSet, chainUTXOs, keypair) {
+async function handleChain(chainCharon, network, chainStartBlock, chainSet, chainUTXOs, keypair) {
   let eventFilter = chainCharon.filters.NewCommitment();
-  // const eventData = await chainCharon.queryFilter(eventFilter, chainStartBlock, "latest");
   chainCharon.queryFilter(eventFilter, chainStartBlock, "latest")
-  .then(async function(eventData) {
-    let myNullifier, xUtxo;
-    let j = 0;
-    let xUtxos = [];
-    for (let i = 0; i> eventData.length; i++) {
-      try {
-        xUtxo = Utxo.decrypt(
-          myKeypair,
-          eventData[i].args._encryptedOutput,
-          eventData[i].args._index
-        );
-        xUtxo.chainID = getChainID(network);
-        if (
-          xUtxo.amount > 0 &&
-          toFixedHex(eventData[i].args._commitment) ==
-          toFixedHex(xUtxo.getCommitment(poseidon))
-        ) {
-          xUtxos.push(xUtxo);
-          myNullifier = toFixedHex(xUtxo.getNullifier(poseidon));
-          chainCharon.isSpent(myNullifier).then(function(result) {
-            if (!result) {
-              chainSet[1] = chainSet[1] + parseInt(xUtxo[j].amount);
-              chainUTXOs.push(xUtxo);
-              j++;
-            } else {
-              j++;
-            }
-          });
+    .then(async function (eventData) {
+      let myNullifier, xUtxo;
+      let j = 0;
+      let xUtxos = [];
+      for (let i = 0; i < eventData.length; i++) {
+        try {
+          xUtxo = Utxo.decrypt(
+            myKeypair,
+            eventData[i].args._encryptedOutput,
+            eventData[i].args._index
+          );
+          xUtxo.chainID = getChainID(network);
+          if (
+            xUtxo.amount > 0 &&
+            toFixedHex(eventData[i].args._commitment) ==
+            toFixedHex(xUtxo.getCommitment(poseidon))
+          ) {
+            xUtxos.push(xUtxo);
+            myNullifier = toFixedHex(xUtxo.getNullifier(poseidon));
+            chainCharon.isSpent(myNullifier).then(function (result) {
+              if (!result) {
+                chainSet[1] = chainSet[1] + parseInt(xUtxo[j].amount);
+                chainUTXOs.push(xUtxo);
+                j++;
+              } else {
+                j++;
+              }
+            });
+          }
+        } catch (err) {
         }
-      } catch (err) {
-        console.log(err);
       }
-    }
-  });
-  // console.log("event data: ", eventData)
-  // for (let i = 0; i < eventData.length; i++) {
-  //   console.log("inloop")
-  //   try {
-  //     const utxo = Utxo.decrypt(
-  //       keypair,
-  //       eventData[i].args._encryptedOutput,
-  //       eventData[i].args._index
-  //     );
-  //     utxo.chainID = getChainID(network);
-  //     if (
-  //       utxo.amount > 0 &&
-  //       toFixedHex(eventData[i].args._commitment) ==
-  //       toFixedHex(utxo.getCommitment(poseidon))
-  //     ) {
-  //       const nullifier = toFixedHex(utxo.getNullifier(poseidon));
-  //       if (!(await chainCharon.isSpent(nullifier))) {
-  //         chainSet[1] += parseInt(utxo.amount);
-  //         chainUTXOs.push(utxo);
-  //       }
-  //     }
-  //   } catch { }
-  // }
+    });
 }
 
 async function setData() {
   await setKeypair();
   const contents = readFileContents("utxos.txt");
   const startBlocks = initializeStartBlocks(contents, isTestnet);
-  console.log("startBlocks: ", startBlocks)
 
   if (isTestnet) {
     await Promise.all([
-      handleChain(sepoliaCharon,"sepolia", startBlocks.sepolia, sepSet, sepUTXOs, myKeypair),
-      handleChain(mumbaiCharon,"mumbai", startBlocks.mumbai, mumSet, mumUTXOs, myKeypair),
-      handleChain(chiadoCharon,"chiado", startBlocks.chiado, chiSet, chiUTXOs, myKeypair)
+      handleChain(sepoliaCharon, "sepolia", startBlocks.sepolia, sepSet, sepUTXOs, myKeypair),
+      handleChain(mumbaiCharon, "mumbai", startBlocks.mumbai, mumSet, mumUTXOs, myKeypair),
+      handleChain(chiadoCharon, "chiado", startBlocks.chiado, chiSet, chiUTXOs, myKeypair)
     ]);
   } else {
     await Promise.all([
-      handleChain(gnosisCharon, "gnosis",startBlocks.gnosis, gnoSet, gnoUTXOs, myKeypair),
-      handleChain(polygonCharon,"polygon" ,startBlocks.polygon, polSet, polUTXOs, myKeypair),
-      handleChain(optimismCharon, "optimism",startBlocks.optimism, optSet, optUTXOs, myKeypair)
+      handleChain(gnosisCharon, "gnosis", startBlocks.gnosis, gnoSet, gnoUTXOs, myKeypair),
+      handleChain(polygonCharon, "polygon", startBlocks.polygon, polSet, polUTXOs, myKeypair),
+      handleChain(optimismCharon, "optimism", startBlocks.optimism, optSet, optUTXOs, myKeypair)
     ]);
   }
   if (isTestnet) {
@@ -301,7 +275,7 @@ async function setData() {
     optSet[0] = await optimismProvider.getBlockNumber();
   }
 
-  return new Promise ((resolve, reject) => {
+  return new Promise((resolve) => {
     setTimeout(() => {
       resolve("resolved");
       $("#send").removeAttr("disabled");
@@ -362,10 +336,10 @@ function loadPrivateBalances() {
   }
 
   writeUTXOs();
-  //update baseblock and balance in local file
   fs.writeFile(filename, "", (err) => {
     if (err) console.log(err);
   });
+  //update baseblock and balance in local file
   //let _data = ethSet[0] + ',' + ethSet[1] + ',' + polSet[0] + ',' + polSet[1] + ',' + gnoSet[0]+ ',' + gnoSet[1]
   //fs.appendFile(filename, JSON.stringify(_data), (err) => err && console.error(err));
   //fs.appendFile(filename,  )
