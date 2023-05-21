@@ -25,7 +25,6 @@ $("#myAddress").text(isTestnet ? sepoliaWallet.address : gnosisWallet.address);
 isTestnet ? (CIT = new ethers.Contract(process.env.SEPOLIA_CIT, citABI, sepoliaWallet)) :
   (CIT = new ethers.Contract(process.env.GNOSIS_CIT, citABI, gnosisWallet));
 
-
 if (isTestnet) {
   networks = ['sepolia', 'mumbai', 'chiado'];
   bases = ['eth', 'matic', 'xdai'];
@@ -51,19 +50,36 @@ if (isTestnet) {
   polCFC = new ethers.Contract(process.env.POLYGON_CFC, cfcABI, polygonWallet);
   optCFC = new ethers.Contract(process.env.OPTIMISM_CFC, cfcABI, optimismWallet);
 }
+setTimeLeft()
+function setTimeLeft() {
+  if (isTestnet) {
+    sepCFC.getFeePeriods().then((result) => $('#timeLeft1').text(timeLeft(result * 1000)));
+    mumCFC.getFeePeriods().then((result) => $('#timeLeft2').text(timeLeft(result * 1000)));
+    chiCFC.getFeePeriods().then((result) => $('#timeLeft3').text(timeLeft(result * 1000)));
+  } else {
+    gnoCFC.getFeePeriods().then((result) => $('#timeLeft1').text(timeLeft(result * 1000)));
+    polCFC.getFeePeriods().then((result) => $('#timeLeft2').text(timeLeft(result * 1000)));
+    optCFC.getFeePeriods().then((result) => $('#timeLeft3').text(timeLeft(result * 1000)));
+  }
+}
 
-function timeUntil(timeStamp) {
-  var now = new Date(),
-    ms = (timeStamp - now.getTime()) / 1000;
-  ms = Math.abs(Number(ms));
-  var d, h, m, s;
-  s = Math.floor(ms / 1000);
-  m = Math.floor(s / 60);
-  h = Math.floor(m / 60);
-  m = m % 60;
-  d = Math.floor(h / 24);
-  h = h % 24;
-  return d + " days, " + h + " hours, " + m + " minutes, ";
+function timeLeft(timestamp) {
+  const now = Date.now();
+  const timeLeft = timestamp - now;
+  const seconds = Math.floor(timeLeft / 1000);
+  const days = Math.floor(seconds / (24 * 60 * 60));
+  const hours = Math.floor((seconds % (24 * 60 * 60)) / (60 * 60));
+  const minutes = Math.floor((seconds % (60 * 60)) / 60);
+  let timeString = "";
+  if (days > 0) {
+    timeString += days + " day" + (days > 1 ? "s" : "") + ", ";
+  }
+  if (hours > 0) {
+    timeString += hours + " hour" + (hours > 1 ? "s" : "");
+  }
+  timeString += " left"
+  // timeString += minutes + " minute" + (minutes > 1 ? "s" : "");
+  return timeString;
 }
 function numberWithCommas(x) {
   return x.toLocaleString();

@@ -67,7 +67,6 @@ for (let i = 0; i < selectElement.options.length; i++) {
   selectElement.options[i].text = texts[i];
 }
 
-
 const formatBalance = balance => Math.round(ethers.utils.formatEther(balance) * 100) / 100;
 
 async function setPublicBalances() {
