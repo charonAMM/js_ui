@@ -25,19 +25,40 @@ const MERKLE_TREE_HEIGHT = 23;
 require("dotenv").config();
 const gasLimit = 3000000;
 const {
-  ethCHD,
-  gnoCHD,
-  polCHD,
-  ethCharon,
-  gnoCharon,
-  polCharon,
-  polygonBaseToken,
+  sepoliaCHD,
+  sepoliaCharon,
+  sepoliaBaseToken,
+  chiadoCHD,
+  chiadoCharon,
+  chiadoBaseToken,
+  mumbaiCHD,
+  mumbaiCharon,
+  mumbaiBaseToken,
+  gnosisCHD,
+  gnosisCharon,
   gnosisBaseToken,
-  ethBaseToken,
+  polygonCHD,
+  polygonCharon,
+  polygonBaseToken,
+  optimismCHD,
+  optimismCharon,
+  optimismBaseToken,
 } = require("../src/tokens");
+const {
+  sepoliaWallet,
+  mumbaiWallet,
+  chiadoWallet,
+  gnosisWallet,
+  polygonWallet,
+  optimismWallet,
+  sepoliaProvider,
+  mumbaiProvider,
+  chiadoProvider,
+  gnosisProvider,
+  polygonProvider,
+  optimismProvider,
+} = require("../src/providers");
 const isTestnet = process.env.IS_TESTNET === "true";
-const { ethWallet, gnoWallet, polWallet } = require("../src/providers");
-
 const fromNetworkSelect = document.getElementById("from");
 const toNetworkSelect = document.getElementById("to");
 const tokenSelect = document.getElementById("token");
@@ -46,26 +67,46 @@ const text = document.getElementById("bridgeText");
 const loader = document.getElementById("bridgeLoader");
 
 let builtPoseidon;
-const contents = fs.readFileSync("utxos.txt", "utf-8");
-const utxos = JSON.parse(contents);
-const ppVal = utxos.ppVal;
-const peVal = utxos.peVal;
-const pgVal = utxos.pgVal;
 
-let ethBal, gnoBal, polBal;
-let chdEthBal, chdGnoBal, chdPolBal;
+let sepoliaCHDBal, mumbaiCHDBal, chiadoCHDBal, gnosisCHDBal, polygonCHDBal, optimismCHDBal;
+let sepoliaBal, mumbaiBal, chiadoBal, gnosisBal, polygonBal, optimismBal;
+
+const walletsConfig = [
+  {
+    network: 'testnet',
+    wallets: ['sepolia', 'mumbai', 'chiado'],
+  },
+  {
+    network: 'mainnet',
+    wallets: ['gnosis', 'polygon', 'optimism'],
+  },
+];
+
+const values = isTestnet ? walletsConfig[0].wallets : walletsConfig[1].wallets;
+const texts = isTestnet ? ["Sepolia", "Mumbai", "Chiado"] : ["Gnosis", "Polygon", "Optimism"];
+
+const fromDropdown = document.getElementById('from');
+const toDropdown = document.getElementById('to');
+
+for (let i = 0; i < fromDropdown.length; i++) {
+  fromDropdown.options[i].value = values[i]
+  fromDropdown.options[i].text = texts[i]
+  toDropdown.options[i].value = values[i]
+  toDropdown.options[i].text = texts[i]
+}
 
 loadBalances();
 async function loadBalances() {
-  // //baseTokens
-  ethBal = await ethBaseToken.balanceOf(ethWallet.address);
-  gnoBal = await gnosisBaseToken.balanceOf(gnoWallet.address);
-  polBal = await polygonBaseToken.balanceOf(polWallet.address);
+  const config = walletsConfig.find(cfg => cfg.network === (isTestnet ? 'testnet' : 'mainnet'));
 
-  //chdTokens
-  chdEthBal = await ethCHD.balanceOf(ethWallet.address);
-  chdGnoBal = await gnoCHD.balanceOf(gnoWallet.address);
-  chdPolBal = await polCHD.balanceOf(polWallet.address);
+  for (let i = 0; i < config.wallets.length; i++) {
+    const wallet = config.wallets[i];
+    const chdBal = await eval(`${wallet}CHD.balanceOf(${wallet}Wallet.address)`);
+    const baseTokenBal = await eval(`${wallet}BaseToken.balanceOf(${wallet}Wallet.address)`);
+
+    eval(`${wallet}CHDBal = ${ethers.utils.formatEther(chdBal)}`);
+    eval(`${wallet}Bal = ${ethers.utils.formatEther(baseTokenBal)}`);
+  }
 }
 
 $("#bridgeButton").on("click", () => {
@@ -92,26 +133,44 @@ const amountInput = document.getElementById("amount");
 
 maxBtn.addEventListener("click", () => {
   let balance = 0;
-  if (fromNetworkSelect.value === "ethereum") {
+  if (fromNetworkSelect.value === "sepolia") {
     if (tokenSelect.value === "CHD") {
-      balance = chdEthBal;
+      balance = sepoliaCHDBal;
     } else {
-      balance = ethBal;
+      balance = sepoliaBal;
+    }
+  } else if (fromNetworkSelect.value === "mumbai") {
+    if (tokenSelect.value === "CHD") {
+      balance = mumbaiCHDBal;
+    } else {
+      balance = mumbaiBal;
+    }
+  } else if (fromNetworkSelect.value === "chiado") {
+    if (tokenSelect.value === "CHD") {
+      balance = chiadoCHDBal;
+    } else {
+      balance = chiadoBal;
     }
   } else if (fromNetworkSelect.value === "gnosis") {
     if (tokenSelect.value === "CHD") {
-      balance = chdGnoBal;
+      balance = gnosisCHDBal;
     } else {
-      balance = gnoBal;
+      balance = gnosisBal;
     }
   } else if (fromNetworkSelect.value === "polygon") {
     if (tokenSelect.value === "CHD") {
-      balance = chdPolBal;
+      balance = polygonCHDBal;
     } else {
-      balance = polBal;
+      balance = polygonBal;
+    }
+  } else if (fromNetworkSelect.value === "optimism") {
+    if (tokenSelect.value === "CHD") {
+      balance = optimismCHDBal;
+    } else {
+      balance = optimismBal;
     }
   }
-  amountInput.value = ethers.utils.formatEther(balance.toString());
+  amountInput.value = balance
 });
 
 function poseidon(inputs) {
@@ -131,30 +190,49 @@ async function checkBalance(_fromNetwork, _depositAmount, _isChd) {
   let _amount;
   if (_isChd) {
     switch (_fromNetwork) {
-      case "ethereum":
-        _amount = chdEthBal;
+      case "sepolia":
+        _amount = sepoliaCHDBal;
+        break;
+      case "mumbai":
+        _amount = mumbaiCHDBal;
+        break;
+      case "chiado":
+        _amount = chiadoCHDBal;
         break;
       case "gnosis":
-        _amount = chdGnoBal;
+        _amount = gnosisCHDBal;
         break;
       case "polygon":
-        _amount = chdPolBal;
+        _amount = polygonCHDBal;
+        break;
+      case "optimism":
+        _amount = optimismCHDBal;
         break;
     }
   } else {
     switch (_fromNetwork) {
-      case "ethereum":
-        _amount = ethBal;
+      case "sepolia":
+        _amount = sepoliaBal;
+        break;
+      case "mumbai":
+        _amount = mumbaiBal;
+        break;
+      case "chiado":
+        _amount = chiadoBal;
         break;
       case "gnosis":
-        _amount = gnoBal;
+        _amount = gnosisBal;
         break;
       case "polygon":
-        _amount = polBal;
+        _amount = polygonBal;
+        break;
+      case "optimism":
+        _amount = optimismBal;
         break;
     }
   }
-  if (parseFloat(_amount) < parseFloat(_depositAmount)) {
+  console.log(parseFloat(_amount), parseFloat(ethers.utils.formatEther(_depositAmount)));
+  if (parseFloat(_amount) < parseFloat(ethers.utils.formatEther(_depositAmount))) {
     alert(`Not enough balance on ${_fromNetwork}!`);
     enableBridgeButton();
     return false;
@@ -167,6 +245,7 @@ async function bridge() {
   const _depositAmount = ethers.utils.parseEther(
     document.getElementById("amount").value
   );
+
   const _fromNetwork = fromNetworkSelect.value;
   const _toNetwork = toNetworkSelect.value;
   const _token = tokenSelect.value;
@@ -239,12 +318,18 @@ async function bridge() {
 
 function getBaseToken(_chain) {
   switch (_chain) {
-    case "ethereum":
-      return ethBaseToken;
+    case "sepolia":
+      return sepoliaBaseToken;
+    case "mumbai":
+      return mumbaiBaseToken;
+    case "chiado":
+      return chiadoBaseToken;
     case "gnosis":
       return gnosisBaseToken;
     case "polygon":
       return polygonBaseToken;
+    case "optimism":
+      return optimismBaseToken;
     default:
       return null;
   }
@@ -252,12 +337,18 @@ function getBaseToken(_chain) {
 
 function getCHDToken(_chain) {
   switch (_chain) {
-    case "ethereum":
-      return ethCHD;
+    case "sepolia":
+      return sepoliaCHD;
+    case "mumbai":
+      return mumbaiCHD;
+    case "chiado":
+      return chiadoCHD;
     case "gnosis":
-      return gnoCHD;
+      return gnosisCHD;
     case "polygon":
-      return polCHD;
+      return polygonCHD;
+    case "optimism":
+      return optimismCHD;
     default:
       return null;
   }
@@ -265,40 +356,39 @@ function getCHDToken(_chain) {
 
 function getCharon(chain) {
   switch (chain) {
-    case "ethereum":
-      return ethCharon;
+    case "sepolia":
+      return sepoliaCharon;
+    case "mumbai":
+      return mumbaiCharon;
+    case "chiado":
+      return chiadoCharon;
     case "gnosis":
-      return gnoCharon;
+      return gnosisCharon;
     case "polygon":
-      return polCharon;
+      return polygonCharon;
+    case "optimism":
+      return optimismCharon;
     default:
       return null;
   }
 }
 
 function getChainID(chain) {
-  if (isTestnet) {
-    switch (chain) {
-      case "ethereum":
-        return 5;
-      case "gnosis":
-        return 10200;
-      case "polygon":
-        return 80001;
-      default:
-        return null;
-    }
-  } else {
-    switch (chain) {
-      case "ethereum":
-        return 1;
-      case "gnosis":
-        return 100;
-      case "polygon":
-        return 137;
-      default:
-        return null;
-    }
+  switch (chain) {
+    case "sepolia":
+      return 5;
+    case "chiado":
+      return 10200;
+    case "mumbai":
+      return 80001;
+    case "gnosis":
+      return 100;
+    case "polygon":
+      return 137;
+    case "optimism":
+      return 10;
+    default:
+      return null;
   }
 }
 
@@ -321,14 +411,23 @@ function updateOptionStatus(select1, select2) {
 function updateTokenOptions(network) {
   let tokens;
   switch (network) {
-    case 'ethereum':
+    case 'sepolia':
       tokens = ['ETH', 'CHD'];
       break;
+    case 'mumbai':
+      tokens = ['MATIC', 'CHD'];
+      break;
+    case 'chiado':
+      tokens = ['xDAI', 'CHD'];
+      break;
     case 'gnosis':
-      tokens = ['GNO', 'CHD'];
+      tokens = ['xDAI', 'CHD'];
       break;
     case 'polygon':
       tokens = ['MATIC', 'CHD'];
+      break;
+    case 'optimism':
+      tokens = ['OP', 'CHD'];
       break;
     default:
       tokens = [];
@@ -346,7 +445,6 @@ function updateToNetworkOptions() {
 
   updateTokenOptions(fromNetworkSelect.value);
 }
-
 
 async function prepareTransaction({
   charon,

@@ -4,53 +4,64 @@ const {
 } = require("../artifacts/incentiveToken/contracts/Auction.sol/Auction.json");
 const ethers = require("ethers");
 require("dotenv").config();
-const { ethBaseToken } = require("../src/tokens");
-const { ethWallet } = require("../src/providers");
-const ethCIT = new ethers.Contract(process.env.ETHEREUM_CIT, citABI, ethWallet);
-let ethBalanceVal;
+const { sepoliaBaseToken, gnosisBaseToken } = require("../src/tokens");
+const { sepoliaWallet, gnosisWallet } = require("../src/providers");
+const isTestnet = process.env.IS_TESTNET === "true";
+let CIT, baseToken, wallet;
+
+if (isTestnet) {
+  CIT = new ethers.Contract(process.env.SEPOLIA_CIT, citABI, sepoliaWallet);
+  baseToken = sepoliaBaseToken;
+  wallet = sepoliaWallet;
+} else {
+  CIT = new ethers.Contract(process.env.GNOSIS_CIT, citABI, gnosisWallet);
+  baseToken = gnosisBaseToken;
+  wallet = gnosisWallet;
+}
+
+let balanceVal;
 const button = document.getElementById("signAndBid");
 const text = document.getElementById("bidText");
 const loader = document.getElementById("bidLoader");
+$("#token").text(isTestnet ? "ETH" : "xDai");
 
-$("#ethBalance").text("...");
-ethBaseToken.balanceOf(ethWallet.address).then((result) => {
-  ethBalanceVal = ethers.utils.formatEther(result);
-  $("#ethBalance").text(parseFloat(ethBalanceVal).toFixed(3));
+$("#balance").text("...");
+baseToken.balanceOf(wallet.address).then((result) => {
+  balanceVal = ethers.utils.formatEther(result);
+  $("#balance").text(parseFloat(balanceVal).toFixed(3) + `${isTestnet ? ' ETH' : ' xDai'}`);
 });
 $("#signAndBid").on("click", async () => {
   const bidAmount = parseFloat($("#bidAmount").val());
-  const ethBalance = parseFloat(ethBalanceVal);
+  if (
+    bidAmount == "" ||
+    bidAmount == null ||
+    bidAmount == undefined ||
+    bidAmount == 0 ||
+    isNaN(bidAmount)
+  ) {
+    window.alert("Please enter a valid bid amount");
+    return;
+  }
+  const balance = parseFloat(balanceVal);
+  if (bidAmount > balance) {
+    window.alert(
+      `Please enter a bid lower than your current ${isTestnet ? 'ETH' : 'xDai'} balance`
+    );
+    return;
+  }
   const currentTopBid = parseFloat(
-    ethers.utils.formatEther(await ethCIT.currentTopBid())
+    ethers.utils.formatEther(await CIT.currentTopBid())
   );
 
   try {
-    if (
-      bidAmount == "" ||
-      bidAmount == null ||
-      bidAmount == undefined ||
-      bidAmount == 0 ||
-      isNaN(bidAmount)
-    ) {
-      window.alert("Please enter a bid amount");
-      return;
-    }
     if (bidAmount > currentTopBid) {
-      if (bidAmount > ethBalance) {
-        window.alert(
-          "Bid too high. Please enter a bid lower than your current ETH balance: " +
-            ethBalance +
-            " ETH"
-        );
-        return;
-      }
       showLoadingAnimation();
-      await ethBaseToken.approve(
-        ethCIT.address,
+      await baseToken.approve(
+        CIT.address,
         ethers.utils.parseEther(bidAmount.toString()),
         { gasLimit: 300000 }
       );
-      ethCIT
+      CIT
         .bid(ethers.utils.parseEther(bidAmount.toString()), {
           gasLimit: 300000,
         })
@@ -64,8 +75,8 @@ $("#signAndBid").on("click", async () => {
     } else {
       window.alert(
         "Bid too low. Please enter a bid higher than the current top bid: " +
-          currentTopBid +
-          " ETH"
+        currentTopBid +
+        `${isTestnet ? ' ETH' : ' xDai'}`
       );
     }
   } catch (error) {
