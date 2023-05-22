@@ -66,13 +66,13 @@ function timeLeft(timestamp) {
   const minutes = Math.floor((seconds % (60 * 60)) / 60);
   let timeString = "";
   if (days > 0) {
-    timeString += days + " day" + (days > 1 ? "s" : "") + ", ";
+    timeString += days + "d "
   }
   if (hours > 0) {
-    timeString += hours + " hr" + (hours > 1 ? "s" : "") + ", ";
+    timeString += hours + "h " 
   }
   // timeString += " left"
-  timeString += minutes + " mn" + (minutes > 1 ? "s" : "") + " left";
+  timeString += minutes + "m left"
   return timeString;
 }
 function numberWithCommas(x) {

@@ -7,11 +7,9 @@
   <title>charon - a privacy preserving cross-chain AMM</title>
   <link href="../public/Charon_mono.png" rel="icon" />
   <link rel="stylesheet" href="assets/bootstrap/css/bootstrap.min.css" />
-  <!-- <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css" rel="stylesheet"> -->
   <link rel="stylesheet"
     href="https://fonts.googleapis.com/css?family=Inter:300italic,400italic,600italic,700italic,800italic,400,300,600,700,800&amp;display=swap" />
   <link rel="stylesheet" href="../main.css" />
-  <!-- <link rel="stylesheet" href="assets/css/Swap-form.css" /> -->
 </head>
 <style>
   body {
@@ -30,6 +28,10 @@
 
   .card-title {
     margin: 10px;
+  }
+
+  .form-label {
+    color: #aaa;
   }
 
   .form-control {
@@ -114,9 +116,7 @@
       <div class="card">
         <div class="card-body">
           <h4 class="card-title">register your public key </h4>
-          <!-- <form> -->
           <div class="mb-3">
-            <!-- <label for="fname" class="form-label">First name:</label> -->
             <input type="text" class="form-control text-muted" id="pubKey" placeholder="public key" readonly
               style="cursor:default;" />
           </div>
@@ -133,13 +133,9 @@
                 Options
               </button>
               <ul class="dropdown-menu" aria-labelledby="optionsMenu">
-                <!-- <li><a class="dropdown-item" href="#">Option 1</a></li>
-              <li><a class="dropdown-item" href="#">Option 2</a></li>
-              <li><a class="dropdown-item" href="#">Option 3</a></li> -->
               </ul>
             </div>
           </div>
-          <!-- </form> -->
         </div>
       </div>
       <div class="card">
@@ -147,11 +143,9 @@
           <h4 class="card-title">convert private key to public key</h4>
           <form>
             <div class="mb-3">
-              <!-- <label for="privateKey" class="form-label">Private Key:</label> -->
               <input type="text" class="form-control" id="privateKey" name="privateKey" placeholder="private key" />
             </div>
             <div class="mb-3">
-              <!-- <label for="publicKey" class="form-label">Public Key:</label> -->
               <input type="text" class="form-control text-muted" id="publicKey" name="publicKey"
                 placeholder="public key" readonly style="cursor:default;" />
             </div>

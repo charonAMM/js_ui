@@ -32,22 +32,22 @@ function getRegistry() {
     const optionsMenu = document.querySelector('#optionsMenu');
     const selectedNetwork = optionsMenu.textContent;
 
-    if (selectedNetwork === 'Chiado') {
+    if (selectedNetwork === 'chiado') {
         return new ethers.Contract(process.env.CHIADO_REGISTRY, regABI, chiadoWallet);
     }
-    else if (selectedNetwork === 'Mumbai') {
+    else if (selectedNetwork === 'mumbai') {
         return new ethers.Contract(process.env.MUMBAI_REGISTRY, regABI, mumbaiWallet);
     }
-    else if (selectedNetwork === 'Sepolia') {
+    else if (selectedNetwork === 'sepolia') {
         return new ethers.Contract(process.env.SEPOLIA_REGISTRY, regABI, sepoliaWallet);
     }
-    else if (selectedNetwork === 'Gnosis Chain') {
+    else if (selectedNetwork === 'gnosis chain') {
         return new ethers.Contract(process.env.GNOSIS_REGISTRY, regABI, gnosisWallet);
     }
-    else if (selectedNetwork === 'Polygon') {
+    else if (selectedNetwork === 'polygon') {
         return new ethers.Contract(process.env.POLYGON_REGISTRY, regABI, polygonWallet);
     }
-    else if (selectedNetwork === 'Optimism') {
+    else if (selectedNetwork === 'optimism') {
         return new ethers.Contract(process.env.OPTIMISM_REGISTRY, regABI, optimismWallet);
     }
 }
@@ -81,7 +81,6 @@ convertButton.onclick = function () {
     });
 };
 function checkIsRegistered() {
-    optionsMenu.disabled = true
     dropdownMenu.classList.remove('show')
     const registry = getRegistry();
     if (registerButton.textContent == "submit")
@@ -94,27 +93,25 @@ function checkIsRegistered() {
             document.getElementById("checkmark").classList.remove("d-none");
             registerButton.classList.remove("d-none");
             registerButton.textContent = "registered";
-            optionsMenu.disabled = false
         } else {
             registerButton.textContent = "submit";
             registerButton.classList.remove("d-none");
             registerButton.disabled = false;
             document.getElementById("checker").classList.add("d-none");
             document.getElementById("checkmark").classList.add("d-none");
-            optionsMenu.disabled = false
         }
     });
 }
 
-const testNetworkOptions = ['Chiado', 'Mumbai', 'Sepolia']
-const mainNetworkOptions = ['Gnosis Chain', 'Polygon', 'Optimism']
+const testNetworkOptions = ['chiado', 'mumbai', 'sepolia']
+const mainNetworkOptions = ['gnosis chain', 'polygon', 'optimism']
 function setNetworkOptions() {
     const dropdownMenu = document.querySelector('.dropdown-menu');
     const optionsMenu = document.querySelector('#optionsMenu');
     dropdownMenu.innerHTML = '';
 
     const options = isTestnet ? testNetworkOptions : mainNetworkOptions;
-    const defaultOption = isTestnet ? 'Chiado' : 'Gnosis Chain';
+    const defaultOption = isTestnet ? 'chiado' : 'gnosis chain';
 
     options.forEach(option => {
         const li = document.createElement('li');
