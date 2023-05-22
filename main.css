@@ -313,3 +313,18 @@ body.loaded #loading {
 ::-webkit-scrollbar-thumb:hover {
   background-color: #555;
 }
+
+.checkmark-container {
+  display: inline-block;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  background-color: #28a745;
+  text-align: center;
+  line-height: 24px;
+  margin-left: -20px;
+}
+
+.checkmark-container i {
+  color: #28a745;
+}

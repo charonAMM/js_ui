@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, shrink-to-fit=no" />
+  <title>charon - a privacy preserving cross-chain AMM</title>
+  <link href="../public/Charon_mono.png" rel="icon" />
+  <link rel="stylesheet" href="assets/bootstrap/css/bootstrap.min.css" />
+  <link rel="stylesheet"
+    href="https://fonts.googleapis.com/css?family=Inter:300italic,400italic,600italic,700italic,800italic,400,300,600,700,800&amp;display=swap" />
+  <link rel="stylesheet" href="../main.css" />
+</head>
+<style>
+  body {
+    color: whitesmoke;
+    font-family: "Inter", sans-serif;
+  }
+
+  .container {
+    max-width: 600px;
+  }
+
+  .card {
+    margin-top: 40px;
+    margin-bottom: 20px;
+  }
+
+  .card-title {
+    margin: 10px;
+  }
+
+  .form-label {
+    color: #aaa;
+  }
+
+  .form-control {
+    border: none;
+    background: #1f1f2b;
+    color: whitesmoke;
+  }
+
+  .form-control:focus {
+    background: #1f1f2b;
+    color: whitesmoke;
+    outline: none;
+    box-shadow: none;
+  }
+
+  .btn {
+    background: #1f1f2b;
+    color: whitesmoke;
+    border: none;
+  }
+
+  .btn:hover {
+    background: #474a5d;
+    color: #ddd;
+  }
+
+  .btn:active {
+    background: #13131f !important;
+    color: #ddd !important;
+  }
+
+  .readonly-input {
+    border: none;
+    cursor: pointer;
+    background-color: #f7f7f7;
+    padding: 5px;
+    font-size: 16px;
+  }
+
+  button:disabled {
+    background: #1f1f2b;
+    color: whitesmoke !important;
+    border: none;
+  }
+
+  .btn:focus {
+    outline: none;
+    box-shadow: none;
+  }
+</style>
+
+<body class="bg-dark" style="overflow: hidden;">
+  <nav class="navbar navbar-dark navbar-expand-md sticky-top py-3" id="mainNav">
+    <div class="container">
+      <a class="navbar-brand d-flex align-items-center" href="../pages/index.html"><span>charon</span></a><button
+        data-bs-toggle="collapse" class="navbar-toggler" data-bs-target="#navcol-1">
+        <span class="visually-hidden">Toggle navigation</span><span class="navbar-toggler-icon"></span>
+      </button>
+      <div class="collapse navbar-collapse" id="navcol-1">
+        <ul class="navbar-nav mx-auto">
+          <li class="nav-item">
+            <a class="nav-link" href="../pages/index.html">home</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="../pages/amm.html">trade</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="../pages/auction.html">auction</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="../pages/cit.html">cit</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link active" href="../pages/registery.html">registry</a>
+          </li>
+        </ul>
+      </div>
+    </div>
+  </nav>
+  <header class="bg-dark">
+    <div class="container">
+      <div class="card">
+        <div class="card-body">
+          <h4 class="card-title">register your public key </h4>
+          <div class="mb-3">
+            <input type="text" class="form-control text-muted" id="pubKey" placeholder="public key" readonly
+              style="cursor:default;" />
+          </div>
+          <div class="d-flex justify-content-between align-items-start">
+            <div>
+              <button id="register" class="btn d-none">submit</button>
+              <span id="checker" class="checkmark-container d-none">
+                <span id="checkmark" class="fas fa-check">&#10003;</span>
+              </span>
+            </div>
+            <div class="dropdown">
+              <button class="btn dropdown-toggle" type="button" id="optionsMenu" data-bs-toggle="dropdown"
+                aria-expanded="false">
+                Options
+              </button>
+              <ul class="dropdown-menu" aria-labelledby="optionsMenu">
+              </ul>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-body">
+          <h4 class="card-title">convert private key to public key</h4>
+          <form>
+            <div class="mb-3">
+              <input type="text" class="form-control" id="privateKey" name="privateKey" placeholder="private key" />
+            </div>
+            <div class="mb-3">
+              <input type="text" class="form-control text-muted" id="publicKey" name="publicKey"
+                placeholder="public key" readonly style="cursor:default;" />
+            </div>
+            <button type="button" class="btn" id="convert">
+              convert
+            </button>
+          </form>
+          <h3 id="result"></h3>
+        </div>
+      </div>
+    </div>
+  </header>
+  <footer class="bg-dark">
+    <div class="container py-4 py-lg-5">
+      <div class="text-muted d-flex justify-content-between align-items-center pt-3"></div>
+    </div>
+  </footer>
+  <script src="assets/bootstrap/js/bootstrap.min.js"></script>
+  <script src="assets/js/bs-init.js"></script>
+  <script src="assets/js/bold-and-dark.js"></script>
+  <script src="../scripts/registry.js"></script>
+</body>
+
+</html>

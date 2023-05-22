@@ -1,78 +1,99 @@
 const $ = require("jquery");
 const ethers = require("ethers");
 require("dotenv").config();
-let ethBal, gnoBal, polBal;
-let chdEthBal, chdGnoBal, chdPolBal;
+let sepoliaBal, chiadoBal, mumbaiBal, gnosisBal, polygonBal, optimismBal;
+let sepoliaCHDBal, chiadoCHDBal, mumbaiCHDBal, gnosisCHDBal, polygonCHDBal, optimismCHDBal;
 const {
-  ethCHD,
-  gnoCHD,
-  polCHD,
-  ethCharon,
-  gnoCharon,
-  polCharon,
-  polygonBaseToken,
+  sepoliaCHD,
+  sepoliaCharon,
+  sepoliaBaseToken,
+  chiadoCHD,
+  chiadoCharon,
+  chiadoBaseToken,
+  mumbaiCHD,
+  mumbaiCharon,
+  mumbaiBaseToken,
+  gnosisCHD,
+  gnosisCharon,
   gnosisBaseToken,
-  ethBaseToken,
+  polygonCHD,
+  polygonCharon,
+  polygonBaseToken,
+  optimismCHD,
+  optimismCharon,
+  optimismBaseToken,
 } = require("../src/tokens");
 const {
-  ethProvider,
+  sepoliaWallet,
+  mumbaiWallet,
+  chiadoWallet,
+  gnosisWallet,
+  polygonWallet,
+  optimismWallet,
+  sepoliaProvider,
+  mumbaiProvider,
+  chiadoProvider,
   gnosisProvider,
   polygonProvider,
-  ethWallet,
-  gnoWallet,
-  polWallet,
+  optimismProvider,
 } = require("../src/providers");
+const isTestnet = process.env.IS_TESTNET === "true";
 const button = document.getElementById("swapButton");
 const text = document.getElementById("swapText");
 const loader = document.getElementById("swapLoader");
-$("#myAddress").text(ethWallet.address);
+
+const walletsConfig = [
+  {
+    network: 'testnet',
+    wallets: ['sepolia', 'mumbai', 'chiado'],
+    base: ['eth', 'matic', 'xdai'],
+    labels: ['first', 'second', 'third'],
+  },
+  {
+    network: 'mainnet',
+    wallets: ['gnosis', 'polygon', 'optimism'],
+    base: ['xdai', 'matic', 'op'],
+    labels: ['first', 'second', 'third'],
+  },
+];
+
+const selectElement = document.getElementById('from-currency');
+
+const values = isTestnet ? ['eth', 'matic', 'xdai'] : ['xdai', 'matic', 'op'];
+
+for (let i = 0; i < selectElement.options.length; i++) {
+  selectElement.options[i].value = values[i];
+  selectElement.options[i].text = values[i];
+}
+
+const formatBalance = balance => Math.round(ethers.utils.formatEther(balance) * 100) / 100;
 
 async function setPublicBalances() {
-  //chdTokens
-  chdEthBal = await ethCHD.balanceOf(ethWallet.address);
-  chdGnoBal = await gnoCHD.balanceOf(gnoWallet.address);
-  chdPolBal = await polCHD.balanceOf(polWallet.address);
-  $("#chdETHBal").text(
-    Math.round(ethers.utils.formatEther(chdEthBal) * 100) / 100
-  );
-  $("#chdGNOBal").text(
-    Math.round(ethers.utils.formatEther(chdGnoBal) * 100) / 100
-  );
-  $("#chdPOLBal").text(
-    Math.round(ethers.utils.formatEther(chdPolBal) * 100) / 100
-  );
+  const config = walletsConfig.find(cfg => cfg.network === (isTestnet ? 'testnet' : 'mainnet'));
 
-  //baseTokens
-  ethBal = await ethBaseToken.balanceOf(ethWallet.address);
-  gnoBal = await gnosisBaseToken.balanceOf(gnoWallet.address);
-  polBal = await polygonBaseToken.balanceOf(polWallet.address);
-  $("#ethBal").text(Math.round(ethers.utils.formatEther(ethBal) * 100) / 100);
-  $("#xDAIBal").text(Math.round(ethers.utils.formatEther(gnoBal) * 100) / 100);
-  $("#maticBal").text(Math.round(ethers.utils.formatEther(polBal) * 100) / 100);
+  $("#myAddress").text(eval(`${config.wallets[0]}Wallet.address`));
 
-  //lpTokens
-  ethCharon
-    .balanceOf(ethWallet.address)
-    .then((result) =>
-      $("#lpETHBal").text(
-        Math.round(ethers.utils.formatEther(result) * 100) / 100
-      )
-    );
-  gnoCharon
-    .balanceOf(gnoWallet.address)
-    .then((result) =>
-      $("#lpGNOBal").text(
-        Math.round(ethers.utils.formatEther(result) * 100) / 100
-      )
-    );
-  polCharon
-    .balanceOf(polWallet.address)
-    .then((result) =>
-      $("#lpPOLBal").text(
-        Math.round(ethers.utils.formatEther(result) * 100) / 100
-      )
-    );
+  for (let i = 0; i < config.wallets.length; i++) {
+    const wallet = config.wallets[i];
+    const label = config.labels[i];
+    const base = config.base[i];
+    const chdBal = await eval(`${wallet}CHD.balanceOf(${wallet}Wallet.address)`);
+    const baseTokenBal = await eval(`${wallet}BaseToken.balanceOf(${wallet}Wallet.address)`);
+
+    $(`#${label}Row`).text(wallet);
+    $(`#${label}Base`).text(base);
+    $(`#${label}CHDBal`).text(formatBalance(chdBal));
+    // save the balances for later
+    eval(`${wallet}CHDBal = ${ethers.utils.formatEther(chdBal)}`);
+    $(`#${label}Bal`).text(formatBalance(baseTokenBal));
+    // save the balances for later
+    eval(`${wallet}Bal = ${ethers.utils.formatEther(baseTokenBal)}`);
+
+    const lpBal = await eval(`${wallet}Charon.balanceOf(${wallet}Wallet.address)`);
+    $(`#${label}LPBal`).text(formatBalance(lpBal));
+  }
 }
+
 function loadAndDisplay() {
   setPublicBalances();
   prepareSwitchButtonClick();
@@ -88,64 +109,86 @@ async function swap() {
   const gasLimit = 300000;
 
   try {
-    if (fromCurrency === "ETH") {
+    if (fromCurrency === "eth") {
       await swapToken(
         fromAmount,
-        ethBaseToken,
-        ethCharon,
-        ethBal,
+        sepoliaBaseToken,
+        sepoliaCharon,
+        sepoliaBal,
         "ETH",
-        "Ethereum",
+        "Sepolia",
         gasLimit
       );
-    } else if (fromCurrency === "xDAI") {
+    } else if (fromCurrency === "xdai") {
       await swapToken(
         fromAmount,
-        gnosisBaseToken,
-        gnoCharon,
-        gnoBal,
+        isTestnet ? chiadoBaseToken : gnosisBaseToken,
+        isTestnet ? chiadoCharon : gnosisCharon,
+        isTestnet ? chiadoBal : gnosisBal,
         "xDAI",
-        "Gnosis Chain",
+        isTestnet ? "Chiado" : "Gnosis Chain",
         gasLimit
       );
-    } else if (fromCurrency === "MATIC") {
+    } else if (fromCurrency === "matic") {
       await swapToken(
         fromAmount,
-        polygonBaseToken,
-        polCharon,
-        polBal,
+        isTestnet ? mumbaiBaseToken : polygonBaseToken,
+        isTestnet ? mumbaiCharon : polygonCharon,
+        isTestnet ? mumbaiBal : polygonBal,
         "MATIC",
-        "Polygon",
+        isTestnet ? "Mumbai" : "Polygon",
         gasLimit
       );
-    } else if (toCurrency === "ETH") {
+    } else if (fromCurrency === "op") {
       await swapToken(
         fromAmount,
-        ethCHD,
-        ethCharon,
-        chdEthBal,
+        optimismBaseToken,
+        optimismCharon,
+        optimismBal,
+        "OP",
+        "Optimism",
+        gasLimit
+      );
+    }
+    else if (toCurrency === "eth") {
+      await swapToken(
+        fromAmount,
+        sepoliaCHD,
+        sepoliaCharon,
+        sepoliaCHDBal,
         "CHD",
         "Ethereum",
         gasLimit
       );
-    } else if (toCurrency === "xDAI") {
+    } else if (toCurrency === "xdai") {
       await swapToken(
         fromAmount,
-        gnoCHD,
-        gnoCharon,
-        chdGnoBal,
+        isTestnet ? chiadoCHD : gnosisCHD,
+        isTestnet ? chiadoCharon : gnosisCharon,
+        isTestnet ? chiadoCHDBal : gnosisCHDBal,
         "CHD",
-        "Gnosis Chain",
+        isTestnet ? "Chiado" : "Gnosis Chain",
         gasLimit
       );
-    } else if (toCurrency === "MATIC") {
+    } else if (toCurrency === "matic") {
       await swapToken(
         fromAmount,
-        polCHD,
-        polCharon,
-        chdPolBal,
+        isTestnet ? mumbaiCHD : polygonCHD,
+        isTestnet ? mumbaiCharon : polygonCharon,
+        isTestnet ? mumbaiCHDBal : polygonCHDBal,
         "CHD",
-        "Polygon",
+        isTestnet ? "Mumbai" : "Polygon",
+        gasLimit
+      );
+    }
+    else if (toCurrency === "op") {
+      await swapToken(
+        fromAmount,
+        optimismCHD,
+        optimismCharon,
+        optimismCHDBal,
+        "CHD",
+        "Optimism",
         gasLimit
       );
     }
@@ -166,7 +209,7 @@ async function swapToken(
   gasLimit
 ) {
   if (
-    parseFloat(ethers.utils.formatEther(balance)) <
+    balance <
     parseFloat(ethers.utils.formatEther(fromAmount))
   ) {
     alert(
@@ -202,19 +245,25 @@ maxButton.addEventListener("click", async () => {
   const fromCurrency = fromCurrencyDropdown.value;
   const toCurrencyDropdown = document.getElementById("to-currency");
   const toCurrency = toCurrencyDropdown.value;
-  if (fromCurrency == "ETH") {
-    fromAmountBox.value = ethers.utils.formatEther(ethBal);
-  } else if (fromCurrency == "xDAI") {
-    fromAmountBox.value = ethers.utils.formatEther(gnoBal);
-  } else if (fromCurrency == "MATIC") {
-    fromAmountBox.value = ethers.utils.formatEther(polBal);
-  } else if (fromCurrency == "chd") {
-    if (toCurrency == "ETH") {
-      fromAmountBox.value = ethers.utils.formatEther(chdEthBal);
-    } else if (toCurrency == "xDAI") {
-      fromAmountBox.value = ethers.utils.formatEther(chdGnoBal);
-    } else if (toCurrency == "MATIC") {
-      fromAmountBox.value = ethers.utils.formatEther(chdPolBal);
+  if (fromCurrency == "eth") {
+    fromAmountBox.value = sepoliaBal
+  } else if (fromCurrency == "xdai") {
+    fromAmountBox.value = isTestnet ? chiadoBal : gnosisBal;
+  } else if (fromCurrency == "matic") {
+    fromAmountBox.value = isTestnet ? mumbaiBal : polygonBal;
+  } else if (fromCurrency == "op") {
+    fromAmountBox.value = optimismBal;
+  }
+  else if (fromCurrency == "chd") {
+    if (toCurrency == "eth") {
+      fromAmountBox.value = sepoliaCHDBal;
+    } else if (toCurrency == "xdai") {
+      fromAmountBox.value = isTestnet ? chiadoCHDBal : gnosisCHDBal;
+    } else if (toCurrency == "matic") {
+      fromAmountBox.value = isTestnet ? mumbaiCHDBal : polygonCHDBal;
+    }
+    else if (toCurrency == "op") {
+      fromAmountBox.value = optimismCHDBal;
     }
   }
   calculateConversion();
@@ -242,9 +291,7 @@ function enableSwapButton() {
 }
 
 const fromAmountBox = document.getElementById("from-amount");
-fromAmountBox.addEventListener("input", () => {
-  setTimeout(calculateConversion, 800);
-});
+fromAmountBox.addEventListener("input", calculateConversion);
 
 async function calculateConversionDetails(
   charon,
@@ -254,32 +301,32 @@ async function calculateConversionDetails(
 ) {
   const spotPrice = isSynthIn
     ? await charon.calcSpotPrice(
-        await charon.recordBalance(),
-        await charon.recordBalanceSynth(),
-        0
-      )
+      await charon.recordBalance(),
+      await charon.recordBalanceSynth(),
+      0
+    )
     : await charon.calcSpotPrice(
-        await charon.recordBalanceSynth(),
-        await charon.recordBalance(),
-        0
-      );
+      await charon.recordBalanceSynth(),
+      await charon.recordBalance(),
+      0
+    );
   const expectedOut = spotPrice * inputValue;
   const exitFee = inputValue * ethers.utils.formatEther(await charon.fee());
   const adjustedIn = inputValue - exitFee;
   const minAmountOut = isSynthIn
     ? await charon.calcSingleOutGivenIn(
-        await charon.recordBalance(),
-        await charon.recordBalanceSynth(),
-        ethers.utils.parseEther(adjustedIn.toString()),
-        0,
-        false
-      )
+      await charon.recordBalance(),
+      await charon.recordBalanceSynth(),
+      ethers.utils.parseEther(adjustedIn.toString()),
+      0,
+      false
+    )
     : await charon.calcOutGivenIn(
-        await charon.recordBalance(),
-        await charon.recordBalanceSynth(),
-        ethers.utils.parseEther(adjustedIn.toString()),
-        0
-      );
+      await charon.recordBalance(),
+      await charon.recordBalanceSynth(),
+      ethers.utils.parseEther(adjustedIn.toString()),
+      0
+    );
   const slippage = (minAmountOut - expectedOut) / expectedOut;
   try {
     const gasPrice = await provider.getGasPrice();
@@ -314,47 +361,63 @@ async function calculateConversion() {
   $("#slippage").css("color", "white");
   $("#gas-estimate").text("...");
 
-  if (toCurrencyDropdown.value == "ETH") {
+  if (toCurrencyDropdown.value == "eth") {
     ({ spotPrice, slippage } = await calculateConversionDetails(
-      ethCharon,
+      sepoliaCharon,
       inputValue,
       true,
-      ethProvider
+      sepoliaProvider
     ));
-  } else if (toCurrencyDropdown.value == "xDAI") {
+  } else if (toCurrencyDropdown.value == "xdai") {
     ({ spotPrice, slippage } = await calculateConversionDetails(
-      gnoCharon,
+      isTestnet ? chiadoCharon : gnosisCharon,
       inputValue,
       true,
-      gnosisProvider
+      isTestnet ? chiadoProvider : gnosisProvider
     ));
-  } else if (toCurrencyDropdown.value == "MATIC") {
+  } else if (toCurrencyDropdown.value == "matic") {
     ({ spotPrice, slippage } = await calculateConversionDetails(
-      polCharon,
+      isTestnet ? mumbaiCharon : polygonCharon,
       inputValue,
       true,
-      polygonProvider
+      isTestnet ? mumbaiProvider : polygonProvider
     ));
-  } else if (fromCurrencyDropdown.value == "ETH") {
+  } else if (toCurrencyDropdown.value == "op") {
     ({ spotPrice, slippage } = await calculateConversionDetails(
-      ethCharon,
+      optimismCharon,
+      inputValue,
+      true,
+      optimismProvider
+    ));
+  }
+  else if (fromCurrencyDropdown.value == "eth") {
+    ({ spotPrice, slippage } = await calculateConversionDetails(
+      sepoliaCharon,
       inputValue,
       false,
-      ethProvider
+      sepoliaProvider
     ));
-  } else if (fromCurrencyDropdown.value == "xDAI") {
+  } else if (fromCurrencyDropdown.value == "xdai") {
     ({ spotPrice, slippage } = await calculateConversionDetails(
-      gnoCharon,
+      isTestnet ? chiadoCharon : gnosisCharon,
       inputValue,
       false,
-      gnosisProvider
+      isTestnet ? chiadoProvider : gnosisProvider
     ));
-  } else if (fromCurrencyDropdown.value == "MATIC") {
+  } else if (fromCurrencyDropdown.value == "matic") {
     ({ spotPrice, slippage } = await calculateConversionDetails(
-      polCharon,
+      isTestnet ? mumbaiCharon : polygonCharon,
       inputValue,
       false,
-      polygonProvider
+      isTestnet ? mumbaiProvider : polygonProvider
+    ));
+  }
+  else if (fromCurrencyDropdown.value == "op") {
+    ({ spotPrice, slippage } = await calculateConversionDetails(
+      optimismCharon,
+      inputValue,
+      false,
+      optimismProvider
     ));
   }
   const expectedOut =
