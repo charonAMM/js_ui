@@ -72,6 +72,10 @@ registerButton.onclick = function () {
 const convertButton = document.getElementById("convert");
 convertButton.onclick = function () {
     privateKey = document.getElementById("privateKey").value;
+    if (privateKey.length != 66) {
+        window.alert("Please enter a valid private key in hex format of length 66");
+        return;
+    }
     const myKeyPair = new Keypair({
         privkey: privateKey,
         myHashFunc: poseidon,
@@ -125,7 +129,7 @@ function setNetworkOptions() {
         dropdownMenu.appendChild(li);
 
         if (option === defaultOption) {
-            a.classList.add('disabled'); 
+            a.classList.add('disabled');
             optionsMenu.textContent = option;
         }
     });

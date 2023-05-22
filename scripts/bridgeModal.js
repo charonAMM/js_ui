@@ -209,7 +209,29 @@ async function checkBalance(_fromNetwork, _depositAmount, _isChd) {
         _amount = optimismCHDBal;
         break;
     }
+  } else {
+    switch (_fromNetwork) {
+      case "sepolia":
+        _amount = sepoliaBal;
+        break;
+      case "mumbai":
+        _amount = mumbaiBal;
+        break;
+      case "chiado":
+        _amount = chiadoBal;
+        break;
+      case "gnosis":
+        _amount = gnosisBal;
+        break;
+      case "polygon":
+        _amount = polygonBal;
+        break;
+      case "optimism":
+        _amount = optimismBal;
+        break;
+    }
   }
+  console.log(parseFloat(_amount), parseFloat(ethers.utils.formatEther(_depositAmount)));
   if (parseFloat(_amount) < parseFloat(ethers.utils.formatEther(_depositAmount))) {
     alert(`Not enough balance on ${_fromNetwork}!`);
     enableBridgeButton();

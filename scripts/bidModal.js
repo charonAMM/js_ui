@@ -32,31 +32,29 @@ baseToken.balanceOf(wallet.address).then((result) => {
 });
 $("#signAndBid").on("click", async () => {
   const bidAmount = parseFloat($("#bidAmount").val());
+  if (
+    bidAmount == "" ||
+    bidAmount == null ||
+    bidAmount == undefined ||
+    bidAmount == 0 ||
+    isNaN(bidAmount)
+  ) {
+    window.alert("Please enter a valid bid amount");
+    return;
+  }
   const balance = parseFloat(balanceVal);
+  if (bidAmount > balance) {
+    window.alert(
+      `Please enter a bid lower than your current ${isTestnet ? 'ETH' : 'xDai'} balance`
+    );
+    return;
+  }
   const currentTopBid = parseFloat(
     ethers.utils.formatEther(await CIT.currentTopBid())
   );
 
   try {
-    if (
-      bidAmount == "" ||
-      bidAmount == null ||
-      bidAmount == undefined ||
-      bidAmount == 0 ||
-      isNaN(bidAmount)
-    ) {
-      window.alert("Please enter a bid amount");
-      return;
-    }
     if (bidAmount > currentTopBid) {
-      if (bidAmount > balance) {
-        window.alert(
-          `Bid too high. Please enter a bid lower than your current ${isTestnet ? 'ETH' : 'xDai'} balance: ` +
-          balance +
-          `${isTestnet ? ' ETH' : ' xDai'}`
-        );
-        return;
-      }
       showLoadingAnimation();
       await baseToken.approve(
         CIT.address,
