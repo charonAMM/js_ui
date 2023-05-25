@@ -294,7 +294,7 @@ async function send() {
         });
       }
     } else {
-      const registry = getRegistry(_network);
+      const registry = getRegistry(isTestnet ? 'sepolia' : 'gnosis network');
       if (_withdrawal != "on") {
         _adjTo = 0;
       } else {
