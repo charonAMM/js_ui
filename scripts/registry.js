@@ -28,8 +28,10 @@ buildPoseidon().then(function (res) {
 });
 document.getElementById("pubKey").value = utxos.publicKey.substring(0, 50) + "...";
 
+const dropdownMenu = document.querySelector('.dropdown-menu');
+const optionsMenu = document.querySelector('#optionsMenu');
+
 function getRegistry() {
-    const optionsMenu = document.querySelector('#optionsMenu');
     const selectedNetwork = optionsMenu.textContent;
 
     if (selectedNetwork === 'chiado') {
@@ -110,12 +112,10 @@ function checkIsRegistered() {
 const testNetworkOptions = ['chiado', 'mumbai', 'sepolia']
 const mainNetworkOptions = ['gnosis chain', 'polygon', 'optimism']
 function setNetworkOptions() {
-    const dropdownMenu = document.querySelector('.dropdown-menu');
-    const optionsMenu = document.querySelector('#optionsMenu');
     dropdownMenu.innerHTML = '';
 
     const options = isTestnet ? testNetworkOptions : mainNetworkOptions;
-    const defaultOption = isTestnet ? 'chiado' : 'gnosis chain';
+    const defaultOption = isTestnet ? 'sepolia' : 'gnosis chain';
 
     options.forEach(option => {
         const li = document.createElement('li');
@@ -134,9 +134,6 @@ function setNetworkOptions() {
         }
     });
 }
-
-const dropdownMenu = document.querySelector('.dropdown-menu');
-const optionsMenu = document.querySelector('#optionsMenu');
 
 dropdownMenu.addEventListener('click', (event) => {
     if (event.target.tagName !== 'A') return;  // Add to prevent event handling for non-<a> elements

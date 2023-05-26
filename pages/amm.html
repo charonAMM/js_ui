@@ -1,203 +1,260 @@
 <!DOCTYPE html>
 <html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1.0, shrink-to-fit=no"
+    />
+    <title>charon - a privacy preserving cross-chain AMM</title>
+    <link href="../public/Charon_mono.png" rel="icon" />
+    <link rel="stylesheet" href="assets/bootstrap/css/bootstrap.min.css" />
+    <link
+      rel="stylesheet"
+      href="https://fonts.googleapis.com/css?family=Inter:300italic,400italic,600italic,700italic,800italic,400,300,600,700,800&amp;display=swap"
+    />
+    <link rel="stylesheet" href="../main.css" />
+    <link rel="stylesheet" href="assets/css/Swap-form.css" />
+  </head>
 
-<head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, shrink-to-fit=no" />
-  <title>charon - a privacy preserving cross-chain AMM</title>
-  <link href="../public/Charon_mono.png" rel="icon" />
-  <link rel="stylesheet" href="assets/bootstrap/css/bootstrap.min.css" />
-  <link rel="stylesheet"
-    href="https://fonts.googleapis.com/css?family=Inter:300italic,400italic,600italic,700italic,800italic,400,300,600,700,800&amp;display=swap" />
-  <link rel="stylesheet" href="../main.css" />
-  <link rel="stylesheet" href="assets/css/Swap-form.css" />
-</head>
-
-<body>
-  <nav class="navbar navbar-dark navbar-expand-md sticky-top py-3" id="mainNav">
-    <div class="container">
-      <a class="navbar-brand d-flex align-items-center" href="../pages/index.html"><span>charon</span></a><button
-        data-bs-toggle="collapse" class="navbar-toggler" data-bs-target="#navcol-1">
-        <span class="visually-hidden">Toggle navigation</span><span class="navbar-toggler-icon"></span>
-      </button>
-      <div class="collapse navbar-collapse" id="navcol-1">
-        <ul class="navbar-nav mx-auto">
-          <li class="nav-item">
-            <a class="nav-link" href="../pages/index.html">home</a>
-          </li>
-          <li class="nav-item">
-            <a class="nav-link active" href="../pages/amm.html">trade</a>
-          </li>
-          <li class="nav-item">
-            <a class="nav-link" href="../pages/auction.html">auction</a>
-          </li>
-          <li class="nav-item">
-            <a class="nav-link" href="../pages/cit.html">cit</a>
-          </li>
-          <li class="nav-item">
-            <a class="nav-link" href="../pages/registery.html">registry</a>
-          </li>
-        </ul>
-      </div>
-    </div>
-  </nav>
-  <header class="bg-dark">
-    <div class="container">
-      <div class="row">
-        <div class="col-md-12">
-          <br />
-          <p class="fw-bold text-success text-center" id="myAddress">
-            address
-          </p>
+  <body>
+    <nav
+      class="navbar navbar-dark navbar-expand-md sticky-top py-3"
+      id="mainNav"
+    >
+      <div class="container">
+        <a
+          class="navbar-brand d-flex align-items-center"
+          href="../pages/index.html"
+          ><span>charon</span></a
+        ><button
+          data-bs-toggle="collapse"
+          class="navbar-toggler"
+          data-bs-target="#navcol-1"
+        >
+          <span class="visually-hidden">Toggle navigation</span
+          ><span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navcol-1">
+          <ul class="navbar-nav mx-auto">
+            <li class="nav-item">
+              <a class="nav-link" href="../pages/index.html">home</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link active" href="../pages/amm.html">trade</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="../pages/auction.html">auction</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="../pages/cit.html">cit</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="../pages/registery.html">registry</a>
+            </li>
+          </ul>
         </div>
       </div>
-      <div class="row">
-        <div class="col-md-6">
-          <h2 class="my-4" style="font-size: 24px; font-weight: 700">
-            my balances
-          </h2>
-          <div class="table-responsive">
-            <table class="table">
-              <thead class="text-center">
-                <tr>
-                  <th class="text-center placeholder" id="firstRow"></th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr>
-                  <td class="text-start" id="firstBase"></td>
-                  <td class="text-center" id="firstBal">...</td>
-                </tr>
-                <tr class="text-center">
-                  <td class="text-start">chd</td>
-                  <td class="text-center" id="firstCHDBal">...</td>
-                </tr>
-                <tr class="text-center">
-                  <td class="text-start">lp tokens</td>
-                  <td class="text-center" id="firstLPBal">...</td>
-                </tr>
-              </tbody>
-            </table>
-          </div>
-          <div class="table-responsive">
-            <table class="table">
-              <thead class="text-center">
-                <tr>
-                  <th class="text-center placeholder" id="secondRow"></th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr>
-                  <td class="text-start" id="secondBase"></td>
-                  <td class="text-center" id="secondBal">...</td>
-                </tr>
-                <tr class="text-center">
-                  <td class="text-start">chd</td>
-                  <td class="text-center" id="secondCHDBal">...</td>
-                </tr>
-                <tr class="text-center">
-                  <td class="text-start">lp tokens</td>
-                  <td class="text-center" id="secondLPBal">...</td>
-                </tr>
-              </tbody>
-            </table>
-          </div>
-          <div class="table-responsive">
-            <table class="table">
-              <thead class="text-center">
-                <tr>
-                  <th class="text-center placeholder" id="thirdRow"></th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr>
-                  <td class="text-start" id="thirdBase"></td>
-                  <td class="text-center" id="thirdBal">...</td>
-                </tr>
-                <tr class="text-center">
-                  <td class="text-start">chd</td>
-                  <td class="text-center" id="thirdCHDBal">...</td>
-                </tr>
-                <tr class="text-center">
-                  <td class="text-start">lp tokens</td>
-                  <td class="text-center" id="thirdLPBal">...</td>
-                </tr>
-              </tbody>
-            </table>
+    </nav>
+    <header class="bg-dark">
+      <div class="container">
+        <div class="row">
+          <div class="col-md-12">
+            <br />
+            <p class="fw-bold text-success text-center" id="myAddress">
+              address
+            </p>
           </div>
         </div>
-        <div class="col-md-6">
-          <div class="tab-content" id="pills-tabContent">
-            <div class="swap-container tab-pane fade show active" id="pills-swap" role="tabpanel"
-              aria-labelledby="pills-swap-tab">
-              <div class="swap-contents" style="margin-top: 30px">
-                <div class="card swap-contents-card">
-                  <div class="card-body">
-                    <div class="card-input input-group">
-                      <button id="max-button" type="button">MAX</button>
-                      <div class="input-card-top">
-                        <input type="text" inputmode="numeric" value="" placeholder="0" class="form-control"
-                          id="from-amount" style="color: whitesmoke" />
-                        <div>
-                          <select class="btn dropdown-toggle" name="currency" id="from-currency"
-                            onchange="calculateConversion()" ra style="
+        <div class="row">
+          <div class="col-md-6">
+            <h2 class="my-4" style="font-size: 24px; font-weight: 700">
+              my balances
+            </h2>
+            <div class="table-responsive">
+              <table class="table">
+                <thead class="text-center">
+                  <tr>
+                    <th class="text-center placeholder" id="firstRow"></th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td class="text-start" id="firstBase"></td>
+                    <td class="text-center" id="firstBal">...</td>
+                  </tr>
+                  <tr class="text-center">
+                    <td class="text-start">chd</td>
+                    <td class="text-center" id="firstCHDBal">...</td>
+                  </tr>
+                  <tr class="text-center">
+                    <td class="text-start">lp tokens</td>
+                    <td class="text-center" id="firstLPBal">...</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+            <div class="table-responsive">
+              <table class="table">
+                <thead class="text-center">
+                  <tr>
+                    <th class="text-center placeholder" id="secondRow"></th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td class="text-start" id="secondBase"></td>
+                    <td class="text-center" id="secondBal">...</td>
+                  </tr>
+                  <tr class="text-center">
+                    <td class="text-start">chd</td>
+                    <td class="text-center" id="secondCHDBal">...</td>
+                  </tr>
+                  <tr class="text-center">
+                    <td class="text-start">lp tokens</td>
+                    <td class="text-center" id="secondLPBal">...</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+            <div class="table-responsive">
+              <table class="table">
+                <thead class="text-center">
+                  <tr>
+                    <th class="text-center placeholder" id="thirdRow"></th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td class="text-start" id="thirdBase"></td>
+                    <td class="text-center" id="thirdBal">...</td>
+                  </tr>
+                  <tr class="text-center">
+                    <td class="text-start">chd</td>
+                    <td class="text-center" id="thirdCHDBal">...</td>
+                  </tr>
+                  <tr class="text-center">
+                    <td class="text-start">lp tokens</td>
+                    <td class="text-center" id="thirdLPBal">...</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+          <div class="col-md-6">
+            <div class="tab-content" id="pills-tabContent">
+              <div
+                class="swap-container tab-pane fade show active"
+                id="pills-swap"
+                role="tabpanel"
+                aria-labelledby="pills-swap-tab"
+              >
+                <div class="swap-contents" style="margin-top: 30px">
+                  <div class="card swap-contents-card">
+                    <div class="card-body">
+                      <div class="card-input input-group">
+                        <button id="max-button" type="button">MAX</button>
+                        <div class="input-card-top" style="border-radius: 20px">
+                          <input
+                            type="text"
+                            inputmode="numeric"
+                            value=""
+                            placeholder="0"
+                            class="form-control"
+                            id="from-amount"
+                            style="color: whitesmoke"
+                          />
+                          <div>
+                            <select
+                              class="btn dropdown-toggle"
+                              name="currency"
+                              id="from-currency"
+                              onchange="calculateConversion()"
+                              ra
+                              style="
+                                margin-right: 5px;
                                 padding: 1px;
                                 border-radius: 1px;
                                 border-top-left-radius: 10px;
                                 border-top-right-radius: 10px;
                                 border-bottom-right-radius: 10px;
                                 border-bottom-left-radius: 10px;
-                              ">
-                            <option style="background-color: #212429">
-                            </option>
-                            <option style="background-color: #212429">
-                            </option>
-                            <option style="background-color: #212429">
-                            </option>
-                          </select>
+                                text-align: right;
+                              "
+                            >
+                              <option
+                                style="background-color: #212429"
+                              ></option>
+                              <option
+                                style="background-color: #212429"
+                              ></option>
+                              <option
+                                style="background-color: #212429"
+                              ></option>
+                            </select>
+                          </div>
                         </div>
-                      </div>
-                      <div class="card-arrow">
-                        <img src="../pages/assets/img/arrow.png" alt="" />
-                      </div>
-                      <div class="input-card-top">
-                        <input type="text" inputmode="numeric" value="" placeholder="0" class="form-control"
-                          id="to-amount" style="color: lightslategray" disabled readonly />
-                        <div class="dropdown">
-                          <select class="btn dropdown-toggle" name="currency" id="to-currency"
-                            onchange="calculateConversion()" style="
+                        <div class="card-arrow">
+                          <img src="../pages/assets/img/arrow.png" alt="" />
+                        </div>
+                        <div class="input-card-top" style="border-radius: 20px">
+                          <input
+                            type="text"
+                            inputmode="numeric"
+                            value=""
+                            placeholder="0"
+                            class="form-control"
+                            id="to-amount"
+                            style="color: lightslategray"
+                            disabled
+                            readonly
+                          />
+                          <div class="dropdown">
+                            <select
+                              class="btn dropdown-toggle"
+                              name="currency"
+                              id="to-currency"
+                              onchange="calculateConversion()"
+                              style="
+                                margin-right: 5px;
                                 padding: 1px;
                                 border-radius: 1px;
                                 border-top-left-radius: 10px;
                                 border-top-right-radius: 10px;
                                 border-bottom-right-radius: 10px;
                                 border-bottom-left-radius: 10px;
-                              ">
-                            <!-- <option value="ETH" style = "background-color:#212429;" disabled>eth</option>
+                                text-align: right;
+                              "
+                            >
+                              <!-- <option value="ETH" style = "background-color:#212429;" disabled>eth</option>
                                                         <option value="xDAI"  style = "background-color:#212429">xdai</option>
                                                         <option value="MATIC" style = "background-color:#212429">matic</option> -->
-                            <option value="chd" style="background-color: #212429">
-                              chd
-                            </option>
-                          </select>
+                              <option
+                                value="chd"
+                                style="background-color: #212429"
+                              >
+                                chd
+                              </option>
+                            </select>
+                          </div>
+                        </div>
+                        <div>
+                          <div style="padding-left: 10px">
+                            estimated gas: <span id="gas-estimate"></span>
+                          </div>
+                          <div style="padding-left: 10px">
+                            slippage: <span id="slippage"></span>
+                          </div>
                         </div>
                       </div>
-                      <div>
-                        <div style="padding-left: 10px">
-                          estimated gas: <span id="gas-estimate"></span>
-                        </div>
-                        <div style="padding-left: 10px">
-                          slippage: <span id="slippage"></span>
-                        </div>
-                      </div>
-                    </div>
-                    <!-- <button type="button" class="connect-wallet-down" id="connectButton">
+                      <!-- <button type="button" class="connect-wallet-down" id="connectButton">
                                             connect wallet
                                         </button> -->
-                    <button type="button" class="swap-down" id="swapButton">
-                      <span id="swapText">swap</span>
-                      <div class="loader" id="swapLoader"></div>
-                    </button>
+                      <button type="button" class="swap-down" id="swapButton">
+                        <span id="swapText">swap</span>
+                        <div class="loader" id="swapLoader"></div>
+                      </button>
+                    </div>
                   </div>
                 </div>
               </div>
@@ -205,17 +262,17 @@
           </div>
         </div>
       </div>
-    </div>
-  </header>
-  <footer class="bg-dark">
-    <div class="container py-4 py-lg-5">
-      <div class="text-muted d-flex justify-content-between align-items-center pt-3"></div>
-    </div>
-  </footer>
-  <script src="assets/bootstrap/js/bootstrap.min.js"></script>
-  <script src="assets/js/bs-init.js"></script>
-  <script src="assets/js/bold-and-dark.js"></script>
-  <script src="../scripts/amm.js"></script>
-</body>
-
+    </header>
+    <footer class="bg-dark">
+      <div class="container py-4 py-lg-5">
+        <div
+          class="text-muted d-flex justify-content-between align-items-center pt-3"
+        ></div>
+      </div>
+    </footer>
+    <script src="assets/bootstrap/js/bootstrap.min.js"></script>
+    <script src="assets/js/bs-init.js"></script>
+    <script src="assets/js/bold-and-dark.js"></script>
+    <script src="../scripts/amm.js"></script>
+  </body>
 </html>

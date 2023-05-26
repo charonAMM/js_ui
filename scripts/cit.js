@@ -30,7 +30,7 @@ if (isTestnet) {
   bases = ['eth', 'matic', 'xdai'];
 } else {
   networks = ['gnosis chain', 'polygon', 'optimism'];
-  bases = ['xdai', 'matic', 'op'];
+  bases = ['xdai', 'matic', 'weth'];
 }
 
 for (let i = 0; i < 3; i++) {

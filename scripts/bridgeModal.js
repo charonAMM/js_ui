@@ -68,41 +68,56 @@ const loader = document.getElementById("bridgeLoader");
 
 let builtPoseidon;
 
-let sepoliaCHDBal, mumbaiCHDBal, chiadoCHDBal, gnosisCHDBal, polygonCHDBal, optimismCHDBal;
+let sepoliaCHDBal,
+  mumbaiCHDBal,
+  chiadoCHDBal,
+  gnosisCHDBal,
+  polygonCHDBal,
+  optimismCHDBal;
 let sepoliaBal, mumbaiBal, chiadoBal, gnosisBal, polygonBal, optimismBal;
+
+updateTokenOptions(isTestnet ? "sepolia" : "gnosis");
 
 const walletsConfig = [
   {
-    network: 'testnet',
-    wallets: ['sepolia', 'mumbai', 'chiado'],
+    network: "testnet",
+    wallets: ["sepolia", "mumbai", "chiado"],
   },
   {
-    network: 'mainnet',
-    wallets: ['gnosis', 'polygon', 'optimism'],
+    network: "mainnet",
+    wallets: ["gnosis", "polygon", "optimism"],
   },
 ];
 
 const values = isTestnet ? walletsConfig[0].wallets : walletsConfig[1].wallets;
-const texts = isTestnet ? ["Sepolia", "Mumbai", "Chiado"] : ["Gnosis", "Polygon", "Optimism"];
+const texts = isTestnet
+  ? ["Sepolia", "Mumbai", "Chiado"]
+  : ["Gnosis", "Polygon", "Optimism"];
 
-const fromDropdown = document.getElementById('from');
-const toDropdown = document.getElementById('to');
+const fromDropdown = document.getElementById("from");
+const toDropdown = document.getElementById("to");
 
 for (let i = 0; i < fromDropdown.length; i++) {
-  fromDropdown.options[i].value = values[i]
-  fromDropdown.options[i].text = texts[i]
-  toDropdown.options[i].value = values[i]
-  toDropdown.options[i].text = texts[i]
+  fromDropdown.options[i].value = values[i];
+  fromDropdown.options[i].text = texts[i];
+  toDropdown.options[i].value = values[i];
+  toDropdown.options[i].text = texts[i];
 }
 
 loadBalances();
 async function loadBalances() {
-  const config = walletsConfig.find(cfg => cfg.network === (isTestnet ? 'testnet' : 'mainnet'));
+  const config = walletsConfig.find(
+    (cfg) => cfg.network === (isTestnet ? "testnet" : "mainnet")
+  );
 
   for (let i = 0; i < config.wallets.length; i++) {
     const wallet = config.wallets[i];
-    const chdBal = await eval(`${wallet}CHD.balanceOf(${wallet}Wallet.address)`);
-    const baseTokenBal = await eval(`${wallet}BaseToken.balanceOf(${wallet}Wallet.address)`);
+    const chdBal = await eval(
+      `${wallet}CHD.balanceOf(${wallet}Wallet.address)`
+    );
+    const baseTokenBal = await eval(
+      `${wallet}BaseToken.balanceOf(${wallet}Wallet.address)`
+    );
 
     eval(`${wallet}CHDBal = ${ethers.utils.formatEther(chdBal)}`);
     eval(`${wallet}Bal = ${ethers.utils.formatEther(baseTokenBal)}`);
@@ -170,7 +185,7 @@ maxBtn.addEventListener("click", () => {
       balance = optimismBal;
     }
   }
-  amountInput.value = balance
+  amountInput.value = balance;
 });
 
 function poseidon(inputs) {
@@ -231,8 +246,9 @@ async function checkBalance(_fromNetwork, _depositAmount, _isChd) {
         break;
     }
   }
-  console.log(parseFloat(_amount), parseFloat(ethers.utils.formatEther(_depositAmount)));
-  if (parseFloat(_amount) < parseFloat(ethers.utils.formatEther(_depositAmount))) {
+  if (
+    parseFloat(_amount) < parseFloat(ethers.utils.formatEther(_depositAmount))
+  ) {
     alert(`Not enough balance on ${_fromNetwork}!`);
     enableBridgeButton();
     return false;
@@ -248,6 +264,7 @@ async function bridge() {
 
   const _fromNetwork = fromNetworkSelect.value;
   const _toNetwork = toNetworkSelect.value;
+
   const _token = tokenSelect.value;
   let _amount;
   const _myKeypair = new Keypair({
@@ -280,10 +297,7 @@ async function bridge() {
       ? getCHDToken(_fromNetwork)
       : getBaseToken(_fromNetwork);
 
-    await _approveToken.approve(
-      _charon.address,
-      _isChd ? _depositAmount : _amount
-    );
+    await _approveToken.approve(_charon.address, _depositAmount);
 
     prepareTransaction({
       charon: _charon,
@@ -401,7 +415,7 @@ function enableBridgeButton() {
 function updateOptionStatus(select1, select2) {
   for (let i = 0; i < select1.options.length; i++) {
     const option = select1.options[i];
-    option.disabled = (option.value === select2.value);
+    option.disabled = option.value === select2.value;
     if (option.disabled && select1.value === option.value) {
       select2.selectedIndex = (i + 1) % select2.options.length;
     }
@@ -411,29 +425,31 @@ function updateOptionStatus(select1, select2) {
 function updateTokenOptions(network) {
   let tokens;
   switch (network) {
-    case 'sepolia':
-      tokens = ['ETH', 'CHD'];
+    case "sepolia":
+      tokens = ["ETH", "CHD"];
       break;
-    case 'mumbai':
-      tokens = ['MATIC', 'CHD'];
+    case "mumbai":
+      tokens = ["wMATIC", "CHD"];
       break;
-    case 'chiado':
-      tokens = ['xDAI', 'CHD'];
+    case "chiado":
+      tokens = ["wXDAI", "CHD"];
       break;
-    case 'gnosis':
-      tokens = ['xDAI', 'CHD'];
+    case "gnosis":
+      tokens = ["wXDAI", "CHD"];
       break;
-    case 'polygon':
-      tokens = ['MATIC', 'CHD'];
+    case "polygon":
+      tokens = ["wMATIC", "CHD"];
       break;
-    case 'optimism':
-      tokens = ['OP', 'CHD'];
+    case "optimism":
+      tokens = ["wETH", "CHD"];
       break;
     default:
       tokens = [];
   }
 
-  tokenSelect.innerHTML = tokens.map(token => `<option value="${token}">${token}</option>`).join('');
+  tokenSelect.innerHTML = tokens
+    .map((token) => `<option value="${token}">${token}</option>`)
+    .join("");
 }
 
 function updateToNetworkOptions() {
