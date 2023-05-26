@@ -75,6 +75,14 @@ $("#signAndSend").on("click", () => {
   send();
 });
 
+$("input[type=radio][name=option]").on("change", function () {
+  if (this.value == "private") {
+    $("#withdrawalDiv").show();
+  } else {
+    $("#withdrawalDiv").hide();
+  }
+});
+
 function poseidon(inputs) {
   let val = builtPoseidon(inputs);
   return builtPoseidon.F.toString(val);
