@@ -67,7 +67,7 @@ function poseidon(inputs) {
 function makeSendModal() {
   sendModal = new BrowserWindow({
     width: 700,
-    height: 620,
+    height: 680,
     webPreferences: {
       nodeIntegration: true,
       enableRemoteModule: true,

@@ -265,16 +265,6 @@ async function bridge() {
   const _fromNetwork = fromNetworkSelect.value;
   const _toNetwork = toNetworkSelect.value;
 
-  if (
-    (_fromNetwork === "gnosis" && _toNetwork === "polygon") ||
-    (_fromNetwork === "polygon" && _toNetwork === "gnosis") ||
-    (_fromNetwork === "chiado" && _toNetwork === "mumbai") ||
-    (_fromNetwork === "mumbai" && _toNetwork === "chiado")
-  ) {
-    alert(`Gnosis - Polygon bridge is not supported!`);
-    enableBridgeButton();
-    return;
-  }
   const _token = tokenSelect.value;
   let _amount;
   const _myKeypair = new Keypair({

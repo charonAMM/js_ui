@@ -52,19 +52,19 @@ const ppVal = utxos.ppVal;
 const poVal = utxos.poVal;
 
 if (isTestnet) {
-  document.getElementById('btnradio1').value = 'sepolia';
-  document.getElementById('labelradio1').textContent = 'sepolia';
-  document.getElementById('btnradio2').value = 'mumbai';
-  document.getElementById('labelradio2').textContent = 'mumbai';
-  document.getElementById('btnradio3').value = 'chiado';
-  document.getElementById('labelradio3').textContent = 'chiado';
+  document.getElementById("btnradio1").value = "sepolia";
+  document.getElementById("labelradio1").textContent = "sepolia";
+  document.getElementById("btnradio2").value = "mumbai";
+  document.getElementById("labelradio2").textContent = "mumbai";
+  document.getElementById("btnradio3").value = "chiado";
+  document.getElementById("labelradio3").textContent = "chiado";
 } else {
-  document.getElementById('btnradio1').value = 'gnosis';
-  document.getElementById('labelradio1').textContent = 'gnosis';
-  document.getElementById('btnradio2').value = 'polygon';
-  document.getElementById('labelradio2').textContent = 'polygon';
-  document.getElementById('btnradio3').value = 'optimism';
-  document.getElementById('labelradio3').textContent = 'optimism';
+  document.getElementById("btnradio1").value = "gnosis";
+  document.getElementById("labelradio1").textContent = "gnosis";
+  document.getElementById("btnradio2").value = "polygon";
+  document.getElementById("labelradio2").textContent = "polygon";
+  document.getElementById("btnradio3").value = "optimism";
+  document.getElementById("labelradio3").textContent = "optimism";
 }
 
 function poseidon2(a, b) {
@@ -113,8 +113,8 @@ let changeUtxos = [];
 async function prepare2(_chain) {
   let _to = $("#toAddy").val();
   let _amount = $("#toAmount").val();
-  let _withdrawal2 = $("#withdrawalCheckbox").val();
-  if (_withdrawal2 == "on") {
+  let _withdrawal2 = $("#withdrawalCheckbox").prop("checked");
+  if (_withdrawal2) {
     if (utxoAmount != _amount) {
       changeUtxos.push(
         new Utxo({
@@ -226,10 +226,9 @@ async function send() {
   let _to = $("#toAddy").val();
   let _amount = parseInt($("#toAmount").val());
   let _network = $('input[name="netType"]:checked').val();
-  let _visType = $("#txType-switch").prop("checked") ? "private" : "public";
-  let _withdrawal = $("#withdrawalCheckbox").val();
+  let _visType = $('input[name="option"]:checked').val();
+  let _withdrawal = $("#withdrawalCheckbox").prop("checked");
   let _adjTo = _to;
-
   if (_to.length != 42) {
     window.alert("Please enter a valid address");
     return;
@@ -241,66 +240,77 @@ async function send() {
   try {
     if (_visType == "public") {
       if (getPublicBalance(getChainID(_network)) < _amount) {
-        window.alert("Not enough public balance on the " + _network + " network.");
+        window.alert(
+          "Not enough public balance on the " + _network + " network."
+        );
         return;
       }
       if (_network == "sepolia") {
-        sepoliaCHD.transfer(_to, ethers.utils.parseEther(_amount.toString())).then((result) => {
-          console.log(result);
-          window.alert(
-            "Transaction sent on Sepolia network with tx hash: " +
-            result.hash
-          );
-        });
+        sepoliaCHD
+          .transfer(_to, ethers.utils.parseEther(_amount.toString()))
+          .then((result) => {
+            console.log(result);
+            window.alert(
+              "Transaction sent on Sepolia network with tx hash: " + result.hash
+            );
+          });
       } else if (_network == "mumbai") {
-        mumbaiCHD.transfer(_to, ethers.utils.parseEther(_amount.toString())).then((result) => {
-          console.log(result);
-          window.alert(
-            "Transaction sent on Mumbai network with tx hash: " +
-            result.hash
-          );
-        });
+        mumbaiCHD
+          .transfer(_to, ethers.utils.parseEther(_amount.toString()))
+          .then((result) => {
+            console.log(result);
+            window.alert(
+              "Transaction sent on Mumbai network with tx hash: " + result.hash
+            );
+          });
       } else if (_network == "chiado") {
-        chiadoCHD.transfer(_to, ethers.utils.parseEther(_amount.toString())).then((result) => {
-          console.log(result)
-          window.alert(
-            "Transaction sent on Chiado network with tx hash: " +
-            result.hash
-          );
-        });
+        chiadoCHD
+          .transfer(_to, ethers.utils.parseEther(_amount.toString()))
+          .then((result) => {
+            console.log(result);
+            window.alert(
+              "Transaction sent on Chiado network with tx hash: " + result.hash
+            );
+          });
       } else if (_network == "gnosis") {
-        gnosisCHD.transfer(_to, ethers.utils.parseEther(_amount.toString())).then((result) => {
-          console.log(result);
-          window.alert(
-            "Transaction sent on Gnosis network with tx hash: " +
-            result.hash
-          );
-        });
+        gnosisCHD
+          .transfer(_to, ethers.utils.parseEther(_amount.toString()))
+          .then((result) => {
+            console.log(result);
+            window.alert(
+              "Transaction sent on Gnosis network with tx hash: " + result.hash
+            );
+          });
       } else if (_network == "polygon") {
-        polygonCHD.transfer(_to, ethers.utils.parseEther(_amount.toString())).then((result) => {
-          console.log(result);
-          window.alert(
-            "Transaction sent on Polygon network with tx hash: " +
-            result.hash
-          );
-        });
+        polygonCHD
+          .transfer(_to, ethers.utils.parseEther(_amount.toString()))
+          .then((result) => {
+            console.log(result);
+            window.alert(
+              "Transaction sent on Polygon network with tx hash: " + result.hash
+            );
+          });
       } else if (_network == "optimism") {
-        optimismCHD.transfer(_to, ethers.utils.parseEther(_amount.toString())).then((result) => {
-          console.log(result);
-          window.alert(
-            "Transaction sent on Optimism network with tx hash: " +
-            result.hash
-          );
-        });
+        optimismCHD
+          .transfer(_to, ethers.utils.parseEther(_amount.toString()))
+          .then((result) => {
+            console.log(result);
+            window.alert(
+              "Transaction sent on Optimism network with tx hash: " +
+                result.hash
+            );
+          });
       }
     } else {
-      const registry = getRegistry(isTestnet ? 'sepolia' : 'gnosis network');
-      if (_withdrawal != "on") {
+      const registry = getRegistry(isTestnet ? "sepolia" : "gnosis network");
+      if (!_withdrawal) {
         _adjTo = 0;
       } else {
         const publicKey = await registry.getPublicKey(_to);
-        if (publicKey == '0x') {
-          window.alert("Address not yet registered.  Please register it first.");
+        if (publicKey == "0x") {
+          window.alert(
+            "Address not yet registered.  Please register it first."
+          );
           return;
         } else {
           _adjTo = publicKey;
@@ -375,8 +385,7 @@ async function send() {
               );
           });
         }
-      }
-      else if (_network == "gnosis") {
+      } else if (_network == "gnosis") {
         //ADD checkbox if withdraw, add MAX button to autofill balance
         //get amount and address (can we just use an address?  Test that that person can then do something with it, if not, you need a registry?)
         await prepareSend(m.gnoUTXOs, getChainID(_network));
@@ -423,8 +432,7 @@ async function send() {
           });
         }
         //to add, if fee > 0, send to relayer network!! (not built yet)
-      }
-      else if (_network == "optimism") {
+      } else if (_network == "optimism") {
         //ADD checkbox if withdraw, add MAX button to autofill balance
         //get amount and address (can we just use an address?  Test that that person can then do something with it, if not, you need a registry?)
         await prepareSend(m.optUTXOs, getChainID(_network));
@@ -457,23 +465,42 @@ async function send() {
 }
 
 function getRegistry(_network) {
-  if (_network === 'chiado') {
-    return new ethers.Contract(process.env.CHIADO_REGISTRY, regABI, chiadoWallet);
-  }
-  else if (_network === 'mumbai') {
-    return new ethers.Contract(process.env.MUMBAI_REGISTRY, regABI, mumbaiWallet);
-  }
-  else if (_network === 'sepolia') {
-    return new ethers.Contract(process.env.SEPOLIA_REGISTRY, regABI, sepoliaWallet);
-  }
-  else if (_network === 'gnosis chain') {
-    return new ethers.Contract(process.env.GNOSIS_REGISTRY, regABI, gnosisWallet);
-  }
-  else if (_network === 'polygon') {
-    return new ethers.Contract(process.env.POLYGON_REGISTRY, regABI, polygonWallet);
-  }
-  else if (_network === 'optimism') {
-    return new ethers.Contract(process.env.OPTIMISM_REGISTRY, regABI, optimismWallet);
+  if (_network === "chiado") {
+    return new ethers.Contract(
+      process.env.CHIADO_REGISTRY,
+      regABI,
+      chiadoWallet
+    );
+  } else if (_network === "mumbai") {
+    return new ethers.Contract(
+      process.env.MUMBAI_REGISTRY,
+      regABI,
+      mumbaiWallet
+    );
+  } else if (_network === "sepolia") {
+    return new ethers.Contract(
+      process.env.SEPOLIA_REGISTRY,
+      regABI,
+      sepoliaWallet
+    );
+  } else if (_network === "gnosis chain") {
+    return new ethers.Contract(
+      process.env.GNOSIS_REGISTRY,
+      regABI,
+      gnosisWallet
+    );
+  } else if (_network === "polygon") {
+    return new ethers.Contract(
+      process.env.POLYGON_REGISTRY,
+      regABI,
+      polygonWallet
+    );
+  } else if (_network === "optimism") {
+    return new ethers.Contract(
+      process.env.OPTIMISM_REGISTRY,
+      regABI,
+      optimismWallet
+    );
   }
 }
 
@@ -484,13 +511,13 @@ function getChain(_id) {
     case 10200:
       return "mumbai";
     case 80001:
-      return "chiado"
+      return "chiado";
     case 100:
-      return "gnosis chain"
+      return "gnosis chain";
     case 137:
-      return "polygon"
+      return "polygon";
     case 10:
-      return "optimism"
+      return "optimism";
   }
 }
 
@@ -527,4 +554,3 @@ function getPublicBalance(_id) {
       return oVal;
   }
 }
-

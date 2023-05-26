@@ -12,6 +12,33 @@
     <link rel="stylesheet" href="../pages/assets/css/Login-Form-Basic-icons.css">
     <link rel="stylesheet" href="../pages/assets/css/Studious-selectbox.css">
   </head>
+  <style>
+     .radio-group {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 200px;
+    background: #21212f;
+    padding: 10px;
+    border-radius: 15px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+  }
+
+  .radio-group input[type='radio'] {
+    display: none;
+  }
+
+  .radio-group label {
+    cursor: pointer;
+    padding: 5px 20px;
+    border-radius: 15px;
+  }
+
+  .radio-group input[type='radio']:checked + label {
+    background-color: #3155ca;
+    color: white;
+  }
+  </style>
   <body style="overflow: hidden">
       <div class="container">
         <div class="row">
@@ -37,21 +64,20 @@
       <div class="card-body text-center">
           <h4 class="card-title">select chd type</h4>
           <h6 class="text-muted card-subtitle mb-2">please select a transaction chd type</h6>
-          <div class="d-flex justify-content-center align-items-center" style="margin-top: 30px; margin-bottom: 20px;">
-          <label class="switch" >
-            <span style="position: absolute; right: 80px; color:white;">public</span>
-            <input type="checkbox" name="visibility" id="txType-switch">
-            <span class="slider"></span>
-            <span style="position: absolute; left: 80px; color:white;">private</span>
-          </label>          
-        </div>
-        <div class="d-flex justify-content-center" style="margin-top: 20px;">
-          <div class="form-check">
-            <input class="form-check-input" type="checkbox" id="withdrawalCheckbox">
-            <label class="form-check-label" for="withdrawalCheckbox">
-              Withdraw funds
-            </label>
-          </div>
+          <div class="d-flex flex-column align-items-center" style="margin-top: 30px; margin-bottom: 20px;">
+          <form class="radio-group">
+              <input type="radio" id="option1" checked name="option" value="public">
+              <label for="option1" > public </label><br>
+              <input type="radio" id="option2" name="option" value="private">
+              <label for="option2"> private </label>
+            </form>
+            <br>
+            <div class="form-check">
+              <input class="form-check-input" type="checkbox" id="withdrawalCheckbox">
+              <label class="form-check-label" for="withdrawalCheckbox">
+                Withdrawal
+              </label>
+            </div>
         </div>
           <div class="row d-flex justify-content-center">
               <div class="col-md-6 col-xl-4">
