@@ -23,12 +23,12 @@ let balanceVal;
 const button = document.getElementById("signAndBid");
 const text = document.getElementById("bidText");
 const loader = document.getElementById("bidLoader");
-$("#token").text(isTestnet ? "ETH" : "WXDAI");
+$("#token").text(isTestnet ? "ETH" : "wXDAI");
 
 $("#balance").text("...");
 baseToken.balanceOf(wallet.address).then((result) => {
   balanceVal = ethers.utils.formatEther(result);
-  $("#balance").text(parseFloat(balanceVal).toFixed(3) + `${isTestnet ? ' ETH' : ' WXDAI'}`);
+  $("#balance").text(parseFloat(balanceVal).toFixed(3) + `${isTestnet ? ' ETH' : ' wXDAI'}`);
 });
 $("#signAndBid").on("click", async () => {
   const bidAmount = parseFloat($("#bidAmount").val());
@@ -45,7 +45,7 @@ $("#signAndBid").on("click", async () => {
   const balance = parseFloat(balanceVal);
   if (bidAmount > balance) {
     window.alert(
-      `Please enter a bid lower than your current ${isTestnet ? 'ETH' : 'WXDAI'} balance`
+      `Please enter a bid lower than your current ${isTestnet ? 'ETH' : 'wXDAI'} balance`
     );
     return;
   }
@@ -76,7 +76,7 @@ $("#signAndBid").on("click", async () => {
       window.alert(
         "Bid too low. Please enter a bid higher than the current top bid: " +
         currentTopBid +
-        `${isTestnet ? ' ETH' : ' WXDAI'}`
+        `${isTestnet ? ' ETH' : ' wXDAI'}`
       );
     }
   } catch (error) {
