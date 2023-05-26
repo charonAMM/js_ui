@@ -83,6 +83,14 @@ $("input[type=radio][name=option]").on("change", function () {
   }
 });
 
+$('#withdrawalCheckbox').on('change', function() {
+  if ($(this).is(':checked')) {
+    $('#toAddy').prop('disabled', true);
+  } else {
+    $('#toAddy').prop('disabled', false);
+  }
+});
+
 function poseidon(inputs) {
   let val = builtPoseidon(inputs);
   return builtPoseidon.F.toString(val);
@@ -311,7 +319,7 @@ async function send() {
       }
     } else {
       const registry = getRegistry(isTestnet ? "sepolia" : "gnosis network");
-      if (!_withdrawal) {
+      if (_withdrawal) {
         _adjTo = 0;
       } else {
         const publicKey = await registry.getPublicKey(_to);
