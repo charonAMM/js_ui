@@ -5,18 +5,20 @@ const {
 const ethers = require("ethers");
 require("dotenv").config();
 const { sepoliaBaseToken, gnosisBaseToken } = require("../src/tokens");
-const { sepoliaWallet, gnosisWallet } = require("../src/providers");
+const { sepoliaWallet, gnosisWallet, sepoliaProvider, gnosisProvider } = require("../src/providers");
 const isTestnet = process.env.IS_TESTNET === "true";
-let CIT, baseToken, wallet;
+let CIT, baseToken, wallet, provider
 
 if (isTestnet) {
   CIT = new ethers.Contract(process.env.SEPOLIA_CIT, citABI, sepoliaWallet);
   baseToken = sepoliaBaseToken;
   wallet = sepoliaWallet;
+  provider = sepoliaProvider;
 } else {
   CIT = new ethers.Contract(process.env.GNOSIS_CIT, citABI, gnosisWallet);
   baseToken = gnosisBaseToken;
   wallet = gnosisWallet;
+  provider = gnosisProvider;
 }
 
 let balanceVal;
@@ -60,13 +62,14 @@ $("#signAndBid").on("click", async () => {
   try {
     if (bidAmount > currentTopBid) {
       showLoadingAnimation();
+      let currentGasPrice = await provider.getGasPrice();
       await baseToken.approve(
         CIT.address,
         ethers.utils.parseEther(bidAmount.toString()),
-        { gasLimit: 300000 }
+        { gasLimit: 300000, gasPrice: currentGasPrice }
       );
       CIT.bid(ethers.utils.parseEther(bidAmount.toString()), {
-        gasLimit: 300000,
+        gasLimit: 300000, gasPrice: currentGasPrice
       }).then((result) => {
         console.log(result);
         window.alert("Transaction sent with hash: " + result.hash);
