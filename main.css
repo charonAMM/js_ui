@@ -328,3 +328,19 @@ body.loaded #loading {
 .checkmark-container i {
   color: #28a745;
 }
+
+.refresh-button {
+  background: none;
+  border: none;
+  color: #ffffff;
+}
+
+.refresh-button:hover {
+  color: #cccccc;
+}
+
+.refresh-button-container {
+  position: absolute;
+  right: 0;
+  padding-right: 15px;
+}

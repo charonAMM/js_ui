@@ -1,96 +1,189 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, shrink-to-fit=no">
+  <head>
+    <meta charset="utf-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1.0, shrink-to-fit=no"
+    />
     <title>charon - a privacy preserving cross-chain AMM</title>
-    <link href="../public/Charon_mono.png" rel="icon">
-    <link rel="stylesheet" href="assets/bootstrap/css/bootstrap.min.css">
-    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Inter:300italic,400italic,600italic,700italic,800italic,400,300,600,700,800&amp;display=swap">
+    <link href="../public/Charon_mono.png" rel="icon" />
+    <link rel="stylesheet" href="assets/bootstrap/css/bootstrap.min.css" />
+    <link
+      rel="stylesheet"
+      href="https://fonts.googleapis.com/css?family=Inter:300italic,400italic,600italic,700italic,800italic,400,300,600,700,800&amp;display=swap"
+    />
     <link rel="stylesheet" href="../main.css" />
-</head>
-<body style="overflow: hidden;">
-  <!-- <div id="loading" class="bg-dark">
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css"
+    />
+  </head>
+  <body style="overflow: hidden">
+    <!-- <div id="loading" class="bg-dark">
     <div class="wrapper">
       <div class="spinner-border text-success"role="status">
         <span class="visually-hidden">Loading...</span>
       </div>
     </div>
   </div> -->
-    <nav class="navbar navbar-dark navbar-expand-md sticky-top py-3" id="mainNav">
-        <div class="container"><a class="navbar-brand d-flex align-items-center" href="../pages/index.html"><span>charon</span></a><button data-bs-toggle="collapse" class="navbar-toggler" data-bs-target="#navcol-1"><span class="visually-hidden">Toggle navigation</span><span class="navbar-toggler-icon"></span></button>
-            <div class="collapse navbar-collapse" id="navcol-1">
-                <ul class="navbar-nav mx-auto">
-                    <li class="nav-item"><a class="nav-link" href="../pages/index.html">home</a></li>
-                    <li class="nav-item"><a class="nav-link active" href="../pages/chd.html">chd</a></li>
-                    <li class="nav-item"><a class="nav-link" href="../pages/amm.html">trade</a></li>
-                    <li class="nav-item"><a class="nav-link" href="../pages/auction.html">auction</a></li>
-                    <li class="nav-item"><a class="nav-link" href="../pages/cit.html">cit</a></li>
-                </ul>
-            </div>
+    <nav
+      class="navbar navbar-dark navbar-expand-md sticky-top py-3"
+      id="mainNav"
+    >
+      <div class="container">
+        <a
+          class="navbar-brand d-flex align-items-center"
+          href="../pages/index.html"
+          ><span>charon</span></a
+        ><button
+          data-bs-toggle="collapse"
+          class="navbar-toggler"
+          data-bs-target="#navcol-1"
+        >
+          <span class="visually-hidden">Toggle navigation</span
+          ><span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navcol-1">
+          <ul class="navbar-nav mx-auto">
+            <li class="nav-item">
+              <a class="nav-link" href="../pages/index.html">home</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link active" href="../pages/chd.html">chd</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="../pages/amm.html">trade</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="../pages/auction.html">auction</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="../pages/cit.html">cit</a>
+            </li>
+          </ul>
         </div>
+      </div>
+      <div class="refresh-button-container">
+        <button
+          class="refresh-button"
+          onclick="location.reload();"
+          title="Refresh Page"
+        >
+          <i class="fas fa-sync-alt"></i>
+        </button>
+      </div>
     </nav>
     <header class="bg-dark">
       <div class="center">
         <section>
-          <br></br>
+          <br />
           <div class="row">
             <div class="col-md-8 col-xl-6 text-center mx-auto">
-                <p class="fw-bold text-success mb-2" id ="myAddress">address</p>
-               <div class="wrapper d-flex align-items-center justify-content-center" style="display: flex;
-               align-items: center;"> 
-                <span class="fw-bold text-muted me-1" style="margin-top:-18px;">public key:</span>
-                <p id="pubKey" class= "fw-bold text-muted me-1">...</p>
+              <p class="fw-bold text-success mb-2" id="myAddress">address</p>
+              <div
+                class="wrapper d-flex align-items-center justify-content-center"
+                style="display: flex; align-items: center"
+              >
+                <span class="fw-bold text-muted me-1" style="margin-top: -18px"
+                  >public key:</span
+                >
+                <p id="pubKey" class="fw-bold text-muted me-1">...</p>
               </div>
-              </div>
+            </div>
           </div>
           <div>
-            <img src="../public/Charon_mono.png" class="line" alt="charon" style="width:80px;"> <h3 id="totalBal" class="line" style="font-size: xx-large">...</h3>
+            <img
+              src="../public/Charon_mono.png"
+              class="line"
+              alt="charon"
+              style="width: 80px"
+            />
+            <h3 id="totalBal" class="line" style="font-size: xx-large">...</h3>
           </div>
           <div class="container text-center pt-4 pt-xl-5">
-                <div class="col-xl-12">
-                  <div class="table-responsive" style="margin-top:-10px;">
-                        <table class="table table-dark">
-                          <thead>
-                            <tr>
-                                <th></th>
-                                <th>&nbsp;<svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" fill="currentColor" viewBox="0 0 16 16" class="bi bi-eye-fill">
-                                        <path d="M10.5 8a2.5 2.5 0 1 1-5 0 2.5 2.5 0 0 1 5 0z"></path>
-                                        <path d="M0 8s3-5.5 8-5.5S16 8 16 8s-3 5.5-8 5.5S0 8 0 8zm8 3.5a3.5 3.5 0 1 0 0-7 3.5 3.5 0 0 0 0 7z"></path>
-                                    </svg></th>
-                                <th><svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" fill="currentColor" viewBox="0 0 16 16" class="bi bi-eye-slash-fill">
-                                        <path d="m10.79 12.912-1.614-1.615a3.5 3.5 0 0 1-4.474-4.474l-2.06-2.06C.938 6.278 0 8 0 8s3 5.5 8 5.5a7.029 7.029 0 0 0 2.79-.588zM5.21 3.088A7.028 7.028 0 0 1 8 2.5c5 0 8 5.5 8 5.5s-.939 1.721-2.641 3.238l-2.062-2.062a3.5 3.5 0 0 0-4.474-4.474L5.21 3.089z"></path>
-                                        <path d="M5.525 7.646a2.5 2.5 0 0 0 2.829 2.829l-2.83-2.829zm4.95.708-2.829-2.83a2.5 2.5 0 0 1 2.829 2.829zm3.171 6-12-12 .708-.708 12 12-.708.708z"></path>
-                                    </svg></th>
-                            </tr>
-                          </thead>
-                            <tr>
-                              <td id="network1"></td>
-                              <td><p  class="line" id="CHD0"> ... </p></td>
-                              <td><p  class="line" id="PCHD0"> ... </p></td>
-                            </tr>
-                            <tr>
-                              <td id="network2"></td>
-                              <td><p class="line" id="CHD1"> ... </p></td>
-                              <td><p class="line" id= "PCHD1"> ... </p></td>
-                            </tr>
-                            <tr>
-                              <td id="network3"></td>
-                              <td><p class="line" id="CHD2"> ... </p></td>
-                              <td><p class="line" id="PCHD2"> ... </p></td>
-                            </tr>
-                          </table>      
-                    <p id="balance"></p>
-                  </div>
-                </div>
-              <div>
-                <br>
-                  <section>
-                    <button class="btn btn-success btn-sm font-monospace text-center text-sm-center" id = "send"  style="margin-right: 10px;" disabled>send</button>
-                    <button class="btn btn-success btn-sm font-monospace text-center text-sm-center" role="button" id = "bridge" disabled>bridge</button>
-                  </section>
+            <div class="col-xl-12">
+              <div class="table-responsive" style="margin-top: -10px">
+                <table class="table table-dark">
+                  <thead>
+                    <tr>
+                      <th></th>
+                      <th>
+                        &nbsp;<svg
+                          xmlns="http://www.w3.org/2000/svg"
+                          width="1em"
+                          height="1em"
+                          fill="currentColor"
+                          viewBox="0 0 16 16"
+                          class="bi bi-eye-fill"
+                        >
+                          <path
+                            d="M10.5 8a2.5 2.5 0 1 1-5 0 2.5 2.5 0 0 1 5 0z"
+                          ></path>
+                          <path
+                            d="M0 8s3-5.5 8-5.5S16 8 16 8s-3 5.5-8 5.5S0 8 0 8zm8 3.5a3.5 3.5 0 1 0 0-7 3.5 3.5 0 0 0 0 7z"
+                          ></path>
+                        </svg>
+                      </th>
+                      <th>
+                        <svg
+                          xmlns="http://www.w3.org/2000/svg"
+                          width="1em"
+                          height="1em"
+                          fill="currentColor"
+                          viewBox="0 0 16 16"
+                          class="bi bi-eye-slash-fill"
+                        >
+                          <path
+                            d="m10.79 12.912-1.614-1.615a3.5 3.5 0 0 1-4.474-4.474l-2.06-2.06C.938 6.278 0 8 0 8s3 5.5 8 5.5a7.029 7.029 0 0 0 2.79-.588zM5.21 3.088A7.028 7.028 0 0 1 8 2.5c5 0 8 5.5 8 5.5s-.939 1.721-2.641 3.238l-2.062-2.062a3.5 3.5 0 0 0-4.474-4.474L5.21 3.089z"
+                          ></path>
+                          <path
+                            d="M5.525 7.646a2.5 2.5 0 0 0 2.829 2.829l-2.83-2.829zm4.95.708-2.829-2.83a2.5 2.5 0 0 1 2.829 2.829zm3.171 6-12-12 .708-.708 12 12-.708.708z"
+                          ></path>
+                        </svg>
+                      </th>
+                    </tr>
+                  </thead>
+                  <tr>
+                    <td id="network1"></td>
+                    <td><p class="line" id="CHD0">...</p></td>
+                    <td><p class="line" id="PCHD0">...</p></td>
+                  </tr>
+                  <tr>
+                    <td id="network2"></td>
+                    <td><p class="line" id="CHD1">...</p></td>
+                    <td><p class="line" id="PCHD1">...</p></td>
+                  </tr>
+                  <tr>
+                    <td id="network3"></td>
+                    <td><p class="line" id="CHD2">...</p></td>
+                    <td><p class="line" id="PCHD2">...</p></td>
+                  </tr>
+                </table>
+                <p id="balance"></p>
               </div>
-              
+            </div>
+            <div>
+              <br />
+              <section>
+                <button
+                  class="btn btn-success btn-sm font-monospace text-center text-sm-center"
+                  id="send"
+                  style="margin-right: 10px"
+                  disabled
+                >
+                  send
+                </button>
+                <button
+                  class="btn btn-success btn-sm font-monospace text-center text-sm-center"
+                  role="button"
+                  id="bridge"
+                  disabled
+                >
+                  bridge
+                </button>
+              </section>
+            </div>
           </div>
         </section>
       </div>
@@ -100,12 +193,11 @@
     <section></section>
     <section></section>
     <footer class="bg-dark">
-        <div class="container py-4 py-lg-5"></div>
-        </div>
+      <div class="container py-4 py-lg-5"></div>
     </footer>
     <script src="assets/bootstrap/js/bootstrap.min.js"></script>
     <script src="assets/js/bs-init.js"></script>
     <script src="assets/js/bold-and-dark.js"></script>
-    <script src = "../scripts/chd.js" ></script>
-</body>
+    <script src="../scripts/chd.js"></script>
+  </body>
 </html>

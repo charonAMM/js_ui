@@ -23,12 +23,14 @@ let balanceVal;
 const button = document.getElementById("signAndBid");
 const text = document.getElementById("bidText");
 const loader = document.getElementById("bidLoader");
-$("#token").text(isTestnet ? "ETH" : "wXDAI");
+$("#token").text(isTestnet ? "wETH" : "wXDAI");
 
 $("#balance").text("...");
 baseToken.balanceOf(wallet.address).then((result) => {
   balanceVal = ethers.utils.formatEther(result);
-  $("#balance").text(parseFloat(balanceVal).toFixed(3) + `${isTestnet ? ' ETH' : ' wXDAI'}`);
+  $("#balance").text(
+    parseFloat(balanceVal).toFixed(3) + `${isTestnet ? " wETH" : " wXDAI"}`
+  );
 });
 $("#signAndBid").on("click", async () => {
   const bidAmount = parseFloat($("#bidAmount").val());
@@ -45,7 +47,9 @@ $("#signAndBid").on("click", async () => {
   const balance = parseFloat(balanceVal);
   if (bidAmount > balance) {
     window.alert(
-      `Please enter a bid lower than your current ${isTestnet ? 'ETH' : 'wXDAI'} balance`
+      `Please enter a bid lower than your current ${
+        isTestnet ? "wETH" : "wXDAI"
+      } balance`
     );
     return;
   }
@@ -61,22 +65,20 @@ $("#signAndBid").on("click", async () => {
         ethers.utils.parseEther(bidAmount.toString()),
         { gasLimit: 300000 }
       );
-      CIT
-        .bid(ethers.utils.parseEther(bidAmount.toString()), {
-          gasLimit: 300000,
-        })
-        .then((result) => {
-          console.log(result);
-          window.alert("Transaction sent with hash: " + result.hash);
-          loader.style.display = "none";
-          text.style.display = "inline";
-          button.disabled = false;
-        });
+      CIT.bid(ethers.utils.parseEther(bidAmount.toString()), {
+        gasLimit: 300000,
+      }).then((result) => {
+        console.log(result);
+        window.alert("Transaction sent with hash: " + result.hash);
+        loader.style.display = "none";
+        text.style.display = "inline";
+        button.disabled = false;
+      });
     } else {
       window.alert(
         "Bid too low. Please enter a bid higher than the current top bid: " +
-        currentTopBid +
-        `${isTestnet ? ' ETH' : ' wXDAI'}`
+          currentTopBid +
+          `${isTestnet ? " wETH" : " wXDAI"}`
       );
     }
   } catch (error) {
