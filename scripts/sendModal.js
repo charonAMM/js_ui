@@ -245,8 +245,6 @@ async function send() {
   let _visType = $('input[name="option"]:checked').val();
   let _withdrawal = $("#withdrawalCheckbox").prop("checked");
   let _adjTo = _to;
-  console.log(_network);
-  console.log(_visType);
   if (_to.length != 42) {
     window.alert("Please enter a valid address");
     return;
