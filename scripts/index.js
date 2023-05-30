@@ -24,6 +24,8 @@ let builtPoseidon;
 let myAddress;
 let pubKey;
 const isTestnet = process.env.IS_TESTNET === "true";
+$(".card-annotation").text(`note: you will need some ${ isTestnet ? "ETH" :"xDAI"} to pay for gas.`);
+
 isTestnet
   ? (myAddress = sepoliaWallet.address)
   : (myAddress = gnosisWallet.address);
@@ -37,7 +39,9 @@ function checkEnvFile() {
     );
   }
   if (process.env.PRIVATE_KEY.length != 66) {
-    window.alert("Please add a valid private key to the .env file starting with 0x");
+    window.alert(
+      "Please add a valid private key to the .env file starting with 0x"
+    );
   }
 }
 
@@ -64,10 +68,18 @@ async function setBalances() {
     const network = config.networks[i];
     const label = config.labels[i];
     const base = config.base[i];
-
-    const networkBal = await eval(`${network}Provider.getBalance(myAddress)`);
     $(`#${label}Row`).text(network);
-    $(`#${label}Bal`).text(`${ethers.utils.formatEther(networkBal)} ${base}`);
+    try {
+      const networkBal = await eval(`${network}Provider.getBalance(myAddress)`);
+      $(`#${label}Bal`).text(`${ethers.utils.formatEther(networkBal)} ${base}`);
+    } catch (err) {
+      window.alert(
+        "could not get balance for " +
+          network +
+          ", please check your .env file configuration"
+      );
+      $(`#${label}Bal`).text("n/a");
+    }
   }
 }
 function poseidon(inputs) {
@@ -139,9 +151,8 @@ registerButton.onclick = async function () {
     : new ethers.Contract(process.env.GNOSIS_REGISTRY, regABI, gnosisWallet);
 
   const provider = isTestnet ? sepoliaProvider : gnosisProvider;
-  let currentGasPrice = await provider.getGasPrice();
-
   try {
+    let currentGasPrice = await provider.getGasPrice();
     registerButton.disabled = true;
     registry
       .register(pubKey, { gasLimit: 300000, gasPrice: currentGasPrice })
@@ -152,8 +163,7 @@ registerButton.onclick = async function () {
       });
   } catch (err) {
     registerButton.disabled = false;
-    console.log(err);
-    window.alert("Transaction failed with error: " + err);
+    window.alert(err.message);
   }
 };
 
@@ -172,30 +182,39 @@ convertButton.onclick = function () {
     document.getElementById("publicKey").value = address;
   });
 };
-function checkIsRegistered() {
+async function checkIsRegistered() {
   dropdownMenu.classList.remove("show");
   const registry = getRegistry();
   if (registerButton.textContent == "submit") registerButton.disabled = true;
-  registry
-    .getPublicKey(isTestnet ? sepoliaWallet.address : gnosisWallet.address)
-    .then((publicKey) => {
-      let publicKeyIsRegistered = false;
-      publicKey == pubKey
-        ? (publicKeyIsRegistered = true)
-        : (publicKeyIsRegistered = false);
-      if (publicKeyIsRegistered) {
-        document.getElementById("checker").classList.remove("d-none");
-        document.getElementById("checkmark").classList.remove("d-none");
-        registerButton.classList.remove("d-none");
-        registerButton.textContent = "registered";
-      } else {
-        registerButton.textContent = "submit";
-        registerButton.classList.remove("d-none");
-        registerButton.disabled = false;
-        document.getElementById("checker").classList.add("d-none");
-        document.getElementById("checkmark").classList.add("d-none");
-      }
-    });
+  try {
+    await registry.estimateGas.getPublicKey(myAddress);
+    registry
+      .getPublicKey(myAddress)
+      .then((publicKey) => {
+        let publicKeyIsRegistered = false;
+        publicKey == pubKey
+          ? (publicKeyIsRegistered = true)
+          : (publicKeyIsRegistered = false);
+        if (publicKeyIsRegistered) {
+          document.getElementById("checker").classList.remove("d-none");
+          document.getElementById("checkmark").classList.remove("d-none");
+          registerButton.classList.remove("d-none");
+          registerButton.textContent = "registered";
+        } else {
+          registerButton.textContent = "submit";
+          registerButton.classList.remove("d-none");
+          registerButton.disabled = false;
+          document.getElementById("checker").classList.add("d-none");
+          document.getElementById("checkmark").classList.add("d-none");
+        }
+      });
+  } catch (err) {
+    registerButton.textContent = "submit";
+    registerButton.classList.remove("d-none");
+    registerButton.disabled = false;
+    document.getElementById("checker").classList.add("d-none");
+    document.getElementById("checkmark").classList.add("d-none");
+  }
 }
 
 const testNetworkOptions = ["chiado", "mumbai", "sepolia"];

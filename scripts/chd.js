@@ -252,6 +252,7 @@ async function setData() {
   const contents = readFileContents("utxos.txt");
   const startBlocks = initializeStartBlocks(contents, isTestnet);
 
+  try {
   if (isTestnet) {
     await Promise.all([
       handleChain(sepoliaCharon, "sepolia", startBlocks.sepolia, sepSet, sepUTXOs, myKeypair),
@@ -274,6 +275,9 @@ async function setData() {
     polSet[0] = await polygonProvider.getBlockNumber();
     optSet[0] = await optimismProvider.getBlockNumber();
   }
+} catch (err) {
+  window.alert(err);
+}
 
   return new Promise((resolve) => {
     setTimeout(() => {
