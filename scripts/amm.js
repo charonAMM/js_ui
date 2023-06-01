@@ -87,26 +87,39 @@ async function setPublicBalances() {
     const wallet = config.wallets[i];
     const label = config.labels[i];
     const base = config.base[i];
-    const chdBal = await eval(
-      `${wallet}CHD.balanceOf(${wallet}Wallet.address)`
-    );
-    const baseTokenBal = await eval(
-      `${wallet}BaseToken.balanceOf(${wallet}Wallet.address)`
-    );
+    try {
+      const chdBal = await eval(
+        `${wallet}CHD.balanceOf(${wallet}Wallet.address)`
+      );
+      const baseTokenBal = await eval(
+        `${wallet}BaseToken.balanceOf(${wallet}Wallet.address)`
+      );
 
-    $(`#${label}Row`).text(wallet);
-    $(`#${label}Base`).text(base);
-    $(`#${label}CHDBal`).text(formatBalance(chdBal));
-    // save the balances for later
-    eval(`${wallet}CHDBal = ${ethers.utils.formatEther(chdBal)}`);
-    $(`#${label}Bal`).text(formatBalance(baseTokenBal));
-    // save the balances for later
-    eval(`${wallet}Bal = ${ethers.utils.formatEther(baseTokenBal)}`);
+      $(`#${label}Row`).text(wallet);
+      $(`#${label}Base`).text(base);
+      $(`#${label}CHDBal`).text(formatBalance(chdBal));
+      // save the balances for later
+      eval(`${wallet}CHDBal = ${ethers.utils.formatEther(chdBal)}`);
+      $(`#${label}Bal`).text(formatBalance(baseTokenBal));
+      // save the balances for later
+      eval(`${wallet}Bal = ${ethers.utils.formatEther(baseTokenBal)}`);
 
-    const lpBal = await eval(
-      `${wallet}Charon.balanceOf(${wallet}Wallet.address)`
-    );
-    $(`#${label}LPBal`).text(formatBalance(lpBal));
+      const lpBal = await eval(
+        `${wallet}Charon.balanceOf(${wallet}Wallet.address)`
+      );
+      $(`#${label}LPBal`).text(formatBalance(lpBal));
+    } catch (e) {
+      window.alert(
+        "could not get balance for " +
+          wallet +
+          ", please check your .env file configuration"
+      );
+      $(`#${label}Row`).text(wallet);
+      $(`#${label}Base`).text("n/a");
+      $(`#${label}CHDBal`).text("n/a");
+      $(`#${label}Bal`).text("n/a");
+      $(`#${label}LPBal`).text("n/a");
+    }
   }
 }
 
@@ -215,7 +228,7 @@ async function swap() {
       );
     }
   } catch (err) {
-    window.alert("Transaction failed, check console for more info");
+    window.alert(err.message);
     console.log(err);
     enableSwapButton();
   }

@@ -9,6 +9,10 @@
     <link rel="stylesheet" href="assets/bootstrap/css/bootstrap.min.css">
     <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Inter:300italic,400italic,600italic,700italic,800italic,400,300,600,700,800&amp;display=swap">
     <link rel="stylesheet" href="../main.css" />
+    <link
+    rel="stylesheet"
+    href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css"
+  />
 </head>
 
 <body>
@@ -17,15 +21,24 @@
             <div class="collapse navbar-collapse" id="navcol-1">
                 <ul class="navbar-nav mx-auto">
                     <li class="nav-item"><a class="nav-link" href="../pages/index.html">home</a></li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="../pages/chd.html">chd</a>
+                      </li>
                     <li class="nav-item"><a class="nav-link" href="../pages/amm.html">trade</a></li>
                     <li class="nav-item"><a class="nav-link" href="../pages/auction.html">auction</a></li>
                     <li class="nav-item"><a class="nav-link active" href="../pages/cit.html">cit</a></li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="../pages/registery.html">registry</a>
-                      </li>
                 </ul>
             </div>
         </div>
+        <div class="refresh-button-container">
+            <button
+              class="refresh-button"
+              onclick="location.reload();"
+              title="Refresh Page"
+            >
+              <i class="fas fa-sync-alt"></i>
+            </button>
+          </div>
     </nav>
     <header class="bg-dark">
       <div class="container">

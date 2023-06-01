@@ -83,11 +83,11 @@ $("input[type=radio][name=option]").on("change", function () {
   }
 });
 
-$('#withdrawalCheckbox').on('change', function() {
-  if ($(this).is(':checked')) {
-    $('#toAddy').prop('disabled', true);
+$("#withdrawalCheckbox").on("change", function () {
+  if ($(this).is(":checked")) {
+    $("#toAddy").prop("disabled", true);
   } else {
-    $('#toAddy').prop('disabled', false);
+    $("#toAddy").prop("disabled", false);
   }
 });
 
@@ -262,6 +262,10 @@ async function send() {
         return;
       }
       if (_network == "sepolia") {
+        await sepoliaCHD.estimateGas.transfer(
+          _to,
+          ethers.utils.parseEther(_amount.toString())
+        );
         sepoliaCHD
           .transfer(_to, ethers.utils.parseEther(_amount.toString()))
           .then((result) => {
@@ -271,6 +275,10 @@ async function send() {
             );
           });
       } else if (_network == "mumbai") {
+        await mumbaiCHD.estimateGas.transfer(
+          _to,
+          ethers.utils.parseEther(_amount.toString())
+        );
         mumbaiCHD
           .transfer(_to, ethers.utils.parseEther(_amount.toString()))
           .then((result) => {
@@ -280,6 +288,10 @@ async function send() {
             );
           });
       } else if (_network == "chiado") {
+        await chiadoCHD.estimateGas.transfer(
+          _to,
+          ethers.utils.parseEther(_amount.toString())
+        );
         chiadoCHD
           .transfer(_to, ethers.utils.parseEther(_amount.toString()))
           .then((result) => {
@@ -289,6 +301,10 @@ async function send() {
             );
           });
       } else if (_network == "gnosis") {
+        await gnosisCHD.estimateGas.transfer(
+          _to,
+          ethers.utils.parseEther(_amount.toString())
+        );
         gnosisCHD
           .transfer(_to, ethers.utils.parseEther(_amount.toString()))
           .then((result) => {
@@ -298,6 +314,10 @@ async function send() {
             );
           });
       } else if (_network == "polygon") {
+        await polygonCHD.estimateGas.transfer(
+          _to,
+          ethers.utils.parseEther(_amount.toString())
+        );
         polygonCHD
           .transfer(_to, ethers.utils.parseEther(_amount.toString()))
           .then((result) => {
@@ -307,6 +327,10 @@ async function send() {
             );
           });
       } else if (_network == "optimism") {
+        await optimismCHD.estimateGas.transfer(
+          _to,
+          ethers.utils.parseEther(_amount.toString())
+        );
         optimismCHD
           .transfer(_to, ethers.utils.parseEther(_amount.toString()))
           .then((result) => {
@@ -318,19 +342,8 @@ async function send() {
           });
       }
     } else {
-      const registry = getRegistry(isTestnet ? "sepolia" : "gnosis network");
       if (_withdrawal) {
         _adjTo = 0;
-      } else {
-        const publicKey = await registry.getPublicKey(_to);
-        if (publicKey == "0x") {
-          window.alert(
-            "Address not yet registered.  Please register it first."
-          );
-          return;
-        } else {
-          _adjTo = publicKey;
-        }
       }
       if (_network == "sepolia") {
         //ADD checkbox if withdraw, add MAX button to autofill balance
@@ -345,7 +358,11 @@ async function send() {
             privateChainID: getChainID(_network),
             myHasherFunc: poseidon,
             myHasherFunc2: poseidon2,
-          }).then(function (inputData) {
+          }).then(async function (inputData) {
+            await sepoliaCharon.estimateGas.transact(
+              inputData.args,
+              inputData.extData
+            );
             sepoliaCharon
               .transact(inputData.args, inputData.extData)
               .then((result) =>
@@ -358,6 +375,7 @@ async function send() {
       } else if (_network == "mumbai") {
         //ADD checkbox if withdraw, add MAX button to autofill balance
         //get amount and address (can we just use an address?  Test that that person can then do something with it, if not, you need a registry?)
+
         await prepareSend(m.mumbaiUTXOs, getChainID(_network));
         if (newUTXOs.length > 0 || changeUtxos > 0) {
           prepareTransaction({
@@ -368,7 +386,11 @@ async function send() {
             privateChainID: getChainID(_network),
             myHasherFunc: poseidon,
             myHasherFunc2: poseidon2,
-          }).then(function (inputData) {
+          }).then(async function (inputData) {
+            await mumbaiCharon.estimateGas.transact(
+              inputData.args,
+              inputData.extData
+            );
             mumbaiCharon
               .transact(inputData.args, inputData.extData)
               .then((result) =>
@@ -391,7 +413,11 @@ async function send() {
             privateChainID: getChainID(_network),
             myHasherFunc: poseidon,
             myHasherFunc2: poseidon2,
-          }).then(function (inputData) {
+          }).then(async function (inputData) {
+            await chiadoCharon.estimateGas.transact(
+              inputData.args,
+              inputData.extData
+            );
             chiadoCharon
               .transact(inputData.args, inputData.extData)
               .then((result) =>
@@ -414,7 +440,11 @@ async function send() {
             privateChainID: getChainID(_network),
             myHasherFunc: poseidon,
             myHasherFunc2: poseidon2,
-          }).then(function (inputData) {
+          }).then(async function (inputData) {
+            await gnosisCharon.estimateGas.transact(
+              inputData.args,
+              inputData.extData
+            );
             gnosisCharon
               .transact(inputData.args, inputData.extData)
               .then((result) =>
@@ -437,7 +467,11 @@ async function send() {
             privateChainID: getChainID(_network),
             myHasherFunc: poseidon,
             myHasherFunc2: poseidon2,
-          }).then(function (inputData) {
+          }).then(async function (inputData) {
+            await polygonCharon.estimateGas.transact(
+              inputData.args,
+              inputData.extData
+            );
             polygonCharon
               .transact(inputData.args, inputData.extData)
               .then((result) =>
@@ -461,7 +495,11 @@ async function send() {
             privateChainID: getChainID(_network),
             myHasherFunc: poseidon,
             myHasherFunc2: poseidon2,
-          }).then(function (inputData) {
+          }).then(async function (inputData) {
+            await optimismCharon.estimateGas.transact(
+              inputData.args,
+              inputData.extData
+            );
             optimismCharon
               .transact(inputData.args, inputData.extData)
               .then((result) =>
@@ -475,8 +513,7 @@ async function send() {
       }
     }
   } catch (err) {
-    console.log(err);
-    window.alert("Transaction failed.  Please try again.");
+    window.alert(err.message);
   }
 }
 

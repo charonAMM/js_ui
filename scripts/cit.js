@@ -19,18 +19,19 @@ const {
 const isTestnet = process.env.IS_TESTNET === "true";
 let citBal, sepBals, mumBals, chiBals, gnoBals, polBals, optBals;
 let networks, bases;
-let CIT
+let CIT;
 let sepCFC, mumCFC, chiCFC, gnoCFC, polCFC, optCFC;
 $("#myAddress").text(isTestnet ? sepoliaWallet.address : gnosisWallet.address);
-isTestnet ? (CIT = new ethers.Contract(process.env.SEPOLIA_CIT, citABI, sepoliaWallet)) :
-  (CIT = new ethers.Contract(process.env.GNOSIS_CIT, citABI, gnosisWallet));
+isTestnet
+  ? (CIT = new ethers.Contract(process.env.SEPOLIA_CIT, citABI, sepoliaWallet))
+  : (CIT = new ethers.Contract(process.env.GNOSIS_CIT, citABI, gnosisWallet));
 
 if (isTestnet) {
-  networks = ['sepolia', 'mumbai', 'chiado'];
-  bases = ['eth', 'matic', 'xdai'];
+  networks = ["sepolia", "mumbai", "chiado"];
+  bases = ["eth", "matic", "xdai"];
 } else {
-  networks = ['gnosis chain', 'polygon', 'optimism'];
-  bases = ['xdai', 'matic', 'weth'];
+  networks = ["gnosis chain", "polygon", "optimism"];
+  bases = ["xdai", "matic", "weth"];
 }
 
 for (let i = 0; i < 3; i++) {
@@ -45,16 +46,32 @@ if (isTestnet) {
   sepCFC = new ethers.Contract(process.env.SEPOLIA_CFC, cfcABI, sepoliaWallet);
   mumCFC = new ethers.Contract(process.env.MUMBAI_CFC, cfcABI, mumbaiWallet);
   chiCFC = new ethers.Contract(process.env.CHIADO_CFC, cfcABI, chiadoWallet);
-  sepCFC.getFeePeriods().then((result) => $('#timeLeft1').text(timeLeft(result * 1000)));
-  mumCFC.getFeePeriods().then((result) => $('#timeLeft2').text(timeLeft(result * 1000)));
-  chiCFC.getFeePeriods().then((result) => $('#timeLeft3').text(timeLeft(result * 1000)));
+  sepCFC
+    .getFeePeriods()
+    .then((result) => $("#timeLeft1").text(timeLeft(result * 1000)));
+  mumCFC
+    .getFeePeriods()
+    .then((result) => $("#timeLeft2").text(timeLeft(result * 1000)));
+  chiCFC
+    .getFeePeriods()
+    .then((result) => $("#timeLeft3").text(timeLeft(result * 1000)));
 } else {
   gnoCFC = new ethers.Contract(process.env.GNOSIS_CFC, cfcABI, gnosisWallet);
   polCFC = new ethers.Contract(process.env.POLYGON_CFC, cfcABI, polygonWallet);
-  optCFC = new ethers.Contract(process.env.OPTIMISM_CFC, cfcABI, optimismWallet);
-  gnoCFC.getFeePeriods().then((result) => $('#timeLeft1').text(timeLeft(result * 1000)));
-  polCFC.getFeePeriods().then((result) => $('#timeLeft2').text(timeLeft(result * 1000)));
-  optCFC.getFeePeriods().then((result) => $('#timeLeft3').text(timeLeft(result * 1000)));
+  optCFC = new ethers.Contract(
+    process.env.OPTIMISM_CFC,
+    cfcABI,
+    optimismWallet
+  );
+  gnoCFC
+    .getFeePeriods()
+    .then((result) => $("#timeLeft1").text(timeLeft(result * 1000)));
+  polCFC
+    .getFeePeriods()
+    .then((result) => $("#timeLeft2").text(timeLeft(result * 1000)));
+  optCFC
+    .getFeePeriods()
+    .then((result) => $("#timeLeft3").text(timeLeft(result * 1000)));
 }
 
 function timeLeft(timestamp) {
@@ -66,27 +83,36 @@ function timeLeft(timestamp) {
   const minutes = Math.floor((seconds % (60 * 60)) / 60);
   let timeString = "";
   if (days > 0) {
-    timeString += days + "d "
+    timeString += days + "d ";
   }
   if (hours > 0) {
-    timeString += hours + "h " 
+    timeString += hours + "h ";
   }
   // timeString += " left"
-  timeString += minutes + "m left"
+  timeString += minutes + "m left";
   return timeString;
 }
 function numberWithCommas(x) {
   return x.toLocaleString();
 }
 
-function setPublicBalances() {
-  CIT
-    .balanceOf(isTestnet ? sepoliaWallet.address : gnosisWallet.address)
-    .then(
-      (result) =>
-      (citBal = (parseInt(ethers.utils.formatEther(result)) == 0) ? 0 :
-        Math.round(ethers.utils.formatEther(result) * 100) / 100)
+async function setPublicBalances() {
+  try {
+    await CIT.estimateGas.balanceOf(
+      isTestnet ? sepoliaWallet.address : gnosisWallet.address
     );
+    CIT.balanceOf(
+      isTestnet ? sepoliaWallet.address : gnosisWallet.address
+    ).then(
+      (result) =>
+        (citBal =
+          parseInt(ethers.utils.formatEther(result)) == 0
+            ? 0
+            : Math.round(ethers.utils.formatEther(result) * 100) / 100)
+    );
+  } catch (e) {
+    window.alert(e.message);
+  }
 
   return new Promise((resolve) => {
     setTimeout(() => {
@@ -129,7 +155,10 @@ function setFeesPaid(_feePeriods, _type) {
       }
     }
   } else {
-    let rewardsPerToken = { chdRewardsPerToken: 0, baseTokenRewardsPerToken: 0 };
+    let rewardsPerToken = {
+      chdRewardsPerToken: 0,
+      baseTokenRewardsPerToken: 0,
+    };
     if (_type === 1) {
       if (isTestnet) {
         sepBals = { ...rewardsPerToken };
@@ -159,12 +188,27 @@ function setFeesPaid(_feePeriods, _type) {
 
 function setHTML() {
   const data = [
-    { element1: '#chd1', element2: '#bal1', testnetBal: sepBals, mainnetBal: gnoBals },
-    { element1: '#chd2', element2: '#bal2', testnetBal: mumBals, mainnetBal: polBals },
-    { element1: '#chd3', element2: '#bal3', testnetBal: chiBals, mainnetBal: optBals },
+    {
+      element1: "#chd1",
+      element2: "#bal1",
+      testnetBal: sepBals,
+      mainnetBal: gnoBals,
+    },
+    {
+      element1: "#chd2",
+      element2: "#bal2",
+      testnetBal: mumBals,
+      mainnetBal: polBals,
+    },
+    {
+      element1: "#chd3",
+      element2: "#bal3",
+      testnetBal: chiBals,
+      mainnetBal: optBals,
+    },
   ];
 
-  data.forEach(item => {
+  data.forEach((item) => {
     const bal = isTestnet ? item.testnetBal : item.mainnetBal;
     $(item.element1).text(formatAndRound(bal.chdRewardsPerToken));
     $(item.element2).text(formatAndRound(bal.baseTokenRewardsPerToken));
@@ -175,13 +219,21 @@ function setHTML() {
   }
 }
 
-
 function setRewards() {
-  $("#citBal").text("cit balance: " + Math.round(ethers.utils.formatEther(citBal) * 100) / 100);
-  const feeChecks = isTestnet ? [sepCFC, mumCFC, chiCFC] : [gnoCFC, polCFC, optCFC];
-  feeChecks.forEach((feeCheck, index) => {
-    feeCheck.getFeePeriods().then((result) => setFeesPaid(result, index + 1));
-  });
+  $("#citBal").text(
+    "cit balance: " + Math.round(ethers.utils.formatEther(citBal) * 100) / 100
+  );
+  const feeChecks = isTestnet
+    ? [sepCFC, mumCFC, chiCFC]
+    : [gnoCFC, polCFC, optCFC];
+  try {
+    feeChecks.forEach(async (feeCheck, index) => {
+      await feeCheck.estimateGas.getFeePeriods();
+      feeCheck.getFeePeriods().then((result) => setFeesPaid(result, index + 1));
+    });
+  } catch (e) {
+    window.alert(e.message);
+  }
 
   return new Promise((resolve) => {
     setTimeout(() => {

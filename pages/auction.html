@@ -6,6 +6,7 @@
       name="viewport"
       content="width=device-width, initial-scale=1.0, shrink-to-fit=no"
     />
+    <meta http-equiv="refresh" content="15">
     <title>charon - a privacy preserving cross-chain AMM</title>
     <link href="../public/Charon_mono.png" rel="icon" />
     <link rel="stylesheet" href="assets/bootstrap/css/bootstrap.min.css" />
@@ -14,9 +15,13 @@
       href="https://fonts.googleapis.com/css?family=Inter:300italic,400italic,600italic,700italic,800italic,400,300,600,700,800&amp;display=swap"
     />
     <link rel="stylesheet" href="../main.css" />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css"
+    />
   </head>
 
-  <body class="text-center" style="overflow: auto; margin-top: 0px;">
+  <body class="text-center" style="overflow: auto; margin-top: 0px">
     <nav
       class="navbar navbar-dark navbar-expand-md sticky-top py-3"
       id="mainNav"
@@ -40,6 +45,9 @@
               <a class="nav-link" href="../pages/index.html">home</a>
             </li>
             <li class="nav-item">
+              <a class="nav-link" href="../pages/chd.html">chd</a>
+            </li>
+            <li class="nav-item">
               <a class="nav-link" href="../pages/amm.html">trade</a>
             </li>
             <li class="nav-item">
@@ -50,11 +58,17 @@
             <li class="nav-item">
               <a class="nav-link" href="../pages/cit.html">cit</a>
             </li>
-            <li class="nav-item">
-              <a class="nav-link" href="../pages/registery.html">registry</a>
-            </li>
           </ul>
         </div>
+      </div>
+      <div class="refresh-button-container">
+        <button
+          class="refresh-button"
+          onclick="location.reload();"
+          title="Refresh Page"
+        >
+          <i class="fas fa-sync-alt"></i>
+        </button>
       </div>
     </nav>
     <header class="bg-dark" style="padding-top: -100">
