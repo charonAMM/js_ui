@@ -1,36 +1,62 @@
 <!DOCTYPE html>
 <html lang="en">
-
-<head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, shrink-to-fit=no">
+  <head>
+    <meta charset="utf-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1.0, shrink-to-fit=no"
+    />
     <title>charon - a privacy preserving cross-chain AMM</title>
-    <link href="../public/Charon_mono.png" rel="icon">
-    <link rel="stylesheet" href="assets/bootstrap/css/bootstrap.min.css">
-    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Inter:300italic,400italic,600italic,700italic,800italic,400,300,600,700,800&amp;display=swap">
+    <link href="../public/Charon_mono.png" rel="icon" />
+    <link rel="stylesheet" href="assets/bootstrap/css/bootstrap.min.css" />
+    <link
+      rel="stylesheet"
+      href="https://fonts.googleapis.com/css?family=Inter:300italic,400italic,600italic,700italic,800italic,400,300,600,700,800&amp;display=swap"
+    />
     <link rel="stylesheet" href="../main.css" />
     <link
-    rel="stylesheet"
-    href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css"
-  />
-</head>
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css"
+    />
+  </head>
 
-<body>
-    <nav class="navbar navbar-dark navbar-expand-md sticky-top py-3" id="mainNav">
-        <div class="container"><a class="navbar-brand d-flex align-items-center" href="../pages/index.html"><span>charon</span></a><button data-bs-toggle="collapse" class="navbar-toggler" data-bs-target="#navcol-1"><span class="visually-hidden">Toggle navigation</span><span class="navbar-toggler-icon"></span></button>
-            <div class="collapse navbar-collapse" id="navcol-1">
-                <ul class="navbar-nav mx-auto">
-                    <li class="nav-item"><a class="nav-link" href="../pages/index.html">home</a></li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="../pages/chd.html">chd</a>
-                      </li>
-                    <li class="nav-item"><a class="nav-link" href="../pages/amm.html">trade</a></li>
-                    <li class="nav-item"><a class="nav-link" href="../pages/auction.html">auction</a></li>
-                    <li class="nav-item"><a class="nav-link active" href="../pages/cit.html">cit</a></li>
-                </ul>
-            </div>
-        </div>
-        <div class="refresh-button-container">
+  <body>
+    <nav
+      class="navbar navbar-dark navbar-expand-md sticky-top py-3"
+      id="mainNav"
+    >
+      <div class="container">
+        <a
+          class="navbar-brand d-flex align-items-center"
+          href="../pages/index.html"
+          ><span>charon</span></a
+        ><button
+          data-bs-toggle="collapse"
+          class="navbar-toggler"
+          data-bs-target="#navcol-1"
+        >
+          <span class="visually-hidden">Toggle navigation</span
+          ><span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navcol-1">
+          <ul class="navbar-nav mx-auto">
+            <li class="nav-item">
+              <a class="nav-link" href="../pages/index.html">home</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="../pages/chd.html">chd</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="../pages/amm.html">trade</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="../pages/auction.html">auction</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link active" href="../pages/cit.html">cit</a>
+            </li>
+          </ul>
+          <div class="nav-item">
             <button
               class="refresh-button"
               onclick="location.reload();"
@@ -39,97 +65,144 @@
               <i class="fas fa-sync-alt"></i>
             </button>
           </div>
+        </div>
+      </div>
     </nav>
     <header class="bg-dark">
       <div class="container">
         <div class="row">
-            <div class="col-md-8 col-xl-6 text-center mx-auto">
-                <br></br>
-                <p class="fw-bold text-success mb-2" id ="myAddress">address</p>
-            </div>
-            <div class="col-md-12">
-                <br></br>
-                <p class="fw-bold text-success text-center" id="citBal">cit balance: ...</p>
-            </div>
+          <div class="col-md-8 col-xl-6 text-center mx-auto">
+            <br />
+            <br />
+            <p class="fw-bold text-success mb-2" id="myAddress">address</p>
+          </div>
+          <div class="col-md-12">
+            <br />
+            <p class="fw-bold text-success text-center" id="citBal">
+              cit balance: ...
+            </p>
+          </div>
         </div>
         <div class="row">
-            <div class="col-md-4">
-                <div class="table-responsive">
-                    <table class="table">
-                        <thead class="text-center">
-                            <tr>
-                                <th class="fs-5 fw-bold text-center placeholder" id="network1">...</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <tr>
-                                <td class="text-start">chd</td>
-                                <td class="text-center" id="chd1">...</td>
-                            </tr>
-                            <tr class="text-center">
-                                <td class="text-start" id="base1">...</td>
-                                <td class="text-center" id="bal1">...</td>
-                            </tr>
-                        </tbody>
-                    </table>
-                </div>
-                <div><button id="claim1" class="btn btn-success btn-sm font-monospace text-center text-sm-center" type="button">claim</button></div>
-                <div id="timeLeft1" style="margin-top:20px ;color: #007BFF">...</div>
+          <div class="col-md-4">
+            <div class="table-responsive">
+              <table class="table">
+                <thead class="text-center">
+                  <tr>
+                    <th
+                      class="fs-5 fw-bold text-center placeholder"
+                      id="network1"
+                    >
+                      ...
+                    </th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td class="text-start">chd</td>
+                    <td class="text-center" id="chd1">...</td>
+                  </tr>
+                  <tr class="text-center">
+                    <td class="text-start" id="base1">...</td>
+                    <td class="text-center" id="bal1">...</td>
+                  </tr>
+                </tbody>
+              </table>
             </div>
-            <div class="col-md-4">
-                <div class="table-responsive">
-                    <table class="table">
-                        <thead class="text-center">
-                            <tr>
-                                <th class="fs-5 fw-bold text-center placeholder" id="network2">...</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <tr>
-                                <td class="text-start">chd</td>
-                                <td class="text-center" id="chd2">...</td>
-                            </tr>
-                            <tr class="text-center">
-                                <td class="text-start" id="base2">...</td>
-                                <td class="text-center" id="bal2">...</td>
-                            </tr>
-                        </tbody>
-                    </table>
-                </div><button id="claim2" class="btn btn-success btn-sm font-monospace text-center text-sm-center" type="button">claim</button>
-                <div id="timeLeft2" style="margin-top:20px; color: #007BFF">...</div>
+            <div>
+              <button
+                id="claim1"
+                class="btn btn-success btn-sm font-monospace text-center text-sm-center"
+                type="button"
+              >
+                claim
+              </button>
             </div>
-            <div class="col-md-4">
-                <div class="table-responsive">
-                    <table class="table">
-                        <thead class="text-center">
-                            <tr>
-                                <th class="fs-5 fw-bold text-center placeholder" id="network3">...</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <tr>
-                                <td class="text-start">chd</td>
-                                <td class="text-center" id="chd3">...</td>
-                            </tr>
-                            <tr class="text-center">
-                                <td class="text-start" id="base3">...</td>
-                                <td class="text-center" id="bal3">...</td>
-                            </tr>
-                        </tbody>
-                    </table>
-                </div><button id="claim3" class="btn btn-success btn-sm font-monospace text-center text-sm-center" type="button">claim</button>
-                <div id="timeLeft3"  style="margin-top:20px; color: #007BFF;">...</div>
+            <div id="timeLeft1" style="margin-top: 20px; color: #007bff">
+              ...
             </div>
+          </div>
+          <div class="col-md-4">
+            <div class="table-responsive">
+              <table class="table">
+                <thead class="text-center">
+                  <tr>
+                    <th
+                      class="fs-5 fw-bold text-center placeholder"
+                      id="network2"
+                    >
+                      ...
+                    </th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td class="text-start">chd</td>
+                    <td class="text-center" id="chd2">...</td>
+                  </tr>
+                  <tr class="text-center">
+                    <td class="text-start" id="base2">...</td>
+                    <td class="text-center" id="bal2">...</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+            <button
+              id="claim2"
+              class="btn btn-success btn-sm font-monospace text-center text-sm-center"
+              type="button"
+            >
+              claim
+            </button>
+            <div id="timeLeft2" style="margin-top: 20px; color: #007bff">
+              ...
+            </div>
+          </div>
+          <div class="col-md-4">
+            <div class="table-responsive">
+              <table class="table">
+                <thead class="text-center">
+                  <tr>
+                    <th
+                      class="fs-5 fw-bold text-center placeholder"
+                      id="network3"
+                    >
+                      ...
+                    </th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td class="text-start">chd</td>
+                    <td class="text-center" id="chd3">...</td>
+                  </tr>
+                  <tr class="text-center">
+                    <td class="text-start" id="base3">...</td>
+                    <td class="text-center" id="bal3">...</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+            <button
+              id="claim3"
+              class="btn btn-success btn-sm font-monospace text-center text-sm-center"
+              type="button"
+            >
+              claim
+            </button>
+            <div id="timeLeft3" style="margin-top: 20px; color: #007bff">
+              ...
+            </div>
+          </div>
         </div>
-    </div>
+      </div>
     </header>
     <footer class="bg-dark">
-        <div class="container py-4 py-lg-5">
-        </div>
+      <div class="container py-4 py-lg-5"></div>
     </footer>
     <script src="assets/bootstrap/js/bootstrap.min.js"></script>
     <script src="assets/js/bs-init.js"></script>
     <script src="assets/js/bold-and-dark.js"></script>
-    <script src = "../scripts/cit.js" ></script>
-</body>
+    <script src="../scripts/cit.js"></script>
+  </body>
 </html>

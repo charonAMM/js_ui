@@ -297,10 +297,20 @@ async function bridge() {
       ? getCHDToken(_fromNetwork)
       : getBaseToken(_fromNetwork);
 
-    await _approveToken.approve(
-      _charon.address,
-      _isChd ? _depositAmount : _amount
-    );
+    const approveAmount = _isChd
+      ? _depositAmount
+      : await _charon.calcInGivenOut(
+          await _charon.recordBalance(),
+          await _charon.recordBalanceSynth(),
+          _amount,
+          0
+        );
+    const provider = getProvider(_fromNetwork);
+    let currentGasPrice = await provider.getGasPrice();
+    await _approveToken.approve(_charon.address, approveAmount, {
+      gasLimit,
+      gasPrice: currentGasPrice,
+    });
 
     prepareTransaction({
       charon: _charon,
@@ -316,7 +326,7 @@ async function bridge() {
           inputData.extData,
           _isChd,
           ethers.utils.parseEther("999999"),
-          { gasLimit }
+          { gasLimit, gasPrice: currentGasPrice }
         )
         .then((result) => {
           console.log(result);
@@ -404,6 +414,25 @@ function getChainID(chain) {
       return 137;
     case "optimism":
       return 10;
+    default:
+      return null;
+  }
+}
+
+function getProvider(chain) {
+  switch (chain) {
+    case "sepolia":
+      return sepoliaProvider;
+    case "mumbai":
+      return mumbaiProvider;
+    case "chiado":
+      return chiadoProvider;
+    case "gnosis":
+      return gnosisProvider;
+    case "polygon":
+      return polygonProvider;
+    case "optimism":
+      return optimismProvider;
     default:
       return null;
   }

@@ -53,7 +53,7 @@
   background: rgb(25, 27, 31) !important;
 }
 
-.swap-contents-card{
+.swap-contents-card {
   padding-top: 30px;
 }
 
@@ -106,7 +106,7 @@
 }
 
 .swap-down {
-  position:relative;
+  position: relative;
   width: 100% !important;
   height: 50px !important;
   background: rgb(23, 41, 65);
@@ -166,7 +166,7 @@
   font-size: 17px;
   font-weight: bold;
   position: absolute;
-  right:0px;
+  right: 0px;
   top: -30px;
   color: rgb(42, 100, 181);
   background-color: transparent;
