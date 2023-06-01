@@ -302,7 +302,7 @@ async function bridge() {
       : await _charon.calcInGivenOut(
           await _charon.recordBalance(),
           await _charon.recordBalanceSynth(),
-          _isChd ? _depositAmount : _amount,
+          _amount,
           0
         );
     const provider = getProvider(_fromNetwork);
