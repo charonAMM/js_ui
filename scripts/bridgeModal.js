@@ -297,10 +297,15 @@ async function bridge() {
       ? getCHDToken(_fromNetwork)
       : getBaseToken(_fromNetwork);
 
-    await _approveToken.approve(
-      _charon.address,
-      _isChd ? _depositAmount : _amount
-    );
+    const approveAmount = _isChd
+      ? _depositAmount
+      : await _charon.calcInGivenOut(
+          await _charon.recordBalance(),
+          await _charon.recordBalanceSynth(),
+          _isChd ? _depositAmount : _amount,
+          0
+        );
+    await _approveToken.approve(_charon.address, approveAmount);
 
     prepareTransaction({
       charon: _charon,
