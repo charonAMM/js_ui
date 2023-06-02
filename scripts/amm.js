@@ -266,7 +266,7 @@ async function swapToken(
       ethers.utils.parseEther("999999"),
       {
         gasLimit,
-        gasPrice: currentGasPrice,
+        gasPrice: currentGasPrice.mul(110).div(100)
       }
     )
     .then((result) => {

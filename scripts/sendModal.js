@@ -86,6 +86,7 @@ $("input[type=radio][name=option]").on("change", function () {
 $("#withdrawalCheckbox").on("change", function () {
   if ($(this).is(":checked")) {
     $("#toAddy").prop("disabled", true);
+    $("#toAddy").val("")
   } else {
     $("#toAddy").prop("disabled", false);
   }
@@ -245,10 +246,7 @@ async function send() {
   let _visType = $('input[name="option"]:checked').val();
   let _withdrawal = $("#withdrawalCheckbox").prop("checked");
   let _adjTo = _to;
-  if (_to.length != 42) {
-    window.alert("Please enter a valid address");
-    return;
-  }
+
   if (isNaN(_amount)) {
     window.alert("Please enter a valid amount");
     return;
@@ -259,6 +257,11 @@ async function send() {
         window.alert(
           "Not enough public balance on the " + _network + " network."
         );
+        return;
+      }
+
+      if (_adjTo.length != 42) {
+        window.alert("Please enter a valid address");
         return;
       }
       if (_network == "sepolia") {
@@ -344,6 +347,11 @@ async function send() {
     } else {
       if (_withdrawal) {
         _adjTo = 0;
+      } else {
+        if (_adjTo.length != 130) {
+          window.alert("Please enter a valid public key");
+          return;
+        }
       }
       if (_network == "sepolia") {
         //ADD checkbox if withdraw, add MAX button to autofill balance
