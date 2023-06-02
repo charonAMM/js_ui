@@ -147,7 +147,8 @@ async function swap() {
         "ETH",
         "Sepolia",
         gasLimit,
-        sepoliaProvider
+        sepoliaProvider,
+        sepoliaWallet
       );
     } else if (fromCurrency === "wxdai") {
       await swapToken(
@@ -158,7 +159,8 @@ async function swap() {
         "WxDAI",
         isTestnet ? "Chiado" : "Gnosis Chain",
         gasLimit,
-        isTestnet ? chiadoProvider : gnosisProvider
+        isTestnet ? chiadoProvider : gnosisProvider,
+        isTestnet ? chiadoWallet : gnosisWallet
       );
     } else if (fromCurrency === "wmatic") {
       await swapToken(
@@ -169,7 +171,8 @@ async function swap() {
         "WMATIC",
         isTestnet ? "Mumbai" : "Polygon",
         gasLimit,
-        isTestnet ? mumbaiProvider : polygonProvider
+        isTestnet ? mumbaiProvider : polygonProvider,
+        isTestnet ? mumbaiWallet : polygonWallet
       );
     } else if (fromCurrency === "weth") {
       await swapToken(
@@ -180,7 +183,8 @@ async function swap() {
         "WETH",
         "Optimism",
         gasLimit,
-        optimismProvider
+        optimismProvider,
+        optimismWallet
       );
     } else if (toCurrency === "eth") {
       await swapToken(
@@ -191,7 +195,8 @@ async function swap() {
         "CHD",
         "Ethereum",
         gasLimit,
-        sepoliaProvider
+        sepoliaProvider,
+        sepoliaWallet
       );
     } else if (toCurrency === "wxdai") {
       await swapToken(
@@ -202,7 +207,8 @@ async function swap() {
         "CHD",
         isTestnet ? "Chiado" : "Gnosis Chain",
         gasLimit,
-        isTestnet ? chiadoProvider : gnosisProvider
+        isTestnet ? chiadoProvider : gnosisProvider,
+        isTestnet ? chiadoWallet : gnosisWallet
       );
     } else if (toCurrency === "wmatic") {
       await swapToken(
@@ -213,7 +219,8 @@ async function swap() {
         "CHD",
         isTestnet ? "Mumbai" : "Polygon",
         gasLimit,
-        isTestnet ? mumbaiProvider : polygonProvider
+        isTestnet ? mumbaiProvider : polygonProvider,
+        isTestnet ? mumbaiWallet : polygonWallet
       );
     } else if (toCurrency === "weth") {
       await swapToken(
@@ -224,7 +231,8 @@ async function swap() {
         "CHD",
         "Optimism",
         gasLimit,
-        optimismProvider
+        optimismProvider,
+        optimismWallet
       );
     }
   } catch (err) {
@@ -242,7 +250,8 @@ async function swapToken(
   tokenSymbol,
   networkName,
   gasLimit,
-  provider
+  provider,
+  wallet
 ) {
   if (balance < parseFloat(ethers.utils.formatEther(fromAmount))) {
     alert(
@@ -258,6 +267,8 @@ async function swapToken(
     gasLimit: gasLimit,
     gasPrice: currentGasPrice,
   });
+  let nonce = await provider.getTransactionCount(wallet.address);
+
   charon
     .swap(
       tokenSymbol === "CHD",
@@ -266,7 +277,8 @@ async function swapToken(
       ethers.utils.parseEther("999999"),
       {
         gasLimit,
-        gasPrice: currentGasPrice.mul(110).div(100)
+        gasPrice: currentGasPrice.mul(110).div(100),
+        nonce: nonce+1,
       }
     )
     .then((result) => {
