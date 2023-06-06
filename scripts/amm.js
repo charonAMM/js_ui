@@ -279,7 +279,7 @@ async function swapToken(
       {
         gasLimit,
         gasPrice: currentGasPrice.mul(110).div(100),
-        nonce: nonce+1,
+        nonce: nonce + 1,
       }
     )
     .then((result) => {
@@ -386,41 +386,15 @@ async function calculateConversionDetails(
     };
     const feeData = await provider.getFeeData();
     let gasPrice = feeData.gasPrice;
-    if (selectElement.value === "eth") {
+    if (selectElement.value === "eth" || toAmountCurrency.value === "eth") {
       gasPrice = ethers.utils.formatUnits(feeData.maxFeePerGas, "wei"); //EIP 1559
     }
-    if (selectElement.value === "weth") {
-      const gasEstimate = await provider.estimateGas(transaction);
-
-      console.log("feeData: ", feeData);
-      const gasPrice = feeData.gasPrice;
-      console.log("gasPrice: ", gasPrice.toString());
-      
-      const gasCostWei = gasEstimate.mul(1000000);
-      
-      const txData = ethers.utils.serializeTransaction(transaction);
-      const txDataBytes = ethers.utils.arrayify(txData);
-      const zeroBytes = txDataBytes.filter((b) => b === 0).length;
-      const nonZeroBytes = txDataBytes.length - zeroBytes;
-      
-      const l1GasPrice = 26540000000; 
-      console.log("l1GasPrice: ", l1GasPrice.toString())
-      const fixedOverhead = ethers.utils.parseUnits("2100", 'wei');
-      const dynamicOverhead = ethers.BigNumber.from(16); 
-      const txDataGas = ethers.utils.parseUnits((zeroBytes * 4 + nonZeroBytes * 16).toString(), 'wei');
-      
-      // const l1DataFee = l1GasPrice.mul(txDataGas.add(fixedOverhead)).div(ethers.BigNumber.from('1000000000000000000')).mul(dynamicOverhead); 
-      const l1DataFee = l1GasPrice * (txDataGas.add(fixedOverhead))/10 * dynamicOverhead;
-      const totalFeeInWei = gasCostWei.add(l1DataFee);
-      console.log("totalFeeInWei: ", totalFeeInWei.toString());
-      
-      const totalFeeInETH = ethers.utils.formatEther(totalFeeInWei);
-      console.log(`Total Fee in ETH: ${totalFeeInETH}`);
-      
-      throw "stop";
-    }
     const gasEstimate = await provider.estimateGas(transaction);
-    const gasCostWei = gasEstimate * gasPrice;
+    let gasCostWei = gasEstimate * gasPrice;
+
+    if (selectElement.value === "weth" || toAmountCurrency.value === "weth") {
+      gasCostWei = await fetchOptimismFee(transaction, provider, gasEstimate);
+    }
 
     const etherToUsdRate = await fetchCryptoPrice(
       selectElement.value === "chd"
@@ -429,8 +403,6 @@ async function calculateConversionDetails(
     );
     const totalCost = ethers.utils.formatEther(gasCostWei);
     const totalCostUsd = totalCost * etherToUsdRate;
-    console.log("Total cost in Ether: " + totalCost);
-    console.log("Total cost in USD: " + totalCostUsd);
 
     $("#gas-estimate").text(parseFloat(totalCostUsd).toFixed(6) + " USD");
   } catch (e) {
@@ -438,6 +410,49 @@ async function calculateConversionDetails(
     $("#gas-estimate").text("n/a");
   }
   return { spotPrice, slippage };
+}
+
+async function fetchOptimismFee(transaction, provider, gasEstimate) {
+  return new Promise((resolve, reject) => {
+    let totalCostWei;
+    const txData = ethers.utils.serializeTransaction(transaction);
+    const url = process.env.NODE_URL_OPTIMISM;
+    const data = {
+      jsonrpc: "2.0",
+      method: "rollup_gasPrices",
+      params: [],
+      id: 1,
+    };
+    fetch(url, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(data),
+    })
+      .then((response) => response.json())
+      .then((data) => {
+        const l2GasPriceInWei = data.result.l2GasPrice;
+        const l2ExecutionFee = l2GasPriceInWei * gasEstimate;
+        let contractAbi = [
+          "function getL1Fee(bytes _data) public view returns (uint256)",
+        ];
+        let contractAddress = "0x420000000000000000000000000000000000000F";
+        let contract = new ethers.Contract(
+          contractAddress,
+          contractAbi,
+          provider
+        );
+        contract.getL1Fee(txData).then((result) => {
+          totalCostWei = l2ExecutionFee + parseInt(result);
+          resolve(totalCostWei);
+        });
+      })
+      .catch((error) => {
+        console.error("Error:", error);
+        reject(error);
+      });
+  });
 }
 
 async function calculateConversion() {
@@ -565,6 +580,7 @@ function prepareSwitchButtonClick() {
 async function fetchCryptoPrice(fromCurrency) {
   switch (fromCurrency) {
     case "eth":
+    case "weth":
       return await fetch(
         "https://api.coingecko.com/api/v3/simple/price?ids=ethereum&vs_currencies=usd"
       )
@@ -582,12 +598,6 @@ async function fetchCryptoPrice(fromCurrency) {
       )
         .then((response) => response.json())
         .then((data) => data["matic-network"].usd);
-    case "weth":
-      return await fetch(
-        "https://api.coingecko.com/api/v3/simple/price?ids=optimism&vs_currencies=usd"
-      )
-        .then((response) => response.json())
-        .then((data) => data.optimism.usd);
   }
 }
 
