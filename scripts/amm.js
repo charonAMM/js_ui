@@ -434,11 +434,11 @@ async function fetchOptimismFee(transaction, provider, gasEstimate) {
       .then((data) => {
         const l2GasPriceInWei = data.result.l2GasPrice;
         const l2ExecutionFee = l2GasPriceInWei * gasEstimate;
-        let contractAbi = [
+        const contractAbi = [
           "function getL1Fee(bytes _data) public view returns (uint256)",
         ];
-        let contractAddress = "0x420000000000000000000000000000000000000F";
-        let contract = new ethers.Contract(
+        const contractAddress = "0x420000000000000000000000000000000000000F";
+        const contract = new ethers.Contract(
           contractAddress,
           contractAbi,
           provider
