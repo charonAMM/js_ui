@@ -429,7 +429,7 @@ async function fetchOptimismFee(transaction, provider, gasEstimate) {
     const url = process.env.NODE_URL_OPTIMISM;
     const data = {
       jsonrpc: "2.0",
-      method: "rollup_gasPrices",
+      method: "eth_gasPrice",
       params: [],
       id: 1,
     };
@@ -442,21 +442,8 @@ async function fetchOptimismFee(transaction, provider, gasEstimate) {
     })
       .then((response) => response.json())
       .then((data) => {
-        const l2GasPriceInWei = data.result.l2GasPrice;
-        const l2ExecutionFee = l2GasPriceInWei * gasEstimate;
-        const contractAbi = [
-          "function getL1Fee(bytes _data) public view returns (uint256)",
-        ];
-        const contractAddress = "0x420000000000000000000000000000000000000F";
-        const contract = new ethers.Contract(
-          contractAddress,
-          contractAbi,
-          provider
-        );
-        contract.getL1Fee(txData).then((result) => {
-          totalCostWei = l2ExecutionFee + parseInt(result);
-          resolve(totalCostWei);
-        });
+        const gasPriceInWei = data.result;
+        resolve(parseInt(gasPriceInWei) * gasEstimate);
       })
       .catch((error) => {
         console.error("Error:", error);
