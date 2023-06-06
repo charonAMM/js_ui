@@ -380,16 +380,24 @@ async function calculateConversionDetails(
       );
   const slippage = (minAmountOut - expectedOut) / expectedOut;
   try {
+    const functionData = charon.interface.encodeFunctionData("swap", [
+      isSynthIn,
+      ethers.utils.parseEther(inputValue.toString()),
+      0,
+      ethers.utils.parseEther("999999"),
+    ]);
+
     const transaction = {
-      to: "0x1234567890123456789012345678901234567890",
-      data: "0x59542ca900000000000000000000000000000000000000000000000000000000000000010000000000000000000000000000000000000000000000000de0b6b3a7640000000000000000000000000000000000000000000000000000016345785d8a000000000000000000000000000000000000000000000000000ad78ebc5ac6200000",
+      to: charon.address,
+      data: functionData,
     };
+
     const feeData = await provider.getFeeData();
     let gasPrice = feeData.gasPrice;
     if (selectElement.value === "eth" || toAmountCurrency.value === "eth") {
       gasPrice = ethers.utils.formatUnits(feeData.maxFeePerGas, "wei"); //EIP 1559
     }
-    const gasEstimate = 153184
+    const gasEstimate = 153184;
     let gasCostWei = gasEstimate * gasPrice;
 
     if (selectElement.value === "weth" || toAmountCurrency.value === "weth") {
@@ -401,7 +409,9 @@ async function calculateConversionDetails(
         ? toAmountCurrency.value
         : selectElement.value
     );
-    const totalCost = ethers.utils.formatEther(gasCostWei);
+    const totalCost = ethers.utils.formatEther(
+      ethers.BigNumber.from(gasCostWei.toString())
+    );
     const totalCostUsd = totalCost * etherToUsdRate;
 
     $("#gas-estimate").text(parseFloat(totalCostUsd).toFixed(6) + " USD");
