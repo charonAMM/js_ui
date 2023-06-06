@@ -46,6 +46,7 @@ const isTestnet = process.env.IS_TESTNET === "true";
 const button = document.getElementById("swapButton");
 const text = document.getElementById("swapText");
 const loader = document.getElementById("swapLoader");
+const toAmountCurrency = document.getElementById("to-currency");
 
 const walletsConfig = [
   {
@@ -379,17 +380,61 @@ async function calculateConversionDetails(
       );
   const slippage = (minAmountOut - expectedOut) / expectedOut;
   try {
-    const gasPrice = await provider.getGasPrice();
     const transaction = {
       to: "0x1234567890123456789012345678901234567890",
       data: "0x59542ca900000000000000000000000000000000000000000000000000000000000000010000000000000000000000000000000000000000000000000de0b6b3a7640000000000000000000000000000000000000000000000000000016345785d8a000000000000000000000000000000000000000000000000000ad78ebc5ac6200000",
     };
-    const gasLimit = await provider.estimateGas(transaction);
-    const gasCost = gasPrice.mul(gasLimit);
-    $("#gas-estimate").text(
-      parseFloat(ethers.utils.formatUnits(gasCost, "gwei")).toFixed(2)
+    const feeData = await provider.getFeeData();
+    let gasPrice = feeData.gasPrice;
+    if (selectElement.value === "eth") {
+      gasPrice = ethers.utils.formatUnits(feeData.maxFeePerGas, "wei"); //EIP 1559
+    }
+    if (selectElement.value === "weth") {
+      const gasEstimate = await provider.estimateGas(transaction);
+
+      console.log("feeData: ", feeData);
+      const gasPrice = feeData.gasPrice;
+      console.log("gasPrice: ", gasPrice.toString());
+      
+      const gasCostWei = gasEstimate.mul(1000000);
+      
+      const txData = ethers.utils.serializeTransaction(transaction);
+      const txDataBytes = ethers.utils.arrayify(txData);
+      const zeroBytes = txDataBytes.filter((b) => b === 0).length;
+      const nonZeroBytes = txDataBytes.length - zeroBytes;
+      
+      const l1GasPrice = 26540000000; 
+      console.log("l1GasPrice: ", l1GasPrice.toString())
+      const fixedOverhead = ethers.utils.parseUnits("2100", 'wei');
+      const dynamicOverhead = ethers.BigNumber.from(16); // Updated this value
+      const txDataGas = ethers.utils.parseUnits((zeroBytes * 4 + nonZeroBytes * 16).toString(), 'wei');
+      
+      // const l1DataFee = l1GasPrice.mul(txDataGas.add(fixedOverhead)).div(ethers.BigNumber.from('1000000000000000000')).mul(dynamicOverhead); 
+      const l1DataFee = l1GasPrice * (txDataGas.add(fixedOverhead))/10 * dynamicOverhead;
+      const totalFeeInWei = gasCostWei.add(l1DataFee);
+      console.log("totalFeeInWei: ", totalFeeInWei.toString());
+      
+      const totalFeeInETH = ethers.utils.formatEther(totalFeeInWei); // Updated this line
+      console.log(`Total Fee in ETH: ${totalFeeInETH}`);
+      
+      throw "stop";
+    }
+    const gasEstimate = await provider.estimateGas(transaction);
+    const gasCostWei = gasEstimate * gasPrice;
+
+    const etherToUsdRate = await fetchCryptoPrice(
+      selectElement.value === "chd"
+        ? toAmountCurrency.value
+        : selectElement.value
     );
+    const totalCost = ethers.utils.formatEther(gasCostWei);
+    const totalCostUsd = totalCost * etherToUsdRate;
+    console.log("Total cost in Ether: " + totalCost);
+    console.log("Total cost in USD: " + totalCostUsd);
+
+    $("#gas-estimate").text(parseFloat(totalCostUsd).toFixed(6) + " USD");
   } catch (e) {
+    console.log(e);
     $("#gas-estimate").text("n/a");
   }
   return { spotPrice, slippage };
@@ -515,6 +560,35 @@ function prepareSwitchButtonClick() {
     }
     calculateConversion();
   });
+}
+
+async function fetchCryptoPrice(fromCurrency) {
+  switch (fromCurrency) {
+    case "eth":
+      return await fetch(
+        "https://api.coingecko.com/api/v3/simple/price?ids=ethereum&vs_currencies=usd"
+      )
+        .then((response) => response.json())
+        .then((data) => data.ethereum.usd);
+    case "wxdai":
+      return await fetch(
+        "https://api.coingecko.com/api/v3/simple/price?ids=xdai&vs_currencies=usd"
+      )
+        .then((response) => response.json())
+        .then((data) => data.xdai.usd);
+    case "wmatic":
+      return await fetch(
+        "https://api.coingecko.com/api/v3/simple/price?ids=matic-network&vs_currencies=usd"
+      )
+        .then((response) => response.json())
+        .then((data) => data["matic-network"].usd);
+    case "weth":
+      return await fetch(
+        "https://api.coingecko.com/api/v3/simple/price?ids=optimism&vs_currencies=usd"
+      )
+        .then((response) => response.json())
+        .then((data) => data.optimism.usd);
+  }
 }
 
 loadAndDisplay();
