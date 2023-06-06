@@ -389,7 +389,7 @@ async function calculateConversionDetails(
     if (selectElement.value === "eth" || toAmountCurrency.value === "eth") {
       gasPrice = ethers.utils.formatUnits(feeData.maxFeePerGas, "wei"); //EIP 1559
     }
-    const gasEstimate = await provider.estimateGas(transaction);
+    const gasEstimate = 153184
     let gasCostWei = gasEstimate * gasPrice;
 
     if (selectElement.value === "weth" || toAmountCurrency.value === "weth") {
