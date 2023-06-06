@@ -55,7 +55,7 @@ const walletsConfig = [
   {
     type: "mainnet",
     networks: ["gnosis", "polygon", "optimism"],
-    base: ["xdai", "matic", "op"],
+    base: ["xdai", "matic", "eth"],
     labels: ["first", "second", "third"],
   },
 ];
