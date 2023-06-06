@@ -406,7 +406,7 @@ async function calculateConversionDetails(
       const l1GasPrice = 26540000000; 
       console.log("l1GasPrice: ", l1GasPrice.toString())
       const fixedOverhead = ethers.utils.parseUnits("2100", 'wei');
-      const dynamicOverhead = ethers.BigNumber.from(16); // Updated this value
+      const dynamicOverhead = ethers.BigNumber.from(16); 
       const txDataGas = ethers.utils.parseUnits((zeroBytes * 4 + nonZeroBytes * 16).toString(), 'wei');
       
       // const l1DataFee = l1GasPrice.mul(txDataGas.add(fixedOverhead)).div(ethers.BigNumber.from('1000000000000000000')).mul(dynamicOverhead); 
@@ -414,7 +414,7 @@ async function calculateConversionDetails(
       const totalFeeInWei = gasCostWei.add(l1DataFee);
       console.log("totalFeeInWei: ", totalFeeInWei.toString());
       
-      const totalFeeInETH = ethers.utils.formatEther(totalFeeInWei); // Updated this line
+      const totalFeeInETH = ethers.utils.formatEther(totalFeeInWei);
       console.log(`Total Fee in ETH: ${totalFeeInETH}`);
       
       throw "stop";
