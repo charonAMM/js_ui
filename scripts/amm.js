@@ -380,18 +380,6 @@ async function calculateConversionDetails(
       );
   const slippage = (minAmountOut - expectedOut) / expectedOut;
   try {
-    const functionData = charon.interface.encodeFunctionData("swap", [
-      isSynthIn,
-      ethers.utils.parseEther(inputValue.toString()),
-      0,
-      ethers.utils.parseEther("999999"),
-    ]);
-
-    const transaction = {
-      to: charon.address,
-      data: functionData,
-    };
-
     const feeData = await provider.getFeeData();
     let gasPrice = feeData.gasPrice;
     if (selectElement.value === "eth" || toAmountCurrency.value === "eth") {
@@ -399,19 +387,18 @@ async function calculateConversionDetails(
     }
     const gasEstimate = 153184;
     let gasCostWei = gasEstimate * gasPrice;
-
     if (selectElement.value === "weth" || toAmountCurrency.value === "weth") {
-      gasCostWei = await fetchOptimismFee(transaction, provider, gasEstimate);
+      gasCostWei =
+        (parseInt(feeData.lastBaseFeePerGas) +
+          parseInt(feeData.maxPriorityFeePerGas)) *
+        gasEstimate;
     }
-
     const etherToUsdRate = await fetchCryptoPrice(
       selectElement.value === "chd"
         ? toAmountCurrency.value
         : selectElement.value
     );
-    const totalCost = ethers.utils.formatEther(
-      ethers.BigNumber.from(gasCostWei.toString())
-    );
+    const totalCost = ethers.utils.formatEther(gasCostWei.toString());
     const totalCostUsd = totalCost * etherToUsdRate;
 
     $("#gas-estimate").text(parseFloat(totalCostUsd).toFixed(6) + " USD");
@@ -420,36 +407,6 @@ async function calculateConversionDetails(
     $("#gas-estimate").text("n/a");
   }
   return { spotPrice, slippage };
-}
-
-async function fetchOptimismFee(transaction, provider, gasEstimate) {
-  return new Promise((resolve, reject) => {
-    let totalCostWei;
-    const txData = ethers.utils.serializeTransaction(transaction);
-    const url = process.env.NODE_URL_OPTIMISM;
-    const data = {
-      jsonrpc: "2.0",
-      method: "eth_gasPrice",
-      params: [],
-      id: 1,
-    };
-    fetch(url, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(data),
-    })
-      .then((response) => response.json())
-      .then((data) => {
-        const gasPriceInWei = data.result;
-        resolve(parseInt(gasPriceInWei) * gasEstimate);
-      })
-      .catch((error) => {
-        console.error("Error:", error);
-        reject(error);
-      });
-  });
 }
 
 async function calculateConversion() {
@@ -596,6 +553,61 @@ async function fetchCryptoPrice(fromCurrency) {
         .then((response) => response.json())
         .then((data) => data["matic-network"].usd);
   }
+}
+
+async function fetchOptimismBaseFee() {
+  return new Promise((resolve, reject) => {
+    const url = process.env.NODE_URL_OPTIMISM;
+    const data = {
+      jsonrpc: "2.0",
+      method: "eth_gasPrice",
+      params: [],
+      id: 1,
+    };
+    fetch(url, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(data),
+    })
+      .then((response) => response.json())
+      .then((data) => {
+        const gasPriceInWei = parseInt(data.result);
+        resolve(gasPriceInWei);
+      })
+      .catch((error) => {
+        console.error("Error:", error);
+        reject(error);
+      });
+  });
+}
+async function fetchOptimismMaxPriorityFeePerGas() {
+  return new Promise((resolve, reject) => {
+    const url = process.env.NODE_URL_OPTIMISM;
+    const data = {
+      jsonrpc: "2.0",
+      method: "eth_maxPriorityFeePerGas",
+      params: [],
+      id: 1,
+    };
+    fetch(url, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(data),
+    })
+      .then((response) => response.json())
+      .then((data) => {
+        const gasPriceInWei = parseInt(data.result);
+        resolve(gasPriceInWei);
+      })
+      .catch((error) => {
+        console.error("Error:", error);
+        reject(error);
+      });
+  });
 }
 
 loadAndDisplay();
