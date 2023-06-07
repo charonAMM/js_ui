@@ -368,14 +368,14 @@ async function calculateConversionDetails(
     ? await charon.calcSingleOutGivenIn(
         await charon.recordBalance(),
         await charon.recordBalanceSynth(),
-        ethers.utils.parseEther(adjustedIn.toString()),
+        ethers.utils.parseEther(adjustedIn.toFixed(18).toString()),
         0,
         false
       )
     : await charon.calcOutGivenIn(
         await charon.recordBalance(),
         await charon.recordBalanceSynth(),
-        ethers.utils.parseEther(adjustedIn.toString()),
+        ethers.utils.parseEther(adjustedIn.toFixed(18).toString()),
         0
       );
   const slippage = (minAmountOut - expectedOut) / expectedOut;
