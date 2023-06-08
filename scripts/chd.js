@@ -34,7 +34,7 @@ const {
   optimismProvider,
 } = require("../src/providers");
 const filename = "bootstrap";
-const isTestnet = process.env.IS_TESTNET === 'true';
+const isTestnet = process.env.IS_TESTNET === "true";
 let builtPoseidon;
 let psVal, pmVal, pcVal, pgVal, ppVal, poVal;
 let sVal, mVal, cVal, gVal, pVal, oVal;
@@ -55,7 +55,9 @@ let myKeypair;
 let myPubkey = "0x000000";
 let myAddress;
 
-isTestnet ? myAddress = sepoliaWallet.address : myAddress = gnosisWallet.address;
+isTestnet
+  ? (myAddress = sepoliaWallet.address)
+  : (myAddress = gnosisWallet.address);
 
 $("#myAddress").text(myAddress);
 
@@ -107,7 +109,7 @@ function makeBridgeModal() {
 async function writeUTXOs() {
   try {
     fs.unlinkSync("utxos.txt");
-  } catch { }
+  } catch {}
   const sendVars = {
     sepoliaUTXOs: sepUTXOs,
     chiadoUTXOs: chiUTXOs,
@@ -209,42 +211,51 @@ function initializeStartBlocks(contents, isTestnet) {
   return startBlocks;
 }
 
-async function handleChain(chainCharon, network, chainStartBlock, chainSet, chainUTXOs, keypair) {
-  let eventFilter = chainCharon.filters.NewCommitment();
-  chainCharon.queryFilter(eventFilter, chainStartBlock, "latest")
-    .then(async function (eventData) {
-      let myNullifier, xUtxo;
-      let j = 0;
-      let xUtxos = [];
-      for (let i = 0; i < eventData.length; i++) {
-        try {
-          xUtxo = Utxo.decrypt(
-            myKeypair,
-            eventData[i].args._encryptedOutput,
-            eventData[i].args._index
-          );
-          xUtxo.chainID = getChainID(network);
-          if (
-            xUtxo.amount > 0 &&
-            toFixedHex(eventData[i].args._commitment) ==
-            toFixedHex(xUtxo.getCommitment(poseidon))
-          ) {
-            xUtxos.push(xUtxo);
-            myNullifier = toFixedHex(xUtxo.getNullifier(poseidon));
+async function handleChain(
+  chainCharon,
+  network,
+  chainStartBlock,
+  chainSet,
+  chainUTXOs,
+  keypair
+) {
+  return new Promise(async (resolve, reject) => {
+    let eventFilter = chainCharon.filters.NewCommitment();
+    const eventData = await chainCharon.queryFilter(eventFilter, 0, "latest");
+    const promises = [];
+    let myUtxos = [];
+    let j = 0;
+
+    for (let i = 0; i < eventData.length; i++) {
+      try {
+        let myUtxo = Utxo.decrypt(
+          keypair,
+          eventData[i].args._encryptedOutput,
+          eventData[i].args._index
+        );
+        myUtxo.chainID = getChainID(network);
+        if (
+          myUtxo.amount > 0 &&
+          toFixedHex(eventData[i].args._commitment) ==
+            toFixedHex(myUtxo.getCommitment(poseidon))
+        ) {
+          myUtxos.push(myUtxo);
+          let myNullifier = toFixedHex(myUtxo.getNullifier(poseidon));
+          promises.push(
             chainCharon.isSpent(myNullifier).then(function (result) {
               if (!result) {
-                chainSet[1] = chainSet[1] + parseInt(xUtxo[j].amount);
-                chainUTXOs.push(xUtxo);
-                j++;
-              } else {
-                j++;
+                chainSet[1] = chainSet[1] + parseInt(myUtxos[j].amount);
+                chainUTXOs.push(myUtxos[j]);
               }
-            });
-          }
-        } catch (err) {
+              j++;
+            })
+          );
         }
-      }
-    });
+      } catch (err) {}
+    }
+    await Promise.all(promises);
+    resolve(true);
+  });
 }
 
 async function setData() {
@@ -253,39 +264,76 @@ async function setData() {
   const startBlocks = initializeStartBlocks(contents, isTestnet);
 
   try {
-  if (isTestnet) {
-    await Promise.all([
-      handleChain(sepoliaCharon, "sepolia", startBlocks.sepolia, sepSet, sepUTXOs, myKeypair),
-      handleChain(mumbaiCharon, "mumbai", startBlocks.mumbai, mumSet, mumUTXOs, myKeypair),
-      handleChain(chiadoCharon, "chiado", startBlocks.chiado, chiSet, chiUTXOs, myKeypair)
-    ]);
-  } else {
-    await Promise.all([
-      handleChain(gnosisCharon, "gnosis", startBlocks.gnosis, gnoSet, gnoUTXOs, myKeypair),
-      handleChain(polygonCharon, "polygon", startBlocks.polygon, polSet, polUTXOs, myKeypair),
-      handleChain(optimismCharon, "optimism", startBlocks.optimism, optSet, optUTXOs, myKeypair)
-    ]);
+    if (isTestnet) {
+      await Promise.all([
+        handleChain(
+          sepoliaCharon,
+          "sepolia",
+          startBlocks.sepolia,
+          sepSet,
+          sepUTXOs,
+          myKeypair
+        ),
+        handleChain(
+          mumbaiCharon,
+          "mumbai",
+          startBlocks.mumbai,
+          mumSet,
+          mumUTXOs,
+          myKeypair
+        ),
+        handleChain(
+          chiadoCharon,
+          "chiado",
+          startBlocks.chiado,
+          chiSet,
+          chiUTXOs,
+          myKeypair
+        ),
+      ]);
+    } else {
+      await Promise.all([
+        handleChain(
+          gnosisCharon,
+          "gnosis",
+          startBlocks.gnosis,
+          gnoSet,
+          gnoUTXOs,
+          myKeypair
+        ),
+        handleChain(
+          polygonCharon,
+          "polygon",
+          startBlocks.polygon,
+          polSet,
+          polUTXOs,
+          myKeypair
+        ),
+        handleChain(
+          optimismCharon,
+          "optimism",
+          startBlocks.optimism,
+          optSet,
+          optUTXOs,
+          myKeypair
+        ),
+      ]);
+    }
+    if (isTestnet) {
+      sepSet[0] = await sepoliaProvider.getBlockNumber();
+      mumSet[0] = await mumbaiProvider.getBlockNumber();
+      chiSet[0] = await chiadoProvider.getBlockNumber();
+    } else {
+      gnoSet[0] = await gnosisProvider.getBlockNumber();
+      polSet[0] = await polygonProvider.getBlockNumber();
+      optSet[0] = await optimismProvider.getBlockNumber();
+    }
+  } catch (err) {
+    window.alert(err);
   }
-  if (isTestnet) {
-    sepSet[0] = await sepoliaProvider.getBlockNumber();
-    mumSet[0] = await mumbaiProvider.getBlockNumber();
-    chiSet[0] = await chiadoProvider.getBlockNumber();
-  } else {
-    gnoSet[0] = await gnosisProvider.getBlockNumber();
-    polSet[0] = await polygonProvider.getBlockNumber();
-    optSet[0] = await optimismProvider.getBlockNumber();
-  }
-} catch (err) {
-  window.alert(err);
-}
 
-  return new Promise((resolve) => {
-    setTimeout(() => {
-      resolve("resolved");
-      $("#send").removeAttr("disabled");
-      $("#bridge").removeAttr("disabled");
-    }, 2000);
-  })
+  $("#send").removeAttr("disabled");
+  $("#bridge").removeAttr("disabled");
 
   // fs.writeFileSync("utxos.txt", JSON.stringify(saveData, null, 2));
 }
@@ -318,25 +366,31 @@ $("#bridge").on("click", () => {
 
 function loadPrivateBalances() {
   if (isTestnet) {
-    psVal = Math.round(ethers.utils.formatEther(sepSet[1].toString()) * 100) / 100;
-    pmVal = Math.round(ethers.utils.formatEther(mumSet[1].toString()) * 100) / 100;
-    pcVal = Math.round(ethers.utils.formatEther(chiSet[1].toString()) * 100) / 100;
+    psVal =
+      Math.round(ethers.utils.formatEther(sepSet[1].toString()) * 100) / 100;
+    pmVal =
+      Math.round(ethers.utils.formatEther(mumSet[1].toString()) * 100) / 100;
+    pcVal =
+      Math.round(ethers.utils.formatEther(chiSet[1].toString()) * 100) / 100;
     $("#PCHD0").text(psVal);
     $("#PCHD1").text(pmVal);
     $("#PCHD2").text(pcVal);
     $("#totalBal").text(
       Math.round((sVal + mVal + cVal + psVal + pmVal + pcVal) * 100) / 100
-    )
+    );
   } else {
-    pgVal = Math.round(ethers.utils.formatEther(gnoSet[1].toString()) * 100) / 100;
-    ppVal = Math.round(ethers.utils.formatEther(polSet[1].toString()) * 100) / 100;
-    poVal = Math.round(ethers.utils.formatEther(optSet[1].toString()) * 100) / 100;
+    pgVal =
+      Math.round(ethers.utils.formatEther(gnoSet[1].toString()) * 100) / 100;
+    ppVal =
+      Math.round(ethers.utils.formatEther(polSet[1].toString()) * 100) / 100;
+    poVal =
+      Math.round(ethers.utils.formatEther(optSet[1].toString()) * 100) / 100;
     $("#PCHD0").text(pgVal);
     $("#PCHD1").text(ppVal);
     $("#PCHD2").text(poVal);
     $("#totalBal").text(
       Math.round((gVal + pVal + oVal + pgVal + ppVal + poVal) * 100) / 100
-    )
+    );
   }
 
   writeUTXOs();
