@@ -209,6 +209,9 @@ function initialize(contents, isTestnet) {
       optSet = [0, 0];
     }
   }
+  if (contents && contents.publicKey != myPubkey) {
+    fs.unlinkSync("utxos.txt");
+  }
 }
 
 async function handleChain(
@@ -220,7 +223,11 @@ async function handleChain(
 ) {
   return new Promise(async (resolve, reject) => {
     let eventFilter = chainCharon.filters.NewCommitment();
-    const eventData = await chainCharon.queryFilter(eventFilter, chainSet[0], "latest");
+    const eventData = await chainCharon.queryFilter(
+      eventFilter,
+      chainSet[0],
+      "latest"
+    );
     const promises = [];
     let myUtxos = [];
     let j = 0;
@@ -265,51 +272,15 @@ async function setData() {
   try {
     if (isTestnet) {
       await Promise.all([
-        handleChain(
-          sepoliaCharon,
-          "sepolia",
-          sepSet,
-          sepUTXOs,
-          myKeypair
-        ),
-        handleChain(
-          mumbaiCharon,
-          "mumbai",
-          mumSet,
-          mumUTXOs,
-          myKeypair
-        ),
-        handleChain(
-          chiadoCharon,
-          "chiado",
-          chiSet,
-          chiUTXOs,
-          myKeypair
-        ),
+        handleChain(sepoliaCharon, "sepolia", sepSet, sepUTXOs, myKeypair),
+        handleChain(mumbaiCharon, "mumbai", mumSet, mumUTXOs, myKeypair),
+        handleChain(chiadoCharon, "chiado", chiSet, chiUTXOs, myKeypair),
       ]);
     } else {
       await Promise.all([
-        handleChain(
-          gnosisCharon,
-          "gnosis",
-          gnoSet,
-          gnoUTXOs,
-          myKeypair
-        ),
-        handleChain(
-          polygonCharon,
-          "polygon",
-          polSet,
-          polUTXOs,
-          myKeypair
-        ),
-        handleChain(
-          optimismCharon,
-          "optimism",
-          optSet,
-          optUTXOs,
-          myKeypair
-        ),
+        handleChain(gnosisCharon, "gnosis", gnoSet, gnoUTXOs, myKeypair),
+        handleChain(polygonCharon, "polygon", polSet, polUTXOs, myKeypair),
+        handleChain(optimismCharon, "optimism", optSet, optUTXOs, myKeypair),
       ]);
     }
     if (isTestnet) {
