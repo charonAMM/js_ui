@@ -187,41 +187,40 @@ function readFileContents(file) {
   return null;
 }
 
-function initializeStartBlocks(contents, isTestnet) {
-  let startBlocks = {};
+function initialize(contents, isTestnet) {
   if (contents && contents.publicKey == myPubkey) {
     if (isTestnet) {
-      startBlocks = {
-        sepolia: contents.lastBlockSep,
-        mumbai: contents.lastBlockMum,
-        chiado: contents.lastBlockChi,
-      };
+      sepSet = [contents.lastBlockSep, contents.psVal];
+      chiSet = [contents.lastBlockChi, contents.pcVal];
+      mumSet = [contents.lastBlockMum, contents.pmVal];
     } else {
-      startBlocks = {
-        gnosis: contents.lastBlockGno,
-        polygon: contents.lastBlockPol,
-        optimism: contents.lastBlockOpt,
-      };
+      polSet = [contents.lastBlockPol, contents.ppVal];
+      gnoSet = [contents.lastBlockGno, contents.pgVal];
+      optSet = [contents.lastBlockOpt, contents.poVal];
     }
   } else {
-    startBlocks = isTestnet
-      ? { sepolia: 0, mumbai: 0, chiado: 0 }
-      : { gnosis: 0, polygon: 0, optimism: 0 };
+    if (isTestnet) {
+      sepSet = [0, 0];
+      chiSet = [0, 0];
+      mumSet = [0, 0];
+    } else {
+      polSet = [0, 0];
+      gnoSet = [0, 0];
+      optSet = [0, 0];
+    }
   }
-  return startBlocks;
 }
 
 async function handleChain(
   chainCharon,
   network,
-  chainStartBlock,
   chainSet,
   chainUTXOs,
   keypair
 ) {
   return new Promise(async (resolve, reject) => {
     let eventFilter = chainCharon.filters.NewCommitment();
-    const eventData = await chainCharon.queryFilter(eventFilter, 0, "latest");
+    const eventData = await chainCharon.queryFilter(eventFilter, chainSet[0], "latest");
     const promises = [];
     let myUtxos = [];
     let j = 0;
@@ -261,7 +260,7 @@ async function handleChain(
 async function setData() {
   await setKeypair();
   const contents = readFileContents("utxos.txt");
-  const startBlocks = initializeStartBlocks(contents, isTestnet);
+  initialize(contents, isTestnet);
 
   try {
     if (isTestnet) {
@@ -269,7 +268,6 @@ async function setData() {
         handleChain(
           sepoliaCharon,
           "sepolia",
-          startBlocks.sepolia,
           sepSet,
           sepUTXOs,
           myKeypair
@@ -277,7 +275,6 @@ async function setData() {
         handleChain(
           mumbaiCharon,
           "mumbai",
-          startBlocks.mumbai,
           mumSet,
           mumUTXOs,
           myKeypair
@@ -285,7 +282,6 @@ async function setData() {
         handleChain(
           chiadoCharon,
           "chiado",
-          startBlocks.chiado,
           chiSet,
           chiUTXOs,
           myKeypair
@@ -296,7 +292,6 @@ async function setData() {
         handleChain(
           gnosisCharon,
           "gnosis",
-          startBlocks.gnosis,
           gnoSet,
           gnoUTXOs,
           myKeypair
@@ -304,7 +299,6 @@ async function setData() {
         handleChain(
           polygonCharon,
           "polygon",
-          startBlocks.polygon,
           polSet,
           polUTXOs,
           myKeypair
@@ -312,7 +306,6 @@ async function setData() {
         handleChain(
           optimismCharon,
           "optimism",
-          startBlocks.optimism,
           optSet,
           optUTXOs,
           myKeypair
