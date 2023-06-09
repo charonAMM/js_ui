@@ -18,6 +18,27 @@
       rel="stylesheet"
       href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css"
     />
+    <style>
+      #info-icon {
+        margin-top: -14px;
+        margin-left: 50px;
+        cursor: pointer;
+      }
+
+      .modal-dialog {
+        max-width: 550px;
+        height: auto;
+        max-height: 60vh;
+      }
+
+      .modal-header,
+      .modal-footer {
+        border-color: #333333;
+      }
+      .modal-footer {
+        padding: 0;
+      }
+    </style>
   </head>
   <body style="overflow: hidden">
     <!-- Header -->
@@ -26,9 +47,24 @@
         <div class="row">
           <div class="col-md-12">
             <nav class="navbar navbar-expand-lg navbar-light">
-              <p style="font-size: 22px; color: white; font-weight: bold">
-                charon
-              </p>
+              <div
+                style="
+                  display: flex;
+                  justify-content: space-between;
+                  align-items: center;
+                  width: 100%;
+                "
+              >
+                <p style="font-size: 22px; color: white; font-weight: bold">
+                  charon
+                </p>
+                <i
+                  id="info-icon"
+                  class="fas fa-info-circle"
+                  data-bs-toggle="modal"
+                  data-bs-target="#info-modal"
+                ></i>
+              </div>
               <!-- <img src="../public/Charon_mono.png" alt="Charon Icon" height="100" style="filter: invert(100%);"> -->
             </nav>
           </div>
@@ -40,12 +76,7 @@
     <main>
       <div
         class="container"
-        style="
-          display: flex;
-          justify-content: center;
-          align-items: center;
-          height: 100vh;
-        "
+        style="display: flex; justify-content: center; align-items: center"
       >
         <div class="row">
           <div class="col-md-6 col-xl-4">
@@ -128,7 +159,7 @@
                               border-bottom-left-radius: 0;
                               margin-left: -1px;
                               max-width: 150px;
-                             padding-left:10px
+                              padding-left: 10px;
                             "
                           >
                             <option value="" id="baseToken"></option>
@@ -142,6 +173,63 @@
                     <span id="bridgeText">bridge</span>
                     <div class="loader" id="bridgeLoader"></div>
                   </button>
+                  <div
+                    class="modal fade"
+                    id="info-modal"
+                    tabindex="-1"
+                    aria-labelledby="info-modal-label"
+                    aria-hidden="true"
+                  >
+                    <div class="modal-dialog">
+                      <div class="modal-content bg-dark text-light">
+                        <div class="modal-header">
+                          <h5 class="modal-title" id="info-modal-label">
+                            How bridging works
+                          </h5>
+                          <button
+                            type="button"
+                            class="btn-close text-light"
+                            data-bs-dismiss="modal"
+                            aria-label="Close"
+                          ></button>
+                        </div>
+                        <div class="modal-body">
+                          <pre
+                            style="
+                              text-align: left;
+                              margin-top: -30px;
+                              margin-bottom: -30px;
+                            "
+                          >
+1. Choose a token to bridge (like wrapped xDai 
+on Gnosis or CHD).
+2. The token is deposited and its CHD equivalent is
+created.
+3. The CHD is bridged to a different blockchain
+(like Polygon), using a zk-proof and the Tellor oracle.
+4. Wait 12 hours for security and privacy.
+5. After this, your bridged CHD is available on the
+destination chain, seen as an increase in your private
+balance.
+
+You can now transfer your CHD! To send it privately, 
+you'll need the recipient's public key, found on the
+home screen or in the registry.
+                          </pre>
+                        </div>
+
+                        <div class="modal-footer">
+                          <button
+                            type="button"
+                            class="btn"
+                            data-bs-dismiss="modal"
+                          >
+                            Close
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
                 </form>
               </div>
             </div>
@@ -149,7 +237,6 @@
         </div>
       </div>
     </main>
-
     <!-- Scripts -->
     <script src="../pages/assets/bootstrap/js/bootstrap.min.js"></script>
     <script src="../pages/assets/js/bs-init.js"></script>
