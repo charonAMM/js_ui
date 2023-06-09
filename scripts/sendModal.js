@@ -86,7 +86,7 @@ $("input[type=radio][name=option]").on("change", function () {
 $("#withdrawalCheckbox").on("change", function () {
   if ($(this).is(":checked")) {
     $("#toAddy").prop("disabled", true);
-    $("#toAddy").val("")
+    $("#toAddy").val("");
   } else {
     $("#toAddy").prop("disabled", false);
   }
@@ -129,7 +129,7 @@ let utxoAmount = BigNumber.from("0");
 let changeUtxos = [];
 async function prepare2(_chain) {
   let _to = $("#toAddy").val();
-  let _amount = $("#toAmount").val();
+  let _amount = ethers.utils.parseEther($("#toAmount").val());
   let _withdrawal2 = $("#withdrawalCheckbox").prop("checked");
   if (_withdrawal2) {
     if (utxoAmount != _amount) {
@@ -203,7 +203,7 @@ networkButtons.forEach((networkButton) => {
 $("#maxButton").on("click", () => {
   let amountInput = document.querySelector("#toAmount");
   const _network = $('input[name="netType"]:checked').val();
-  const _visType = $("#txType-switch").prop("checked") ? "private" : "public";
+  const _visType = $('input[name="option"]:checked').val();
   if (_visType == "public") {
     if (_network == "sepolia") {
       amountInput.value = m.sVal;
@@ -383,7 +383,6 @@ async function send() {
       } else if (_network == "mumbai") {
         //ADD checkbox if withdraw, add MAX button to autofill balance
         //get amount and address (can we just use an address?  Test that that person can then do something with it, if not, you need a registry?)
-
         await prepareSend(m.mumbaiUTXOs, getChainID(_network));
         if (newUTXOs.length > 0 || changeUtxos > 0) {
           prepareTransaction({
@@ -522,6 +521,7 @@ async function send() {
     }
   } catch (err) {
     window.alert(err.message);
+    console.log(err);
   }
 }
 
