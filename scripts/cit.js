@@ -81,15 +81,19 @@ function timeLeft(timestamp) {
   const days = Math.floor(seconds / (24 * 60 * 60));
   const hours = Math.floor((seconds % (24 * 60 * 60)) / (60 * 60));
   const minutes = Math.floor((seconds % (60 * 60)) / 60);
-  let timeString = "";
-  if (days > 0) {
-    timeString += days + "d ";
+
+  if (timeLeft > 0) {
+    let timeString = "";
+    if (days > 0) {
+      timeString += days + "d ";
+    }
+    if (hours > 0) {
+      timeString += hours + "h ";
+    }
+    timeString += minutes + "m left";
+  } else {
+    timeString = "0m left";
   }
-  if (hours > 0) {
-    timeString += hours + "h ";
-  }
-  // timeString += " left"
-  timeString += minutes + "m left";
   return timeString;
 }
 function numberWithCommas(x) {
