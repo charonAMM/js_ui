@@ -107,13 +107,7 @@ async function setPublicBalances() {
     );
     CIT.balanceOf(
       isTestnet ? sepoliaWallet.address : gnosisWallet.address
-    ).then(
-      (result) =>
-        (citBal =
-          parseInt(ethers.utils.formatEther(result)) == 0
-            ? 0
-            : Math.round(ethers.utils.formatEther(result) * 100) / 100)
-    );
+    ).then((result) => (citBal = result));
   } catch (e) {
     window.alert(e.message);
   }
@@ -211,7 +205,6 @@ function setHTML() {
       mainnetBal: optBals,
     },
   ];
-
   data.forEach((item) => {
     const bal = isTestnet ? item.testnetBal : item.mainnetBal;
     $(item.element1).text(formatAndRound(bal.chdRewardsPerToken));
@@ -232,7 +225,6 @@ function setRewards() {
     : [gnoCFC, polCFC, optCFC];
   try {
     feeChecks.forEach(async (feeCheck, index) => {
-      await feeCheck.estimateGas.getFeePeriods();
       feeCheck.getFeePeriods().then((result) => setFeesPaid(result, index + 1));
     });
   } catch (e) {
