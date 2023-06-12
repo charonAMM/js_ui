@@ -81,15 +81,19 @@ function timeLeft(timestamp) {
   const days = Math.floor(seconds / (24 * 60 * 60));
   const hours = Math.floor((seconds % (24 * 60 * 60)) / (60 * 60));
   const minutes = Math.floor((seconds % (60 * 60)) / 60);
-  let timeString = "";
-  if (days > 0) {
-    timeString += days + "d ";
+
+  if (timeLeft > 0) {
+    let timeString = "";
+    if (days > 0) {
+      timeString += days + "d ";
+    }
+    if (hours > 0) {
+      timeString += hours + "h ";
+    }
+    timeString += minutes + "m left";
+  } else {
+    timeString = "0m left";
   }
-  if (hours > 0) {
-    timeString += hours + "h ";
-  }
-  // timeString += " left"
-  timeString += minutes + "m left";
   return timeString;
 }
 function numberWithCommas(x) {
@@ -103,13 +107,7 @@ async function setPublicBalances() {
     );
     CIT.balanceOf(
       isTestnet ? sepoliaWallet.address : gnosisWallet.address
-    ).then(
-      (result) =>
-        (citBal =
-          parseInt(ethers.utils.formatEther(result)) == 0
-            ? 0
-            : Math.round(ethers.utils.formatEther(result) * 100) / 100)
-    );
+    ).then((result) => (citBal = result));
   } catch (e) {
     window.alert(e.message);
   }
@@ -207,7 +205,6 @@ function setHTML() {
       mainnetBal: optBals,
     },
   ];
-
   data.forEach((item) => {
     const bal = isTestnet ? item.testnetBal : item.mainnetBal;
     $(item.element1).text(formatAndRound(bal.chdRewardsPerToken));
@@ -228,7 +225,6 @@ function setRewards() {
     : [gnoCFC, polCFC, optCFC];
   try {
     feeChecks.forEach(async (feeCheck, index) => {
-      await feeCheck.estimateGas.getFeePeriods();
       feeCheck.getFeePeriods().then((result) => setFeesPaid(result, index + 1));
     });
   } catch (e) {
