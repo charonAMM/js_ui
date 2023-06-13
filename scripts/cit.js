@@ -81,9 +81,9 @@ function timeLeft(timestamp) {
   const days = Math.floor(seconds / (24 * 60 * 60));
   const hours = Math.floor((seconds % (24 * 60 * 60)) / (60 * 60));
   const minutes = Math.floor((seconds % (60 * 60)) / 60);
+  let timeString = "";
 
   if (timeLeft > 0) {
-    let timeString = "";
     if (days > 0) {
       timeString += days + "d ";
     }
