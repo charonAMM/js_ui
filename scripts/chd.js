@@ -253,6 +253,8 @@ async function handleChain(
               if (!result) {
                 chainSet[1] = chainSet[1] + parseInt(myUtxos[j].amount);
                 chainUTXOs.push(myUtxos[j]);
+              } else {
+                chainSet[1] = chainSet[1] - parseInt(myUtxos[j].amount);
               }
               j++;
             })
