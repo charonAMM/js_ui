@@ -122,6 +122,7 @@ async function writeUTXOs() {
     pmVal: mumSet[1],
     ppVal: polSet[1],
     pgVal: gnoSet[1],
+    poVal: optSet[1],
     lastBlockGno: gnoSet[0],
     lastBlockPol: polSet[0],
     lastBlockSep: sepSet[0],
