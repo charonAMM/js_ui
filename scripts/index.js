@@ -154,16 +154,14 @@ registerButton.onclick = async function () {
   try {
     let currentGasPrice = await provider.getGasPrice();
     registerButton.disabled = true;
-    registry
-      .register(pubKey, { gasLimit: 300000, gasPrice: currentGasPrice })
-      .then((tx) => {
-        console.log(tx);
-        window.alert("Transaction sent with hash: " + tx.hash);
-        registerButton.disabled = false;
-      });
+    const tx = await registry.register(pubKey, { gasLimit: 300000, gasPrice: currentGasPrice });
+    console.log(tx);
+    window.alert("Transaction sent with hash: " + tx.hash);
+    registerButton.disabled = false;
   } catch (err) {
     registerButton.disabled = false;
-    window.alert(err.message);
+    window.alert("Transaction failed, please try again");
+    console.log(err);
   }
 };
 
