@@ -33,7 +33,9 @@ const {
   polygonWallet,
   optimismWallet,
 } = require("../src/providers");
-
+const button = document.getElementById("signAndSend");
+const text = document.getElementById("sendText");
+const loader = document.getElementById("sendLoader");
 const contents = fs.readFileSync("utxos.txt", "utf-8");
 const isTestnet = process.env.IS_TESTNET === "true";
 const utxos = JSON.parse(contents);
@@ -72,6 +74,7 @@ function poseidon2(a, b) {
 }
 
 $("#signAndSend").on("click", () => {
+  showLoadingAnimation();
   send();
 });
 
@@ -168,6 +171,7 @@ async function prepareSend(_cUTXOs, _chain) {
   let _amount = parseInt($("#toAmount").val());
   if (getPrivateBalance(_chain) < _amount) {
     alert(`Not enough private balance on the ${getChain(_chain)} network.`);
+    enableSendButton();
   } else {
     newUTXOs = [];
     let jj = 0;
@@ -247,8 +251,9 @@ async function send() {
   let _withdrawal = $("#withdrawalCheckbox").prop("checked");
   let _adjTo = _to;
 
-  if (isNaN(_amount)) {
+  if (isNaN(_amount) || _amount <= 0) {
     window.alert("Please enter a valid amount");
+    enableSendButton();
     return;
   }
   try {
@@ -257,11 +262,13 @@ async function send() {
         window.alert(
           "Not enough public balance on the " + _network + " network."
         );
+        enableSendButton();
         return;
       }
 
       if (_adjTo.length != 42) {
         window.alert("Please enter a valid address");
+        enableSendButton();
         return;
       }
       if (_network == "sepolia") {
@@ -276,6 +283,7 @@ async function send() {
             window.alert(
               "Transaction sent on Sepolia network with tx hash: " + result.hash
             );
+            enableSendButton();
           });
       } else if (_network == "mumbai") {
         await mumbaiCHD.estimateGas.transfer(
@@ -289,6 +297,7 @@ async function send() {
             window.alert(
               "Transaction sent on Mumbai network with tx hash: " + result.hash
             );
+            enableSendButton();
           });
       } else if (_network == "chiado") {
         await chiadoCHD.estimateGas.transfer(
@@ -302,6 +311,7 @@ async function send() {
             window.alert(
               "Transaction sent on Chiado network with tx hash: " + result.hash
             );
+            enableSendButton();
           });
       } else if (_network == "gnosis") {
         await gnosisCHD.estimateGas.transfer(
@@ -315,6 +325,7 @@ async function send() {
             window.alert(
               "Transaction sent on Gnosis network with tx hash: " + result.hash
             );
+            enableSendButton();
           });
       } else if (_network == "polygon") {
         await polygonCHD.estimateGas.transfer(
@@ -328,6 +339,7 @@ async function send() {
             window.alert(
               "Transaction sent on Polygon network with tx hash: " + result.hash
             );
+            enableSendButton();
           });
       } else if (_network == "optimism") {
         await optimismCHD.estimateGas.transfer(
@@ -342,6 +354,7 @@ async function send() {
               "Transaction sent on Optimism network with tx hash: " +
                 result.hash
             );
+            enableSendButton();
           });
       }
     } else {
@@ -350,6 +363,7 @@ async function send() {
       } else {
         if (_adjTo.length != 130) {
           window.alert("Please enter a valid public key");
+          enableSendButton();
           return;
         }
       }
@@ -373,11 +387,12 @@ async function send() {
             );
             sepoliaCharon
               .transact(inputData.args, inputData.extData)
-              .then((result) =>
+              .then((result) => {
                 window.alert(
                   `Transaction sent on Sepolia network with tx hash: ${result.hash}`
-                )
-              );
+                );
+                enableSendButton();
+              });
           });
         }
       } else if (_network == "mumbai") {
@@ -400,11 +415,12 @@ async function send() {
             );
             mumbaiCharon
               .transact(inputData.args, inputData.extData)
-              .then((result) =>
+              .then((result) => {
                 window.alert(
                   `Transaction sent on Mumbai network with tx hash: ${result.hash}`
-                )
-              );
+                );
+                enableSendButton();
+              });
           });
         }
       } else if (_network == "chiado") {
@@ -427,11 +443,12 @@ async function send() {
             );
             chiadoCharon
               .transact(inputData.args, inputData.extData)
-              .then((result) =>
+              .then((result) => {
                 window.alert(
                   `Transaction sent on Chiado network with tx hash: ${result.hash}`
-                )
-              );
+                );
+                enableSendButton();
+              });
           });
         }
       } else if (_network == "gnosis") {
@@ -454,11 +471,12 @@ async function send() {
             );
             gnosisCharon
               .transact(inputData.args, inputData.extData)
-              .then((result) =>
+              .then((result) => {
                 window.alert(
                   `Transaction sent on Gnosis Chain! tx hash: ${result.hash}`
-                )
-              );
+                );
+                enableSendButton();
+              });
           });
         }
       } else if (_network == "polygon") {
@@ -481,11 +499,12 @@ async function send() {
             );
             polygonCharon
               .transact(inputData.args, inputData.extData)
-              .then((result) =>
+              .then((result) => {
                 window.alert(
                   `Transaction sent on Polygon! tx hash: ${result.hash}`
-                )
-              );
+                );
+                enableSendButton();
+              });
           });
         }
         //to add, if fee > 0, send to relayer network!! (not built yet)
@@ -509,11 +528,12 @@ async function send() {
             );
             optimismCharon
               .transact(inputData.args, inputData.extData)
-              .then((result) =>
+              .then((result) => {
                 window.alert(
                   `Transaction sent on Optimism! tx hash: ${result.hash}`
-                )
-              );
+                );
+                enableSendButton();
+              });
           });
         }
         //to add, if fee > 0, send to relayer network!! (not built yet)
@@ -522,6 +542,7 @@ async function send() {
   } catch (err) {
     window.alert(err.message);
     console.log(err);
+    enableSendButton();
   }
 }
 
@@ -565,6 +586,17 @@ function getRegistry(_network) {
   }
 }
 
+function enableSendButton() {
+  loader.style.display = "none";
+  text.style.display = "inline";
+  button.disabled = false;
+}
+
+function showLoadingAnimation() {
+  button.disabled = true;
+  text.style.display = "none";
+  loader.style.display = "block";
+}
 function getChain(_id) {
   switch (_id) {
     case 5:
