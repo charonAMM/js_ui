@@ -60,6 +60,8 @@ isTestnet
   : (myAddress = gnosisWallet.address);
 
 $("#myAddress").text(myAddress);
+const loader = document.getElementById("loading");
+const balLoader = document.getElementById("balLoading");
 
 function poseidon(inputs) {
   let val = builtPoseidon(inputs);
@@ -301,7 +303,9 @@ async function setData() {
 
   $("#send").removeAttr("disabled");
   $("#bridge").removeAttr("disabled");
-
+  loader.style.visibility = "hidden";
+  const element = balLoader.querySelector(".loading");
+  element.style.backdropFilter = "none";
   // fs.writeFileSync("utxos.txt", JSON.stringify(saveData, null, 2));
 }
 function getChainID(chain) {
@@ -372,38 +376,49 @@ function loadPrivateBalances() {
 }
 
 function setPublicBalances() {
+  let balancePromises = [];
+
   if (isTestnet) {
-    sepoliaCHD.balanceOf(myAddress).then((result) => {
-      origSval = ethers.utils.formatEther(result);
-      sVal = Math.round(ethers.utils.formatEther(result) * 100) / 100;
-    });
-    mumbaiCHD.balanceOf(myAddress).then((result) => {
-      origMval = ethers.utils.formatEther(result);
-      mVal = Math.round(ethers.utils.formatEther(result) * 100) / 100;
-    });
-    chiadoCHD.balanceOf(myAddress).then((result) => {
-      origCval = ethers.utils.formatEther(result);
-      cVal = Math.round(ethers.utils.formatEther(result) * 100) / 100;
-    });
+    balancePromises.push(
+      sepoliaCHD.balanceOf(myAddress).then((result) => {
+        origSval = ethers.utils.formatEther(result);
+        sVal = Math.round(ethers.utils.formatEther(result) * 100) / 100;
+      })
+    );
+    balancePromises.push(
+      mumbaiCHD.balanceOf(myAddress).then((result) => {
+        origMval = ethers.utils.formatEther(result);
+        mVal = Math.round(ethers.utils.formatEther(result) * 100) / 100;
+      })
+    );
+    balancePromises.push(
+      chiadoCHD.balanceOf(myAddress).then((result) => {
+        origCval = ethers.utils.formatEther(result);
+        cVal = Math.round(ethers.utils.formatEther(result) * 100) / 100;
+      })
+    );
   } else {
-    gnosisCHD.balanceOf(myAddress).then((result) => {
-      origGval = ethers.utils.formatEther(result);
-      gVal = Math.round(ethers.utils.formatEther(result) * 100) / 100;
-    });
-    polygonCHD.balanceOf(myAddress).then((result) => {
-      origPval = ethers.utils.formatEther(result);
-      pVal = Math.round(ethers.utils.formatEther(result) * 100) / 100;
-    });
-    optimismCHD.balanceOf(myAddress).then((result) => {
-      origOval = ethers.utils.formatEther(result);
-      oVal = Math.round(ethers.utils.formatEther(result) * 100) / 100;
-    });
+    balancePromises.push(
+      gnosisCHD.balanceOf(myAddress).then((result) => {
+        origGval = ethers.utils.formatEther(result);
+        gVal = Math.round(ethers.utils.formatEther(result) * 100) / 100;
+      })
+    );
+    balancePromises.push(
+      polygonCHD.balanceOf(myAddress).then((result) => {
+        origPval = ethers.utils.formatEther(result);
+        pVal = Math.round(ethers.utils.formatEther(result) * 100) / 100;
+      })
+    );
+    balancePromises.push(
+      optimismCHD.balanceOf(myAddress).then((result) => {
+        origOval = ethers.utils.formatEther(result);
+        oVal = Math.round(ethers.utils.formatEther(result) * 100) / 100;
+      })
+    );
   }
-  return new Promise((resolve) => {
-    setTimeout(() => {
-      resolve("resolved");
-    }, 2000);
-  });
+
+  return Promise.all(balancePromises);
 }
 
 function loadPublicBalances() {

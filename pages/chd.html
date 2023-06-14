@@ -19,14 +19,85 @@
       href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css"
     />
   </head>
+  <style>
+    #loading {
+      position: absolute;
+      left: 0;
+      top: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(0, 0, 0, 0);
+      backdrop-filter: blur(2px);
+      align-items: center;
+      justify-content: center;
+      z-index: 2;
+    }
+
+    #balLoading {
+      position: relative;
+    }
+
+    #balLoading .loading {
+      position: absolute;
+      left: 0;
+      top: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(0, 0, 0, 0);
+      backdrop-filter: blur(5px);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      z-index: 2;
+    }
+
+    #loading .spinner {
+      display: inline-block;
+      position: relative;
+      width: 2rem;
+      height: 2rem;
+      margin-bottom: 80px;
+    }
+
+    #loading .spinner div {
+      box-sizing: border-box;
+      display: block;
+      position: absolute;
+      width: 2.3rem;
+      height: 2.3rem;
+      margin: 0.2rem;
+      border: 0.2rem solid #52d7a2;
+      border-radius: 50%;
+      animation: spinner 1.2s cubic-bezier(0.5, 0, 0.5, 1) infinite;
+      border-color: #52d7a2 transparent transparent transparent;
+    }
+
+    #loading .spinner div:nth-child(1) {
+      animation-delay: -0.45s;
+    }
+
+    #loading .spinner div:nth-child(2) {
+      animation-delay: -0.3s;
+    }
+
+    #loading .spinner div:nth-child(3) {
+      animation-delay: -0.15s;
+    }
+
+    @keyframes spinner {
+      0% {
+        transform: rotate(0deg);
+      }
+      100% {
+        transform: rotate(360deg);
+      }
+    }
+
+    .table-responsive {
+      position: relative;
+    }
+  </style>
   <body style="overflow: hidden">
-    <!-- <div id="loading" class="bg-dark">
-    <div class="wrapper">
-      <div class="spinner-border text-success"role="status">
-        <span class="visually-hidden">Loading...</span>
-      </div>
-    </div>
-  </div> -->
     <nav
       class="navbar navbar-dark navbar-expand-md sticky-top py-3"
       id="mainNav"
@@ -77,8 +148,8 @@
     <header class="bg-dark">
       <div class="center">
         <section>
-          <br>
-          <br>
+          <br />
+          <br />
           <div class="row">
             <div class="col-md-8 col-xl-6 text-center mx-auto">
               <p class="fw-bold text-success mb-2" id="myAddress">address</p>
@@ -93,7 +164,8 @@
               </div>
             </div>
           </div>
-          <div>
+          <div id="balLoading">
+            <div class="loading"></div>
             <img
               src="../public/Charon_mono.png"
               class="line"
@@ -106,6 +178,14 @@
             <div class="col-xl-12">
               <div class="table-responsive" style="margin-top: -10px">
                 <table class="table table-dark">
+                  <div id="loading" class="d-flex justify-content-center">
+                    <div class="spinner">
+                      <div></div>
+                      <div></div>
+                      <div></div>
+                      <div></div>
+                    </div>
+                  </div>
                   <thead>
                     <tr>
                       <th></th>
