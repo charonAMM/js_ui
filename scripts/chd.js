@@ -234,8 +234,9 @@ async function handleChain(
     const promises = [];
     let myUtxos = [];
     let j = 0;
-
+      console.log(keypair)
     for (let i = 0; i < eventData.length; i++) {
+      console.log("trying decrypt")
       try {
         let myUtxo = Utxo.decrypt(
           keypair,
@@ -243,6 +244,7 @@ async function handleChain(
           eventData[i].args._index
         );
         myUtxo.chainID = getChainID(network);
+        console.log("good decrypt!")
         if (
           myUtxo.amount > 0 &&
           toFixedHex(eventData[i].args._commitment) ==
