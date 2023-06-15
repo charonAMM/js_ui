@@ -261,17 +261,14 @@ async function swapToken(
     enableSwapButton();
     return;
   }
-
-  let currentGasPrice = await provider.getGasPrice();
-
-  await baseToken.approve(charon.address, fromAmount, {
-    gasLimit: gasLimit,
-    gasPrice: currentGasPrice,
-  });
-  let nonce = await provider.getTransactionCount(wallet.address);
-
-  charon
-    .swap(
+  try {
+    let currentGasPrice = await provider.getGasPrice();
+    await baseToken.approve(charon.address, fromAmount, {
+      gasLimit: gasLimit,
+      gasPrice: currentGasPrice,
+    });
+    let nonce = await provider.getTransactionCount(wallet.address);
+    const tx = await charon.swap(
       tokenSymbol === "CHD",
       fromAmount,
       0,
@@ -281,14 +278,26 @@ async function swapToken(
         gasPrice: currentGasPrice.mul(110).div(100),
         nonce: nonce + 1,
       }
-    )
-    .then((result) => {
-      console.log(result);
+    );
+    const receipt = await tx.wait(); // Wait for the transaction to be mined
+    console.log(receipt);
+    if (receipt.status === 1) {
+      console.log("Transaction was successful");
       window.alert(
-        `Transaction on ${networkName} sent with hash: ${result.hash}`
+        `Transaction was successful! \nNetwork: ${networkName} \nTransaction Hash: ${tx.hash}`
       );
-      enableSwapButton();
-    });
+    } else {
+      console.log("Transaction failed");
+      window.alert(`Transaction failed! \nPlease check your transaction.`);
+    }
+    enableSwapButton();
+  } catch (err) {
+    window.alert(
+      `An error occurred while processing your transaction: ${err.message}`
+    );
+    console.log(err);
+    enableSwapButton();
+  }
 }
 
 const maxButton = document.getElementById("max-button");
