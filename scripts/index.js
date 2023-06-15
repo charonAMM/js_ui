@@ -24,7 +24,9 @@ let builtPoseidon;
 let myAddress;
 let pubKey;
 const isTestnet = process.env.IS_TESTNET === "true";
-$(".card-annotation").text(`note: you will need some ${ isTestnet ? "ETH" :"xDAI"} to pay for gas.`);
+$(".card-annotation").text(
+  `note: you will need some ${isTestnet ? "ETH" : "xDAI"} to pay for gas.`
+);
 
 isTestnet
   ? (myAddress = sepoliaWallet.address)
@@ -152,11 +154,25 @@ registerButton.onclick = async function () {
 
   const provider = isTestnet ? sepoliaProvider : gnosisProvider;
   try {
-    let currentGasPrice = await provider.getGasPrice();
+    const currentGasPrice = await provider.getGasPrice();
     registerButton.disabled = true;
-    const tx = await registry.register(pubKey, { gasLimit: 300000, gasPrice: currentGasPrice });
-    console.log(tx);
-    window.alert("Transaction sent with hash: " + tx.hash);
+    const tx = await registry.register(pubKey, {
+      gasLimit: 300000,
+      gasPrice: currentGasPrice,
+    });
+    const receipt = await tx.wait();
+    console.log(receipt);
+    if (receipt.status === 1) {
+      console.log("Transaction was successful");
+      window.alert(
+        `Transaction was successful! \nNetwork: ${
+          isTestnet ? "Sepolia" : "Gnosis Chain"
+        } \nTransaction Hash: ${tx.hash}`
+      );
+    } else {
+      console.log("Transaction failed");
+      window.alert(`Transaction failed! \nPlease check your transaction.`);
+    }
     registerButton.disabled = false;
   } catch (err) {
     registerButton.disabled = false;
@@ -186,26 +202,24 @@ async function checkIsRegistered() {
   if (registerButton.textContent == "submit") registerButton.disabled = true;
   try {
     await registry.estimateGas.getPublicKey(myAddress);
-    registry
-      .getPublicKey(myAddress)
-      .then((publicKey) => {
-        let publicKeyIsRegistered = false;
-        publicKey == pubKey
-          ? (publicKeyIsRegistered = true)
-          : (publicKeyIsRegistered = false);
-        if (publicKeyIsRegistered) {
-          document.getElementById("checker").classList.remove("d-none");
-          document.getElementById("checkmark").classList.remove("d-none");
-          registerButton.classList.remove("d-none");
-          registerButton.textContent = "registered";
-        } else {
-          registerButton.textContent = "submit";
-          registerButton.classList.remove("d-none");
-          registerButton.disabled = false;
-          document.getElementById("checker").classList.add("d-none");
-          document.getElementById("checkmark").classList.add("d-none");
-        }
-      });
+    registry.getPublicKey(myAddress).then((publicKey) => {
+      let publicKeyIsRegistered = false;
+      publicKey == pubKey
+        ? (publicKeyIsRegistered = true)
+        : (publicKeyIsRegistered = false);
+      if (publicKeyIsRegistered) {
+        document.getElementById("checker").classList.remove("d-none");
+        document.getElementById("checkmark").classList.remove("d-none");
+        registerButton.classList.remove("d-none");
+        registerButton.textContent = "registered";
+      } else {
+        registerButton.textContent = "submit";
+        registerButton.classList.remove("d-none");
+        registerButton.disabled = false;
+        document.getElementById("checker").classList.add("d-none");
+        document.getElementById("checkmark").classList.add("d-none");
+      }
+    });
   } catch (err) {
     registerButton.textContent = "submit";
     registerButton.classList.remove("d-none");

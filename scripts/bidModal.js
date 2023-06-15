@@ -5,9 +5,14 @@ const {
 const ethers = require("ethers");
 require("dotenv").config();
 const { sepoliaBaseToken, gnosisBaseToken } = require("../src/tokens");
-const { sepoliaWallet, gnosisWallet, sepoliaProvider, gnosisProvider } = require("../src/providers");
+const {
+  sepoliaWallet,
+  gnosisWallet,
+  sepoliaProvider,
+  gnosisProvider,
+} = require("../src/providers");
 const isTestnet = process.env.IS_TESTNET === "true";
-let CIT, baseToken, wallet, provider
+let CIT, baseToken, wallet, provider;
 
 if (isTestnet) {
   CIT = new ethers.Contract(process.env.SEPOLIA_CIT, citABI, sepoliaWallet);
@@ -68,15 +73,26 @@ $("#signAndBid").on("click", async () => {
         ethers.utils.parseEther(bidAmount.toString()),
         { gasLimit: 300000, gasPrice: currentGasPrice }
       );
-      CIT.bid(ethers.utils.parseEther(bidAmount.toString()), {
-        gasLimit: 300000, gasPrice: currentGasPrice
-      }).then((result) => {
-        console.log(result);
-        window.alert("Transaction sent with hash: " + result.hash);
-        loader.style.display = "none";
-        text.style.display = "inline";
-        button.disabled = false;
+      const tx = await CIT.bid(ethers.utils.parseEther(bidAmount.toString()), {
+        gasLimit: 300000,
+        gasPrice: currentGasPrice,
       });
+      const receipt = await tx.wait();
+      console.log(receipt);
+      if (receipt.status === 1) {
+        console.log("Transaction was successful");
+        window.alert(
+          `Transaction was successful! \nNetwork: ${
+            isTestnet ? "Sepolia" : "Gnosis Chain"
+          } \nTransaction Hash: ${tx.hash}`
+        );
+      } else {
+        console.log("Transaction failed");
+        window.alert(`Transaction failed! \nPlease check your transaction.`);
+      }
+      loader.style.display = "none";
+      text.style.display = "inline";
+      button.disabled = false;
     } else {
       window.alert(
         "Bid too low. Please enter a bid higher than the current top bid: " +
@@ -87,6 +103,9 @@ $("#signAndBid").on("click", async () => {
   } catch (error) {
     window.alert("Error: " + error.message);
     console.log(error);
+    loader.style.display = "none";
+    text.style.display = "inline";
+    button.disabled = false;
   }
 });
 

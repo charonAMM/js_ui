@@ -320,21 +320,25 @@ async function bridge() {
       myHasherFunc: poseidon,
       myHasherFunc2: poseidon2,
     }).then(async function (inputData) {
-      _charon
-        .depositToOtherChain(
-          inputData.args,
-          inputData.extData,
-          _isChd,
-          ethers.utils.parseEther("999999"),
-          { gasLimit, gasPrice: currentGasPrice }
-        )
-        .then((result) => {
-          console.log(result);
-          window.alert(
-            `Transaction on ${_fromNetwork} sent with hash: ${result.hash}`
-          );
-          enableBridgeButton();
-        });
+      const tx = await _charon.depositToOtherChain(
+        inputData.args,
+        inputData.extData,
+        _isChd,
+        ethers.utils.parseEther("999999"),
+        { gasLimit, gasPrice: currentGasPrice }
+      );
+      const receipt = await tx.wait();
+      console.log(receipt);
+      if (receipt.status === 1) {
+        console.log("Transaction was successful");
+        window.alert(
+          `Transaction was successful! \nNetwork: ${_fromNetwork} \nTransaction Hash: ${tx.hash}`
+        );
+      } else {
+        console.log("Transaction failed");
+        window.alert(`Transaction failed! \nPlease check your transaction.`);
+      }
+      enableBridgeButton();
     });
   } catch (err) {
     window.alert("Transaction failed, check console for more info.");
