@@ -238,312 +238,162 @@ $("#maxButton").on("click", () => {
     }
   }
 });
+
+const networks = {
+  sepolia: { CHD: sepoliaCHD, UTXOs: m.sepoliaUTXOs, Charon: sepoliaCharon },
+  mumbai: { CHD: mumbaiCHD, UTXOs: m.mumbaiUTXOs, Charon: mumbaiCharon },
+  chiado: { CHD: chiadoCHD, UTXOs: m.chiadoUTXOs, Charon: chiadoCharon },
+  gnosis: { CHD: gnosisCHD, UTXOs: m.gnoUTXOs, Charon: gnosisCharon },
+  polygon: { CHD: polygonCHD, UTXOs: m.polUTXOs, Charon: polygonCharon },
+  optimism: { CHD: optimismCHD, UTXOs: m.optUTXOs, Charon: optimismCharon },
+};
+
 async function send() {
   myKeypair = new Keypair({
     privkey: process.env.PRIVATE_KEY,
     myHashFunc: poseidon,
-  }); // contains private and public keys
+  });
   await myKeypair.pubkey;
-  let _to = $("#toAddy").val();
-  let _amount = parseInt($("#toAmount").val());
-  let _network = $('input[name="netType"]:checked').val();
-  let _visType = $('input[name="option"]:checked').val();
-  let _withdrawal = $("#withdrawalCheckbox").prop("checked");
+
+  const _to = $("#toAddy").val();
+  const _amount = parseFloat($("#toAmount").val());
+  const _network = $('input[name="netType"]:checked').val();
+  const _visType = $('input[name="option"]:checked').val();
+  const _withdrawal = $("#withdrawalCheckbox").prop("checked");
   let _adjTo = _to;
 
   if (isNaN(_amount) || _amount <= 0) {
-    window.alert("Please enter a valid amount");
-    enableSendButton();
+    displayAlertAndEnableButton("Please enter a valid amount");
     return;
   }
-  try {
-    if (_visType == "public") {
-      if (getPublicBalance(getChainID(_network)) < _amount) {
-        window.alert(
-          "Not enough public balance on the " + _network + " network."
-        );
-        enableSendButton();
-        return;
-      }
 
-      if (_adjTo.length != 42) {
-        window.alert("Please enter a valid address");
-        enableSendButton();
-        return;
-      }
-      if (_network == "sepolia") {
-        await sepoliaCHD.estimateGas.transfer(
-          _to,
-          ethers.utils.parseEther(_amount.toString())
-        );
-        sepoliaCHD
-          .transfer(_to, ethers.utils.parseEther(_amount.toString()))
-          .then((result) => {
-            console.log(result);
-            window.alert(
-              "Transaction sent on Sepolia network with tx hash: " + result.hash
-            );
-            enableSendButton();
-          });
-      } else if (_network == "mumbai") {
-        await mumbaiCHD.estimateGas.transfer(
-          _to,
-          ethers.utils.parseEther(_amount.toString())
-        );
-        mumbaiCHD
-          .transfer(_to, ethers.utils.parseEther(_amount.toString()))
-          .then((result) => {
-            console.log(result);
-            window.alert(
-              "Transaction sent on Mumbai network with tx hash: " + result.hash
-            );
-            enableSendButton();
-          });
-      } else if (_network == "chiado") {
-        await chiadoCHD.estimateGas.transfer(
-          _to,
-          ethers.utils.parseEther(_amount.toString())
-        );
-        chiadoCHD
-          .transfer(_to, ethers.utils.parseEther(_amount.toString()))
-          .then((result) => {
-            console.log(result);
-            window.alert(
-              "Transaction sent on Chiado network with tx hash: " + result.hash
-            );
-            enableSendButton();
-          });
-      } else if (_network == "gnosis") {
-        await gnosisCHD.estimateGas.transfer(
-          _to,
-          ethers.utils.parseEther(_amount.toString())
-        );
-        gnosisCHD
-          .transfer(_to, ethers.utils.parseEther(_amount.toString()))
-          .then((result) => {
-            console.log(result);
-            window.alert(
-              "Transaction sent on Gnosis network with tx hash: " + result.hash
-            );
-            enableSendButton();
-          });
-      } else if (_network == "polygon") {
-        await polygonCHD.estimateGas.transfer(
-          _to,
-          ethers.utils.parseEther(_amount.toString())
-        );
-        polygonCHD
-          .transfer(_to, ethers.utils.parseEther(_amount.toString()))
-          .then((result) => {
-            console.log(result);
-            window.alert(
-              "Transaction sent on Polygon network with tx hash: " + result.hash
-            );
-            enableSendButton();
-          });
-      } else if (_network == "optimism") {
-        await optimismCHD.estimateGas.transfer(
-          _to,
-          ethers.utils.parseEther(_amount.toString())
-        );
-        optimismCHD
-          .transfer(_to, ethers.utils.parseEther(_amount.toString()))
-          .then((result) => {
-            console.log(result);
-            window.alert(
-              "Transaction sent on Optimism network with tx hash: " +
-                result.hash
-            );
-            enableSendButton();
-          });
-      }
+  const networkObject = networks[_network];
+  if (_visType == "public") {
+    await handlePublicTransactions(
+      networkObject,
+      _to,
+      _amount,
+      _network,
+      _adjTo
+    );
+  } else {
+    if (_withdrawal) {
+      _adjTo = 0;
     } else {
-      if (_withdrawal) {
-        _adjTo = 0;
-      } else {
-        if (_adjTo.length != 130) {
-          window.alert("Please enter a valid public key");
-          enableSendButton();
-          return;
-        }
-      }
-      if (_network == "sepolia") {
-        //ADD checkbox if withdraw, add MAX button to autofill balance
-        //get amount and address (can we just use an address?  Test that that person can then do something with it, if not, you need a registry?)
-        await prepareSend(m.sepoliaUTXOs, getChainID(_network));
-        if (newUTXOs.length > 0 || changeUtxos > 0) {
-          prepareTransaction({
-            charon: sepoliaCharon,
-            inputs: newUTXOs,
-            outputs: changeUtxos,
-            recipient: _adjTo,
-            privateChainID: getChainID(_network),
-            myHasherFunc: poseidon,
-            myHasherFunc2: poseidon2,
-          }).then(async function (inputData) {
-            await sepoliaCharon.estimateGas.transact(
-              inputData.args,
-              inputData.extData
-            );
-            sepoliaCharon
-              .transact(inputData.args, inputData.extData)
-              .then((result) => {
-                window.alert(
-                  `Transaction sent on Sepolia network with tx hash: ${result.hash}`
-                );
-                enableSendButton();
-              });
-          });
-        }
-      } else if (_network == "mumbai") {
-        //ADD checkbox if withdraw, add MAX button to autofill balance
-        //get amount and address (can we just use an address?  Test that that person can then do something with it, if not, you need a registry?)
-        await prepareSend(m.mumbaiUTXOs, getChainID(_network));
-        if (newUTXOs.length > 0 || changeUtxos > 0) {
-          prepareTransaction({
-            charon: mumbaiCharon,
-            inputs: newUTXOs,
-            outputs: changeUtxos,
-            recipient: _adjTo,
-            privateChainID: getChainID(_network),
-            myHasherFunc: poseidon,
-            myHasherFunc2: poseidon2,
-          }).then(async function (inputData) {
-            await mumbaiCharon.estimateGas.transact(
-              inputData.args,
-              inputData.extData
-            );
-            mumbaiCharon
-              .transact(inputData.args, inputData.extData)
-              .then((result) => {
-                window.alert(
-                  `Transaction sent on Mumbai network with tx hash: ${result.hash}`
-                );
-                enableSendButton();
-              });
-          });
-        }
-      } else if (_network == "chiado") {
-        //ADD checkbox if withdraw, add MAX button to autofill balance
-        //get amount and address (can we just use an address?  Test that that person can then do something with it, if not, you need a registry?)
-        await prepareSend(m.chiadoUTXOs, getChainID(_network));
-        if (newUTXOs.length > 0 || changeUtxos > 0) {
-          prepareTransaction({
-            charon: chiadoCharon,
-            inputs: newUTXOs,
-            outputs: changeUtxos,
-            recipient: _adjTo,
-            privateChainID: getChainID(_network),
-            myHasherFunc: poseidon,
-            myHasherFunc2: poseidon2,
-          }).then(async function (inputData) {
-            await chiadoCharon.estimateGas.transact(
-              inputData.args,
-              inputData.extData
-            );
-            chiadoCharon
-              .transact(inputData.args, inputData.extData)
-              .then((result) => {
-                window.alert(
-                  `Transaction sent on Chiado network with tx hash: ${result.hash}`
-                );
-                enableSendButton();
-              });
-          });
-        }
-      } else if (_network == "gnosis") {
-        //ADD checkbox if withdraw, add MAX button to autofill balance
-        //get amount and address (can we just use an address?  Test that that person can then do something with it, if not, you need a registry?)
-        await prepareSend(m.gnoUTXOs, getChainID(_network));
-        if (newUTXOs.length > 0 || changeUtxos > 0) {
-          prepareTransaction({
-            charon: gnosisCharon,
-            inputs: newUTXOs,
-            outputs: changeUtxos,
-            recipient: _adjTo,
-            privateChainID: getChainID(_network),
-            myHasherFunc: poseidon,
-            myHasherFunc2: poseidon2,
-          }).then(async function (inputData) {
-            await gnosisCharon.estimateGas.transact(
-              inputData.args,
-              inputData.extData
-            );
-            gnosisCharon
-              .transact(inputData.args, inputData.extData)
-              .then((result) => {
-                window.alert(
-                  `Transaction sent on Gnosis Chain! tx hash: ${result.hash}`
-                );
-                enableSendButton();
-              });
-          });
-        }
-      } else if (_network == "polygon") {
-        //ADD checkbox if withdraw, add MAX button to autofill balance
-        //get amount and address (can we just use an address?  Test that that person can then do something with it, if not, you need a registry?)
-        await prepareSend(m.polUTXOs, getChainID(_network));
-        if (newUTXOs.length > 0 || changeUtxos > 0) {
-          prepareTransaction({
-            charon: polygonCharon,
-            inputs: newUTXOs,
-            outputs: changeUtxos,
-            recipient: _adjTo,
-            privateChainID: getChainID(_network),
-            myHasherFunc: poseidon,
-            myHasherFunc2: poseidon2,
-          }).then(async function (inputData) {
-            await polygonCharon.estimateGas.transact(
-              inputData.args,
-              inputData.extData
-            );
-            polygonCharon
-              .transact(inputData.args, inputData.extData)
-              .then((result) => {
-                window.alert(
-                  `Transaction sent on Polygon! tx hash: ${result.hash}`
-                );
-                enableSendButton();
-              });
-          });
-        }
-        //to add, if fee > 0, send to relayer network!! (not built yet)
-      } else if (_network == "optimism") {
-        //ADD checkbox if withdraw, add MAX button to autofill balance
-        //get amount and address (can we just use an address?  Test that that person can then do something with it, if not, you need a registry?)
-        await prepareSend(m.optUTXOs, getChainID(_network));
-        if (newUTXOs.length > 0 || changeUtxos > 0) {
-          prepareTransaction({
-            charon: optimismCharon,
-            inputs: newUTXOs,
-            outputs: changeUtxos,
-            recipient: _adjTo,
-            privateChainID: getChainID(_network),
-            myHasherFunc: poseidon,
-            myHasherFunc2: poseidon2,
-          }).then(async function (inputData) {
-            await optimismCharon.estimateGas.transact(
-              inputData.args,
-              inputData.extData
-            );
-            optimismCharon
-              .transact(inputData.args, inputData.extData)
-              .then((result) => {
-                window.alert(
-                  `Transaction sent on Optimism! tx hash: ${result.hash}`
-                );
-                enableSendButton();
-              });
-          });
-        }
-        //to add, if fee > 0, send to relayer network!! (not built yet)
+      if (_adjTo.length != 130) {
+        displayAlertAndEnableButton("Please enter a valid public key");
+        return;
       }
     }
-  } catch (err) {
-    window.alert(err.message);
-    console.log(err);
-    enableSendButton();
+
+    await handlePrivateTransactions(
+      networkObject,
+      _to,
+      _amount,
+      _network,
+      _adjTo
+    );
   }
+}
+
+async function handlePublicTransactions(
+  networkObject,
+  _to,
+  _amount,
+  _network,
+  _adjTo
+) {
+  try {
+    if (getPublicBalance(getChainID(_network)) < _amount) {
+      displayAlertAndEnableButton(
+        "Not enough public balance on the " + _network + " network."
+      );
+      return;
+    }
+
+    if (_adjTo.length != 42) {
+      displayAlertAndEnableButton("Please enter a valid address");
+      return;
+    }
+
+    const tx = await networkObject.CHD.transfer(
+      _to,
+      ethers.utils.parseEther(_amount.toString())
+    );
+    const receipt = await tx.wait();
+    console.log(receipt);
+    if (receipt.status === 1) {
+      console.log("Transaction was successful");
+      window.alert(
+        `Transaction was successful! \nNetwork: ${_network} \nTransaction Hash: ${tx.hash}`
+      );
+    } else {
+      console.log("Transaction failed");
+      window.alert(`Transaction failed! \nPlease check your transaction.`);
+    }
+    enableSendButton();
+  } catch (err) {
+    console.log(err);
+    displayAlertAndEnableButton(err.message);
+  }
+}
+
+async function handlePrivateTransactions(
+  networkObject,
+  _to,
+  _amount,
+  _network,
+  _adjTo
+) {
+  try {
+    //ADD checkbox if withdraw, add MAX button to autofill balance
+    //get amount and address (can we just use an address?  Test 
+    //that that person can then do something with it, if not, you need a registry?)
+    await prepareSend(networkObject.UTXOs, getChainID(_network));
+    if (newUTXOs.length > 0 || changeUtxos > 0) {
+      const inputData = await prepareTransaction({
+        charon: networkObject.Charon,
+        inputs: newUTXOs,
+        outputs: changeUtxos,
+        recipient: _adjTo,
+        privateChainID: getChainID(_network),
+        myHasherFunc: poseidon,
+        myHasherFunc2: poseidon2,
+      });
+
+      const tx = await networkObject.Charon.transact(
+        inputData.args,
+        inputData.extData
+      );
+      const receipt = await tx.wait();
+      console.log(receipt);
+      if (receipt.status === 1) {
+        console.log("Transaction was successful");
+        window.alert(
+          `Transaction was successful! \nNetwork: ${_network} \nTransaction Hash: ${tx.hash}`
+        );
+      } else {
+        console.log("Transaction failed");
+        window.alert(`Transaction failed! \nPlease check your transaction.`);
+      }
+      enableSendButton();
+    } else {
+      displayAlertAndEnableButton("Transaction not possible: not enough UTXOs");
+      return;
+    }
+  } catch (err) {
+    console.log(err);
+    displayAlertAndEnableButton(err.message);
+  }
+}
+
+function displayAlertAndEnableButton(message) {
+  window.alert(message);
+  enableSendButton();
+}
+
+function enableSendButton() {
+  $("#sendButton").prop("disabled", false);
 }
 
 function getRegistry(_network) {
