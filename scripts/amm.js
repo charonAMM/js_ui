@@ -112,8 +112,8 @@ async function setPublicBalances() {
     } catch (e) {
       window.alert(
         "could not get balance for " +
-          wallet +
-          ", please check your .env file configuration"
+        wallet +
+        ", please check your .env file configuration"
       );
       $(`#${label}Row`).text(wallet);
       $(`#${label}Base`).text("n/a");
@@ -361,32 +361,32 @@ async function calculateConversionDetails(
 ) {
   const spotPrice = isSynthIn
     ? await charon.calcSpotPrice(
-        await charon.recordBalance(),
-        await charon.recordBalanceSynth(),
-        0
-      )
+      await charon.recordBalance(),
+      await charon.recordBalanceSynth(),
+      0
+    )
     : await charon.calcSpotPrice(
-        await charon.recordBalanceSynth(),
-        await charon.recordBalance(),
-        0
-      );
+      await charon.recordBalanceSynth(),
+      await charon.recordBalance(),
+      0
+    );
   const expectedOut = spotPrice * inputValue;
   const exitFee = inputValue * ethers.utils.formatEther(await charon.fee());
   const adjustedIn = inputValue - exitFee;
   const minAmountOut = isSynthIn
     ? await charon.calcSingleOutGivenIn(
-        await charon.recordBalance(),
-        await charon.recordBalanceSynth(),
-        ethers.utils.parseEther(adjustedIn.toFixed(18).toString()),
-        0,
-        false
-      )
+      await charon.recordBalance(),
+      await charon.recordBalanceSynth(),
+      ethers.utils.parseEther(adjustedIn.toFixed(18).toString()),
+      0,
+      false
+    )
     : await charon.calcOutGivenIn(
-        await charon.recordBalance(),
-        await charon.recordBalanceSynth(),
-        ethers.utils.parseEther(adjustedIn.toFixed(18).toString()),
-        0
-      );
+      await charon.recordBalance(),
+      await charon.recordBalanceSynth(),
+      ethers.utils.parseEther(adjustedIn.toFixed(18).toString()),
+      0
+    );
   const slippage = (minAmountOut - expectedOut) / expectedOut;
   try {
     const feeData = await provider.getFeeData();
@@ -514,6 +514,8 @@ function prepareSwitchButtonClick() {
   const arrowImg = document.querySelector(".card-arrow img");
   const fromCurrencyDropdown = document.getElementById("from-currency");
   const toCurrencyDropdown = document.getElementById("to-currency");
+  const fromCurrencyStyle = fromCurrencyDropdown.style;
+  const toCurrencyStyle = toCurrencyDropdown.style;
   let temp, selectedIndex, toCurrencyOptions;
   arrowImg.addEventListener("click", () => {
     if (toAmountInput.value === "...") return;
@@ -525,16 +527,29 @@ function prepareSwitchButtonClick() {
       toCurrencyOptions = fromCurrencyDropdown.innerHTML;
       fromCurrencyDropdown.innerHTML = toCurrencyDropdown.innerHTML;
       toCurrencyDropdown.innerHTML = toCurrencyOptions;
+      toCurrencyStyle.appearance = "none";
+      fromCurrencyStyle.appearance = "auto";
+      toCurrencyStyle.marginRight = "15px";
+      fromCurrencyStyle.marginRight = "5px";
       fromCurrencyDropdown.selectedIndex = selectedIndex;
+      toCurrencyDropdown.disabled = true;
+      fromCurrencyDropdown.disabled = false;
     } else {
       temp = fromAmountInput.value;
       fromAmountInput.value = toAmountInput.value;
       toAmountInput.value = temp;
       selectedIndex = fromCurrencyDropdown.selectedIndex;
       toCurrencyOptions = fromCurrencyDropdown.innerHTML;
+      fromCurrencyStyle.border = "none";
       fromCurrencyDropdown.innerHTML = toCurrencyDropdown.innerHTML;
       toCurrencyDropdown.innerHTML = toCurrencyOptions;
       toCurrencyDropdown.selectedIndex = selectedIndex;
+      toCurrencyStyle.appearance = "auto";
+      fromCurrencyStyle.appearance = "none";
+      fromCurrencyStyle.marginRight = "15px";
+      toCurrencyStyle.marginRight = "5px";
+      toCurrencyDropdown.disabled = false;
+      fromCurrencyDropdown.disabled = true;
     }
     calculateConversion();
   });
