@@ -111,7 +111,7 @@ function makeBridgeModal() {
 async function writeUTXOs() {
   try {
     fs.unlinkSync("utxos.txt");
-  } catch {}
+  } catch { }
   const sendVars = {
     sepoliaUTXOs: sepUTXOs,
     chiadoUTXOs: chiUTXOs,
@@ -234,9 +234,9 @@ async function handleChain(
     const promises = [];
     let myUtxos = [];
     let j = 0;
-      console.log(keypair)
+    console.log(keypair);
     for (let i = 0; i < eventData.length; i++) {
-      console.log("trying decrypt")
+      console.log("trying decrypt");
       try {
         let myUtxo = Utxo.decrypt(
           keypair,
@@ -244,11 +244,11 @@ async function handleChain(
           eventData[i].args._index
         );
         myUtxo.chainID = getChainID(network);
-        console.log("good decrypt!")
+        console.log("good decrypt!");
         if (
           myUtxo.amount > 0 &&
           toFixedHex(eventData[i].args._commitment) ==
-            toFixedHex(myUtxo.getCommitment(poseidon))
+          toFixedHex(myUtxo.getCommitment(poseidon))
         ) {
           myUtxos.push(myUtxo);
           let myNullifier = toFixedHex(myUtxo.getNullifier(poseidon));
@@ -264,7 +264,7 @@ async function handleChain(
             })
           );
         }
-      } catch (err) {}
+      } catch (err) { }
     }
     await Promise.all(promises);
     resolve(true);
@@ -366,7 +366,9 @@ function loadPrivateBalances() {
     );
   }
 
-  writeUTXOs();
+  if (!isTestnet)
+    writeUTXOs();
+
   fs.writeFile(filename, "", (err) => {
     if (err) console.log(err);
   });
