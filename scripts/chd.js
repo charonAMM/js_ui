@@ -273,6 +273,11 @@ async function handleChain(
 
 async function setData() {
   await setKeypair();
+  if (isTestnet) {
+    if (fs.existsSync("utxos.txt")) {
+      fs.unlinkSync("utxos.txt");
+    }
+  }
   const contents = readFileContents("utxos.txt");
   initialize(contents, isTestnet);
 
