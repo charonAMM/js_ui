@@ -340,6 +340,7 @@ $("#swapButton").on("click", () => {
 
 function showLoadingAnimation() {
   button.disabled = true;
+  button.style.pointerEvents = "none";
   text.style.display = "none";
   loader.style.display = "block";
 }
@@ -347,6 +348,7 @@ function showLoadingAnimation() {
 function enableSwapButton() {
   loader.style.display = "none";
   text.style.display = "inline";
+  button.style.pointerEvents = "";
   button.disabled = false;
 }
 
