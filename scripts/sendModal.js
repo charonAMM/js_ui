@@ -240,12 +240,12 @@ $("#maxButton").on("click", () => {
 });
 
 const networks = {
-  sepolia: { CHD: sepoliaCHD, UTXOs: m.sepoliaUTXOs, Charon: sepoliaCharon },
-  mumbai: { CHD: mumbaiCHD, UTXOs: m.mumbaiUTXOs, Charon: mumbaiCharon },
-  chiado: { CHD: chiadoCHD, UTXOs: m.chiadoUTXOs, Charon: chiadoCharon },
-  gnosis: { CHD: gnosisCHD, UTXOs: m.gnoUTXOs, Charon: gnosisCharon },
-  polygon: { CHD: polygonCHD, UTXOs: m.polUTXOs, Charon: polygonCharon },
-  optimism: { CHD: optimismCHD, UTXOs: m.optUTXOs, Charon: optimismCharon },
+  sepolia: { CHD: sepoliaCHD, UTXOs: m.sepoliaUTXOs, Charon: sepoliaCharon, Wallet: sepoliaWallet },
+  mumbai: { CHD: mumbaiCHD, UTXOs: m.mumbaiUTXOs, Charon: mumbaiCharon, Wallet: mumbaiWallet },
+  chiado: { CHD: chiadoCHD, UTXOs: m.chiadoUTXOs, Charon: chiadoCharon, Wallet: chiadoWallet },
+  gnosis: { CHD: gnosisCHD, UTXOs: m.gnoUTXOs, Charon: gnosisCharon, Wallet: gnosisWallet },
+  polygon: { CHD: polygonCHD, UTXOs: m.polUTXOs, Charon: polygonCharon, Wallet: polygonWallet },
+  optimism: { CHD: optimismCHD, UTXOs: m.optUTXOs, Charon: optimismCharon, Wallet: optimismWallet },
 };
 
 async function send() {
@@ -278,7 +278,7 @@ async function send() {
     );
   } else {
     if (_withdrawal) {
-      _adjTo = 0;
+      _adjTo = networkObject.Wallet.address;
     } else {
       if (_adjTo.length != 130) {
         displayAlertAndEnableButton("Please enter a valid public key");
