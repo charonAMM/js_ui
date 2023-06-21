@@ -228,7 +228,7 @@ async function handleChain(
     let eventFilter = chainCharon.filters.NewCommitment();
     const eventData = await chainCharon.queryFilter(
       eventFilter,
-      chainSet[0],
+      isTestnet ? 0 : chainSet[1],
       "latest"
     );
     const promises = [];
@@ -273,11 +273,6 @@ async function handleChain(
 
 async function setData() {
   await setKeypair();
-  if (isTestnet) {
-    if (fs.existsSync("utxos.txt")) {
-      fs.unlinkSync("utxos.txt");
-    }
-  }
   const contents = readFileContents("utxos.txt");
   initialize(contents, isTestnet);
 
@@ -371,8 +366,7 @@ function loadPrivateBalances() {
     );
   }
 
-  if (!isTestnet)
-    writeUTXOs();
+  writeUTXOs();
 
   fs.writeFile(filename, "", (err) => {
     if (err) console.log(err);
