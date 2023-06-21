@@ -93,6 +93,7 @@ $("#signAndBid").on("click", async () => {
       loader.style.display = "none";
       text.style.display = "inline";
       button.disabled = false;
+      button.style.pointerEvents = "";
     } else {
       window.alert(
         "Bid too low. Please enter a bid higher than the current top bid: " +
@@ -106,11 +107,13 @@ $("#signAndBid").on("click", async () => {
     loader.style.display = "none";
     text.style.display = "inline";
     button.disabled = false;
+    button.style.pointerEvents = "";
   }
 });
 
 function showLoadingAnimation() {
   button.disabled = true;
+  button.style.pointerEvents = "none";
   text.style.display = "none";
   loader.style.display = "block";
 }
