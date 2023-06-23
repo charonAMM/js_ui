@@ -193,9 +193,9 @@ function readFileContents(file) {
 function initialize(contents, isTestnet) {
   if (contents && contents.publicKey == myPubkey) {
     if (isTestnet) {
-      sepSet = [contents.lastBlockSep, contents.psVal];
-      chiSet = [contents.lastBlockChi, contents.pcVal];
-      mumSet = [contents.lastBlockMum, contents.pmVal];
+    //   sepSet = [contents.lastBlockSep, contents.psVal];
+    //   chiSet = [contents.lastBlockChi, contents.pcVal];
+    //   mumSet = [contents.lastBlockMum, contents.pmVal];
     } else {
       polSet = [contents.lastBlockPol, contents.ppVal];
       gnoSet = [contents.lastBlockGno, contents.pgVal];
@@ -228,7 +228,7 @@ async function handleChain(
     let eventFilter = chainCharon.filters.NewCommitment();
     const eventData = await chainCharon.queryFilter(
       eventFilter,
-      isTestnet ? 0 : chainSet[1],
+      chainSet[0],
       "latest"
     );
     const promises = [];
@@ -257,8 +257,6 @@ async function handleChain(
               if (!result) {
                 chainSet[1] = chainSet[1] + parseInt(myUtxos[j].amount);
                 chainUTXOs.push(myUtxos[j]);
-              } else {
-                chainSet[1] = chainSet[1] - parseInt(myUtxos[j].amount);
               }
               j++;
             })
