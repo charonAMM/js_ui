@@ -392,10 +392,6 @@ function displayAlertAndEnableButton(message) {
   enableSendButton();
 }
 
-function enableSendButton() {
-  $("#sendButton").prop("disabled", false);
-}
-
 function getRegistry(_network) {
   if (_network === "chiado") {
     return new ethers.Contract(
@@ -440,10 +436,12 @@ function enableSendButton() {
   loader.style.display = "none";
   text.style.display = "inline";
   button.disabled = false;
+  button.style.pointerEvents = "";
 }
 
 function showLoadingAnimation() {
   button.disabled = true;
+  button.style.pointerEvents = "none";
   text.style.display = "none";
   loader.style.display = "block";
 }

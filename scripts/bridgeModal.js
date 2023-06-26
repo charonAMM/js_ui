@@ -139,6 +139,7 @@ $("#bridgeButton").on("click", () => {
 
 function showLoadingAnimation() {
   button.disabled = true;
+  button.style.pointerEvents = "none";
   text.style.display = "none";
   loader.style.display = "block";
 }
@@ -446,6 +447,7 @@ function enableBridgeButton() {
   loader.style.display = "none";
   text.style.display = "inline";
   button.disabled = false;
+  button.style.pointerEvents = "";
 }
 
 function updateOptionStatus(select1, select2) {

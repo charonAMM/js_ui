@@ -111,7 +111,7 @@ function makeBridgeModal() {
 async function writeUTXOs() {
   try {
     fs.unlinkSync("utxos.txt");
-  } catch {}
+  } catch { }
   const sendVars = {
     sepoliaUTXOs: sepUTXOs,
     chiadoUTXOs: chiUTXOs,
@@ -193,9 +193,9 @@ function readFileContents(file) {
 function initialize(contents, isTestnet) {
   if (contents && contents.publicKey == myPubkey) {
     if (isTestnet) {
-      sepSet = [contents.lastBlockSep, contents.psVal];
-      chiSet = [contents.lastBlockChi, contents.pcVal];
-      mumSet = [contents.lastBlockMum, contents.pmVal];
+    //   sepSet = [contents.lastBlockSep, contents.psVal];
+    //   chiSet = [contents.lastBlockChi, contents.pcVal];
+    //   mumSet = [contents.lastBlockMum, contents.pmVal];
     } else {
       polSet = [contents.lastBlockPol, contents.ppVal];
       gnoSet = [contents.lastBlockGno, contents.pgVal];
@@ -234,9 +234,9 @@ async function handleChain(
     const promises = [];
     let myUtxos = [];
     let j = 0;
-      console.log(keypair)
+    console.log(keypair);
     for (let i = 0; i < eventData.length; i++) {
-      console.log("trying decrypt")
+      console.log("trying decrypt");
       try {
         let myUtxo = Utxo.decrypt(
           keypair,
@@ -244,11 +244,11 @@ async function handleChain(
           eventData[i].args._index
         );
         myUtxo.chainID = getChainID(network);
-        console.log("good decrypt!")
+        console.log("good decrypt!");
         if (
           myUtxo.amount > 0 &&
           toFixedHex(eventData[i].args._commitment) ==
-            toFixedHex(myUtxo.getCommitment(poseidon))
+          toFixedHex(myUtxo.getCommitment(poseidon))
         ) {
           myUtxos.push(myUtxo);
           let myNullifier = toFixedHex(myUtxo.getNullifier(poseidon));
@@ -257,14 +257,12 @@ async function handleChain(
               if (!result) {
                 chainSet[1] = chainSet[1] + parseInt(myUtxos[j].amount);
                 chainUTXOs.push(myUtxos[j]);
-              } else {
-                chainSet[1] = chainSet[1] - parseInt(myUtxos[j].amount);
               }
               j++;
             })
           );
         }
-      } catch (err) {}
+      } catch (err) { }
     }
     await Promise.all(promises);
     resolve(true);
@@ -367,6 +365,7 @@ function loadPrivateBalances() {
   }
 
   writeUTXOs();
+
   fs.writeFile(filename, "", (err) => {
     if (err) console.log(err);
   });
