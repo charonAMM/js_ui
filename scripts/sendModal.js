@@ -294,7 +294,6 @@ async function send() {
     myHashFunc: poseidon,
   });
   await myKeypair.pubkey;
-
   const _to = $("#toAddy").val();
   const _amount = parseFloat($("#toAmount").val());
   const _network = $('input[name="netType"]:checked').val();
@@ -302,12 +301,10 @@ async function send() {
   const _withdrawal = $("#withdrawalCheckbox").prop("checked");
   let _adjTo = _to;
   let _walletAddress = 0;
-
   if (isNaN(_amount) || _amount <= 0) {
     displayAlertAndEnableButton("Please enter a valid amount");
     return;
   }
-
   const networkObject = networks[_network];
   if (_visType == "public") {
     await handlePublicTransactions(
@@ -326,7 +323,6 @@ async function send() {
         return;
       }
     }
-
     await handlePrivateTransactions(
       networkObject,
       _amount,
@@ -350,15 +346,12 @@ async function handlePublicTransactions(
       );
       return;
     }
-
     if (_adjTo.length != 42) {
       displayAlertAndEnableButton("Please enter a valid address");
       return;
     }
-
     const provider = networkObject.Provider;
     const currentGasPrice = await provider.getGasPrice();
-
     const tx = await networkObject.CHD.transfer(
       _to,
       ethers.utils.parseEther(_amount.toString()),
@@ -406,10 +399,8 @@ async function handlePrivateTransactions(
         myHasherFunc: poseidon,
         myHasherFunc2: poseidon2,
       });
-
       const provider = networkObject.Provider;
       const currentGasPrice = await provider.getGasPrice();
-
       const tx = await networkObject.Charon.transact(
         inputData.args,
         inputData.extData,
@@ -421,6 +412,8 @@ async function handlePrivateTransactions(
       const receipt = await tx.wait();
       console.log(receipt);
       if (receipt.status === 1) {
+        newUTXOs = [];
+        changeUtxos = [];
         console.log("Transaction was successful");
         window.alert(
           `Transaction was successful! \nNetwork: ${_network} \nTransaction Hash: ${tx.hash}`
