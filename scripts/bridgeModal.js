@@ -273,6 +273,7 @@ async function bridge() {
     myHashFunc: poseidon,
   });
   const _charon = getCharon(_fromNetwork);
+  const _targetCharon = getCharon(_toNetwork);
   const _targetChainID = getChainID(_toNetwork);
   const _isChd = _token === "CHD";
   if (!(await checkBalance(_fromNetwork, _depositAmount, _isChd))) return;
@@ -307,14 +308,14 @@ async function bridge() {
           0
         );
     const provider = getProvider(_fromNetwork);
-    let currentGasPrice = await provider.getGasPrice();
+    const currentGasPrice = await provider.getGasPrice();
     await _approveToken.approve(_charon.address, approveAmount, {
       gasLimit,
       gasPrice: currentGasPrice,
     });
 
     prepareTransaction({
-      charon: _charon,
+      charon: _targetCharon,
       inputs: [],
       outputs: [_utxo],
       privateChainID: _targetChainID,
