@@ -193,9 +193,9 @@ function readFileContents(file) {
 function initialize(contents, isTestnet) {
   if (contents && contents.publicKey == myPubkey) {
     if (isTestnet) {
-      //   sepSet = [contents.lastBlockSep, contents.psVal];
-      //   chiSet = [contents.lastBlockChi, contents.pcVal];
-      //   mumSet = [contents.lastBlockMum, contents.pmVal];
+      // sepSet = [contents.lastBlockSep, contents.psVal];
+      // chiSet = [contents.lastBlockChi, contents.pcVal];
+      // mumSet = [contents.lastBlockMum, contents.pmVal];
     } else {
       polSet = [contents.lastBlockPol, contents.ppVal];
       gnoSet = [contents.lastBlockGno, contents.pgVal];

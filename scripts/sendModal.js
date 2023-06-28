@@ -388,8 +388,8 @@ async function handlePrivateTransactions(
     //ADD checkbox if withdraw, add MAX button to autofill balance
     //get amount and address (can we just use an address?  Test
     //that that person can then do something with it, if not, you need a registry?)
-    await prepareSend(networkObject.UTXOs, getChainID(_network))
-    if (newUTXOs.length > 0 || changeUtxos > 0) {
+    await prepareSend(networkObject.UTXOs, getChainID(_network));
+    if (newUTXOs.length > 0 || changeUtxos.length > 0) {
       const inputData = await prepareTransaction({
         charon: networkObject.Charon,
         inputs: newUTXOs,
@@ -412,8 +412,6 @@ async function handlePrivateTransactions(
       const receipt = await tx.wait();
       console.log(receipt);
       if (receipt.status === 1) {
-        newUTXOs = [];
-        changeUtxos = [];
         console.log("Transaction was successful");
         window.alert(
           `Transaction was successful! \nNetwork: ${_network} \nTransaction Hash: ${tx.hash}`
@@ -425,6 +423,8 @@ async function handlePrivateTransactions(
       enableSendButton();
     } else {
       displayAlertAndEnableButton("Transaction not possible: not enough UTXOs");
+      newUTXOs = [];
+      changeUtxos = [];
       return;
     }
   } catch (err) {
@@ -495,9 +495,9 @@ function getChain(_id) {
   switch (_id) {
     case 5:
       return "sepolia";
-    case 10200:
-      return "mumbai";
     case 80001:
+      return "mumbai";
+    case 10200:
       return "chiado";
     case 100:
       return "gnosis chain";
@@ -512,9 +512,9 @@ function getPrivateBalance(_id) {
   switch (_id) {
     case 5:
       return psVal;
-    case 10200:
-      return pmVal;
     case 80001:
+      return pmVal;
+    case 10200:
       return pcVal;
     case 100:
       return pgVal;
@@ -529,9 +529,9 @@ function getPublicBalance(_id) {
   switch (_id) {
     case 5:
       return sVal;
-    case 10200:
-      return mVal;
     case 80001:
+      return mVal;
+    case 10200:
       return cVal;
     case 100:
       return gVal;
