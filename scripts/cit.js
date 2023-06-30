@@ -109,7 +109,8 @@ async function setPublicBalances() {
       isTestnet ? sepoliaWallet.address : gnosisWallet.address
     ).then((result) => (citBal = result));
   } catch (e) {
-    window.alert(e.message);
+    window.alert("Failed to load balances, please try again.");
+    console.log(e);
   }
 
   return new Promise((resolve) => {
@@ -228,7 +229,8 @@ function setRewards() {
       feeCheck.getFeePeriods().then((result) => setFeesPaid(result, index + 1));
     });
   } catch (e) {
-    window.alert(e.message);
+    window.alert("Failed to load rewards, please try again.");
+    console.log(e);
   }
 
   return new Promise((resolve) => {

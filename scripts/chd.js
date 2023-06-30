@@ -301,7 +301,8 @@ async function setData() {
       optSet[0] = await optimismProvider.getBlockNumber();
     }
   } catch (err) {
-    window.alert(err);
+    window.alert("Failed to load data, please try again.");
+    console.error(err);
   }
 
   $("#send").removeAttr("disabled");
