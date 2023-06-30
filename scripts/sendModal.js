@@ -421,11 +421,6 @@ async function handlePrivateTransactions(
         window.alert(`Transaction failed! \nPlease check your transaction.`);
       }
       enableSendButton();
-    } else {
-      displayAlertAndEnableButton("Transaction not possible: not enough UTXOs");
-      newUTXOs = [];
-      changeUtxos = [];
-      return;
     }
   } catch (err) {
     console.log(err);
