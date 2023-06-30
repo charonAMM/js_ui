@@ -374,7 +374,7 @@ async function handlePublicTransactions(
     enableSendButton();
   } catch (err) {
     console.log(err);
-    displayAlertAndEnableButton(err.message);
+    displayAlertAndEnableButton("Transaction failed, check console for details.");
   }
 }
 
@@ -429,7 +429,7 @@ async function handlePrivateTransactions(
     }
   } catch (err) {
     console.log(err);
-    displayAlertAndEnableButton(err.message);
+    displayAlertAndEnableButton("Transaction failed, check console for details.");
   }
 }
 
