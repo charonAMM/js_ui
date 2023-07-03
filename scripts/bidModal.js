@@ -102,7 +102,7 @@ $("#signAndBid").on("click", async () => {
       );
     }
   } catch (error) {
-    window.alert("Error: " + error.message);
+    window.alert("Transaction failed, check console for more details.");
     console.log(error);
     loader.style.display = "none";
     text.style.display = "inline";

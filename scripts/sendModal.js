@@ -11,6 +11,7 @@ let m, myKeypair, builtPoseidon;
 const {
   abi: regABI,
 } = require("../artifacts/contracts/Registry.sol/Registry.json");
+const gasLimit = 3000000;
 const {
   sepoliaCHD,
   sepoliaCharon,
@@ -32,6 +33,12 @@ const {
   gnosisWallet,
   polygonWallet,
   optimismWallet,
+  sepoliaProvider,
+  mumbaiProvider,
+  chiadoProvider,
+  gnosisProvider,
+  polygonProvider,
+  optimismProvider,
 } = require("../src/providers");
 const button = document.getElementById("signAndSend");
 const text = document.getElementById("sendText");
@@ -83,15 +90,21 @@ $("input[type=radio][name=option]").on("change", function () {
     $("#withdrawalDiv").show();
   } else {
     $("#withdrawalDiv").hide();
+    $("#toAddy").prop("disabled", false);
+    $("#toAddy").css({ "background-color": "" });
+    $("#withdrawalCheckbox").prop("checked", false);
   }
 });
 
 $("#withdrawalCheckbox").on("change", function () {
   if ($(this).is(":checked")) {
     $("#toAddy").prop("disabled", true);
-    $("#toAddy").val("");
+    $("#toAddy").css({
+      "background-color": "#abababfc",
+    });
   } else {
     $("#toAddy").prop("disabled", false);
+    $("#toAddy").css({ "background-color": "" });
   }
 });
 
@@ -113,9 +126,9 @@ function getChainID(chain) {
     case "sepolia":
       return 5;
     case "mumbai":
-      return 10200;
-    case "chiado":
       return 80001;
+    case "chiado":
+      return 10200;
     case "gnosis":
       return 100;
     case "polygon":
@@ -195,15 +208,6 @@ async function prepareSend(_cUTXOs, _chain) {
   }
 }
 
-const networkButtons = document.querySelectorAll('input[type="radio"]');
-const toAmountInput = document.querySelector("#toAmount");
-
-networkButtons.forEach((networkButton) => {
-  networkButton.addEventListener("change", () => {
-    toAmountInput.value = "";
-  });
-});
-
 $("#maxButton").on("click", () => {
   let amountInput = document.querySelector("#toAmount");
   const _network = $('input[name="netType"]:checked').val();
@@ -240,12 +244,48 @@ $("#maxButton").on("click", () => {
 });
 
 const networks = {
-  sepolia: { CHD: sepoliaCHD, UTXOs: m.sepoliaUTXOs, Charon: sepoliaCharon, Wallet: sepoliaWallet },
-  mumbai: { CHD: mumbaiCHD, UTXOs: m.mumbaiUTXOs, Charon: mumbaiCharon, Wallet: mumbaiWallet },
-  chiado: { CHD: chiadoCHD, UTXOs: m.chiadoUTXOs, Charon: chiadoCharon, Wallet: chiadoWallet },
-  gnosis: { CHD: gnosisCHD, UTXOs: m.gnoUTXOs, Charon: gnosisCharon, Wallet: gnosisWallet },
-  polygon: { CHD: polygonCHD, UTXOs: m.polUTXOs, Charon: polygonCharon, Wallet: polygonWallet },
-  optimism: { CHD: optimismCHD, UTXOs: m.optUTXOs, Charon: optimismCharon, Wallet: optimismWallet },
+  sepolia: {
+    CHD: sepoliaCHD,
+    UTXOs: m.sepoliaUTXOs,
+    Charon: sepoliaCharon,
+    Wallet: sepoliaWallet,
+    Provider: sepoliaProvider,
+  },
+  mumbai: {
+    CHD: mumbaiCHD,
+    UTXOs: m.mumbaiUTXOs,
+    Charon: mumbaiCharon,
+    Wallet: mumbaiWallet,
+    Provider: mumbaiProvider,
+  },
+  chiado: {
+    CHD: chiadoCHD,
+    UTXOs: m.chiadoUTXOs,
+    Charon: chiadoCharon,
+    Wallet: chiadoWallet,
+    Provider: chiadoProvider,
+  },
+  gnosis: {
+    CHD: gnosisCHD,
+    UTXOs: m.gnoUTXOs,
+    Charon: gnosisCharon,
+    Wallet: gnosisWallet,
+    Provider: gnosisProvider,
+  },
+  polygon: {
+    CHD: polygonCHD,
+    UTXOs: m.polUTXOs,
+    Charon: polygonCharon,
+    Wallet: polygonWallet,
+    Provider: polygonProvider,
+  },
+  optimism: {
+    CHD: optimismCHD,
+    UTXOs: m.optUTXOs,
+    Charon: optimismCharon,
+    Wallet: optimismWallet,
+    Provider: optimismProvider,
+  },
 };
 
 async function send() {
@@ -254,19 +294,17 @@ async function send() {
     myHashFunc: poseidon,
   });
   await myKeypair.pubkey;
-
   const _to = $("#toAddy").val();
   const _amount = parseFloat($("#toAmount").val());
   const _network = $('input[name="netType"]:checked').val();
   const _visType = $('input[name="option"]:checked').val();
   const _withdrawal = $("#withdrawalCheckbox").prop("checked");
   let _adjTo = _to;
-
+  let _walletAddress = 0;
   if (isNaN(_amount) || _amount <= 0) {
     displayAlertAndEnableButton("Please enter a valid amount");
     return;
   }
-
   const networkObject = networks[_network];
   if (_visType == "public") {
     await handlePublicTransactions(
@@ -278,20 +316,18 @@ async function send() {
     );
   } else {
     if (_withdrawal) {
-      _adjTo = networkObject.Wallet.address;
+      _walletAddress = networkObject.Wallet.address;
     } else {
       if (_adjTo.length != 130) {
-        displayAlertAndEnableButton("Please enter a valid public key");
+        displayAlertAndEnableButton("Please enter a valid charon public key");
         return;
       }
     }
-
     await handlePrivateTransactions(
       networkObject,
-      _to,
       _amount,
       _network,
-      _adjTo
+      _walletAddress
     );
   }
 }
@@ -310,15 +346,19 @@ async function handlePublicTransactions(
       );
       return;
     }
-
     if (_adjTo.length != 42) {
       displayAlertAndEnableButton("Please enter a valid address");
       return;
     }
-
+    const provider = networkObject.Provider;
+    const currentGasPrice = await provider.getGasPrice();
     const tx = await networkObject.CHD.transfer(
       _to,
-      ethers.utils.parseEther(_amount.toString())
+      ethers.utils.parseEther(_amount.toString()),
+      {
+        gasLimit,
+        gasPrice: currentGasPrice,
+      }
     );
     const receipt = await tx.wait();
     console.log(receipt);
@@ -334,36 +374,40 @@ async function handlePublicTransactions(
     enableSendButton();
   } catch (err) {
     console.log(err);
-    displayAlertAndEnableButton(err.message);
+    displayAlertAndEnableButton("Transaction failed, check console for details.");
   }
 }
 
 async function handlePrivateTransactions(
   networkObject,
-  _to,
   _amount,
   _network,
-  _adjTo
+  _walletAddress
 ) {
   try {
     //ADD checkbox if withdraw, add MAX button to autofill balance
-    //get amount and address (can we just use an address?  Test 
+    //get amount and address (can we just use an address?  Test
     //that that person can then do something with it, if not, you need a registry?)
     await prepareSend(networkObject.UTXOs, getChainID(_network));
-    if (newUTXOs.length > 0 || changeUtxos > 0) {
+    if (newUTXOs.length > 0 || changeUtxos.length > 0) {
       const inputData = await prepareTransaction({
         charon: networkObject.Charon,
         inputs: newUTXOs,
         outputs: changeUtxos,
-        recipient: _adjTo,
+        recipient: _walletAddress,
         privateChainID: getChainID(_network),
         myHasherFunc: poseidon,
         myHasherFunc2: poseidon2,
       });
-
+      const provider = networkObject.Provider;
+      const currentGasPrice = await provider.getGasPrice();
       const tx = await networkObject.Charon.transact(
         inputData.args,
-        inputData.extData
+        inputData.extData,
+        {
+          gasLimit,
+          gasPrice: currentGasPrice,
+        }
       );
       const receipt = await tx.wait();
       console.log(receipt);
@@ -377,13 +421,10 @@ async function handlePrivateTransactions(
         window.alert(`Transaction failed! \nPlease check your transaction.`);
       }
       enableSendButton();
-    } else {
-      displayAlertAndEnableButton("Transaction not possible: not enough UTXOs");
-      return;
     }
   } catch (err) {
     console.log(err);
-    displayAlertAndEnableButton(err.message);
+    displayAlertAndEnableButton("Transaction failed, check console for details.");
   }
 }
 
@@ -449,9 +490,9 @@ function getChain(_id) {
   switch (_id) {
     case 5:
       return "sepolia";
-    case 10200:
-      return "mumbai";
     case 80001:
+      return "mumbai";
+    case 10200:
       return "chiado";
     case 100:
       return "gnosis chain";
@@ -466,9 +507,9 @@ function getPrivateBalance(_id) {
   switch (_id) {
     case 5:
       return psVal;
-    case 10200:
-      return pmVal;
     case 80001:
+      return pmVal;
+    case 10200:
       return pcVal;
     case 100:
       return pgVal;
@@ -483,9 +524,9 @@ function getPublicBalance(_id) {
   switch (_id) {
     case 5:
       return sVal;
-    case 10200:
-      return mVal;
     case 80001:
+      return mVal;
+    case 10200:
       return cVal;
     case 100:
       return gVal;

@@ -111,7 +111,7 @@ function makeBridgeModal() {
 async function writeUTXOs() {
   try {
     fs.unlinkSync("utxos.txt");
-  } catch { }
+  } catch {}
   const sendVars = {
     sepoliaUTXOs: sepUTXOs,
     chiadoUTXOs: chiUTXOs,
@@ -193,9 +193,9 @@ function readFileContents(file) {
 function initialize(contents, isTestnet) {
   if (contents && contents.publicKey == myPubkey) {
     if (isTestnet) {
-    //   sepSet = [contents.lastBlockSep, contents.psVal];
-    //   chiSet = [contents.lastBlockChi, contents.pcVal];
-    //   mumSet = [contents.lastBlockMum, contents.pmVal];
+      // sepSet = [contents.lastBlockSep, contents.psVal];
+      // chiSet = [contents.lastBlockChi, contents.pcVal];
+      // mumSet = [contents.lastBlockMum, contents.pmVal];
     } else {
       polSet = [contents.lastBlockPol, contents.ppVal];
       gnoSet = [contents.lastBlockGno, contents.pgVal];
@@ -231,40 +231,43 @@ async function handleChain(
       chainSet[0],
       "latest"
     );
-    const promises = [];
     let myUtxos = [];
     let j = 0;
-    console.log(keypair);
-    for (let i = 0; i < eventData.length; i++) {
-      console.log("trying decrypt");
+    for (let event of eventData) {
       try {
         let myUtxo = Utxo.decrypt(
           keypair,
-          eventData[i].args._encryptedOutput,
-          eventData[i].args._index
+          event.args._encryptedOutput,
+          event.args._index
         );
         myUtxo.chainID = getChainID(network);
-        console.log("good decrypt!");
         if (
           myUtxo.amount > 0 &&
-          toFixedHex(eventData[i].args._commitment) ==
-          toFixedHex(myUtxo.getCommitment(poseidon))
+          toFixedHex(event.args._commitment) ==
+            toFixedHex(myUtxo.getCommitment(poseidon))
         ) {
           myUtxos.push(myUtxo);
           let myNullifier = toFixedHex(myUtxo.getNullifier(poseidon));
-          promises.push(
-            chainCharon.isSpent(myNullifier).then(function (result) {
+          // Retry logic
+          let retries = 5;
+          while (retries--) {
+            try {
+              const result = await chainCharon.isSpent(myNullifier);
               if (!result) {
                 chainSet[1] = chainSet[1] + parseInt(myUtxos[j].amount);
                 chainUTXOs.push(myUtxos[j]);
               }
-              j++;
-            })
-          );
+              break;
+            } catch (err) {
+              if (retries == 0) throw err;
+            }
+          }
+          j++;
         }
-      } catch (err) { }
+      } catch (err) {
+        // console.error("An error occurred:", err);
+      }
     }
-    await Promise.all(promises);
     resolve(true);
   });
 }
@@ -298,7 +301,8 @@ async function setData() {
       optSet[0] = await optimismProvider.getBlockNumber();
     }
   } catch (err) {
-    window.alert(err);
+    window.alert("Failed to load data, please try again.");
+    console.error(err);
   }
 
   $("#send").removeAttr("disabled");

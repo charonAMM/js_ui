@@ -221,6 +221,7 @@ async function checkIsRegistered() {
       }
     });
   } catch (err) {
+    window.alert("Failed to check if address is registered, please try again.");
     registerButton.textContent = "submit";
     registerButton.classList.remove("d-none");
     registerButton.disabled = false;

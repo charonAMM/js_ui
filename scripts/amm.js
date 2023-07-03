@@ -237,7 +237,7 @@ async function swap() {
       );
     }
   } catch (err) {
-    window.alert(err.message);
+    window.alert("Transaction failed, check console for details");
     console.log(err);
     enableSwapButton();
   }
@@ -293,7 +293,7 @@ async function swapToken(
     enableSwapButton();
   } catch (err) {
     window.alert(
-      `An error occurred while processing your transaction: ${err.message}`
+      "Transaction failed, check console for details."
     );
     console.log(err);
     enableSwapButton();

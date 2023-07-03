@@ -81,7 +81,7 @@ async function setPublicBalances() {
       $("#bid").removeAttr("disabled");
     }
   } catch (error) {
-    window.alert(error.message);
+    window.alert("Failed to load auction data, please try again.");
     $("#timeLeft").text("n/a");
     $("#topBid").text("n/a");
     $("#topBidder").text("n/a");
