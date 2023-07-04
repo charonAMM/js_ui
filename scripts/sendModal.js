@@ -124,7 +124,7 @@ function readUTXOs() {
 function getChainID(chain) {
   switch (chain) {
     case "sepolia":
-      return 5;
+      return 11155111;
     case "mumbai":
       return 80001;
     case "chiado":
@@ -488,7 +488,7 @@ function showLoadingAnimation() {
 }
 function getChain(_id) {
   switch (_id) {
-    case 5:
+    case 11155111:
       return "sepolia";
     case 80001:
       return "mumbai";
@@ -505,7 +505,7 @@ function getChain(_id) {
 
 function getPrivateBalance(_id) {
   switch (_id) {
-    case 5:
+    case 11155111:
       return psVal;
     case 80001:
       return pmVal;
@@ -522,7 +522,7 @@ function getPrivateBalance(_id) {
 
 function getPublicBalance(_id) {
   switch (_id) {
-    case 5:
+    case 11155111:
       return sVal;
     case 80001:
       return mVal;
