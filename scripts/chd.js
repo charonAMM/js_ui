@@ -315,7 +315,7 @@ async function setData() {
 function getChainID(chain) {
   switch (chain) {
     case "sepolia":
-      return 5;
+      return 11155111;
     case "chiado":
       return 10200;
     case "mumbai":
