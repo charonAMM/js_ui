@@ -47,6 +47,13 @@ const button = document.getElementById("swapButton");
 const text = document.getElementById("swapText");
 const loader = document.getElementById("swapLoader");
 const toAmountCurrency = document.getElementById("to-currency");
+const arrowImg = document.querySelector(".card-arrow img");
+const maxButton = document.getElementById("max-button");
+const fromAmountBox = document.getElementById("from-amount");
+let handleSwitch, handleMax;
+arrowImg.removeEventListener("click", handleSwitch);
+maxButton.removeEventListener("click", handleMax);
+fromAmountBox.removeEventListener("input", calculateConversion);
 
 const walletsConfig = [
   {
@@ -112,8 +119,8 @@ async function setPublicBalances() {
     } catch (e) {
       window.alert(
         "could not get balance for " +
-        wallet +
-        ", please check your .env file configuration"
+          wallet +
+          ", please check your .env file configuration"
       );
       $(`#${label}Row`).text(wallet);
       $(`#${label}Base`).text("n/a");
@@ -125,7 +132,10 @@ async function setPublicBalances() {
 }
 
 function loadAndDisplay() {
-  setPublicBalances();
+  setPublicBalances().then(() => {
+    maxButton.addEventListener("click", handleMax);
+  });
+
   prepareSwitchButtonClick();
 }
 
@@ -292,16 +302,13 @@ async function swapToken(
     }
     enableSwapButton();
   } catch (err) {
-    window.alert(
-      "Transaction failed, check console for details."
-    );
+    window.alert("Transaction failed, check console for details.");
     console.log(err);
     enableSwapButton();
   }
 }
 
-const maxButton = document.getElementById("max-button");
-maxButton.addEventListener("click", async () => {
+handleMax = () => {
   const fromAmountBox = document.getElementById("from-amount");
   const fromCurrencyDropdown = document.getElementById("from-currency");
   const fromCurrency = fromCurrencyDropdown.value;
@@ -327,7 +334,7 @@ maxButton.addEventListener("click", async () => {
     }
   }
   calculateConversion();
-});
+};
 
 $("#swapButton").on("click", () => {
   if (fromAmountBox.value == 0 || isNaN(fromAmountBox.value)) {
@@ -352,7 +359,6 @@ function enableSwapButton() {
   button.disabled = false;
 }
 
-const fromAmountBox = document.getElementById("from-amount");
 fromAmountBox.addEventListener("input", calculateConversion);
 
 async function calculateConversionDetails(
@@ -363,32 +369,32 @@ async function calculateConversionDetails(
 ) {
   const spotPrice = isSynthIn
     ? await charon.calcSpotPrice(
-      await charon.recordBalance(),
-      await charon.recordBalanceSynth(),
-      0
-    )
+        await charon.recordBalance(),
+        await charon.recordBalanceSynth(),
+        0
+      )
     : await charon.calcSpotPrice(
-      await charon.recordBalanceSynth(),
-      await charon.recordBalance(),
-      0
-    );
+        await charon.recordBalanceSynth(),
+        await charon.recordBalance(),
+        0
+      );
   const expectedOut = spotPrice * inputValue;
   const exitFee = inputValue * ethers.utils.formatEther(await charon.fee());
   const adjustedIn = inputValue - exitFee;
   const minAmountOut = isSynthIn
     ? await charon.calcSingleOutGivenIn(
-      await charon.recordBalance(),
-      await charon.recordBalanceSynth(),
-      ethers.utils.parseEther(adjustedIn.toFixed(18).toString()),
-      0,
-      false
-    )
+        await charon.recordBalance(),
+        await charon.recordBalanceSynth(),
+        ethers.utils.parseEther(adjustedIn.toFixed(18).toString()),
+        0,
+        false
+      )
     : await charon.calcOutGivenIn(
-      await charon.recordBalance(),
-      await charon.recordBalanceSynth(),
-      ethers.utils.parseEther(adjustedIn.toFixed(18).toString()),
-      0
-    );
+        await charon.recordBalance(),
+        await charon.recordBalanceSynth(),
+        ethers.utils.parseEther(adjustedIn.toFixed(18).toString()),
+        0
+      );
   const slippage = (minAmountOut - expectedOut) / expectedOut;
   try {
     const feeData = await provider.getFeeData();
@@ -513,13 +519,12 @@ async function calculateConversion() {
 function prepareSwitchButtonClick() {
   const fromAmountInput = document.getElementById("from-amount");
   const toAmountInput = document.getElementById("to-amount");
-  const arrowImg = document.querySelector(".card-arrow img");
   const fromCurrencyDropdown = document.getElementById("from-currency");
   const toCurrencyDropdown = document.getElementById("to-currency");
   const fromCurrencyStyle = fromCurrencyDropdown.style;
   const toCurrencyStyle = toCurrencyDropdown.style;
   let temp, selectedIndex, toCurrencyOptions;
-  arrowImg.addEventListener("click", () => {
+  handleSwitch = () => {
     if (toAmountInput.value === "...") return;
     if (fromCurrencyDropdown.value == "chd") {
       temp = fromAmountInput.value;
@@ -554,7 +559,8 @@ function prepareSwitchButtonClick() {
       fromCurrencyDropdown.disabled = true;
     }
     calculateConversion();
-  });
+  };
+  arrowImg.addEventListener("click", handleSwitch);
 }
 
 async function fetchCryptoPrice(fromCurrency) {
